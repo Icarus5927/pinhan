@@ -1,27 +1,120 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Vue from "vue";
+import VueRouter from "vue-router";
+// import { component } from "vue/types/umd";
+import Login from "../views/Login.vue";
+import Main from "../views/Main";
+// import Welcome from "../views/Welcome.vue";
+import Student from "../views/user/Student.vue";
+import StudentF from "../views/finance/Student.vue";
+import StaffF from "../views/finance/Staff.vue";
+import TeacherF from "../views/finance/Teacher.vue";
+import Teacher from "../views/user/Teacher.vue";
+import Income from "../views/finance/Income.vue";
+import Expenditure from "../views/finance/Expenditure.vue";
+// import Rights from "../views/power/Rights";
+import Roles from "../views/power/Roles";
+import Password from "../views/power/Password";
+import Staff from "../views/user/Staff";
+// import Course from "../views/course/Course.vue";
+import Arrangement from "../views/course/Course-arrangement.vue";
+import Course from "../views/course/Course"
+import StudentC from "../views/checking-in/Student.vue";
+import TeacherC from "../views/checking-in/Teacher.vue";
+import StaffC from "../views/checking-in/Staff.vue";
+// import add from "../components/AddTeacher.vue";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
+    path: "/",
+    redirect: "/login"
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: "/login",
+    name: "Login",
+    component: Login
+  },
+  {
+    path: "/main",
+    name: "Main",
+    component: Main,
+    redirect: "/student",
+    children: [
+      {
+        path: "/income",
+        component: Income
+      },
+      {
+        path: "/expenditure",
+        component: Expenditure
+      },
+      {
+        path: "/student",
+        component: Student
+      },
+      {
+        path: "/student_checking-in",
+        component: StudentC
+      },
+      {
+        path: "/student_finance",
+        component: StudentF
+      },
+      {
+        path: "/teacher_finance",
+        component: TeacherF
+      },
+      {
+        path: "/teacher_checking-in",
+        component: TeacherC
+      },
+      {
+        path: "/staff_checking-in",
+        component: StaffC
+      },
+      {
+        path: "/staff_finance",
+        component: StaffF
+      },
+      {
+        path: "/teacher",
+        component: Teacher
+      },
+      {
+        path: "/staff",
+        component: Staff
+      },
+      {
+        path: "/arrangement",
+        component: Arrangement
+      },
+      {
+        path: "/course",
+        component: Course
+      },
+      {
+        path: "/roles",
+        component: Roles
+      },
+      {
+        path: "/password",
+        component: Password
+      }
+    ]
   }
-]
+];
 
 const router = new VueRouter({
-  routes
-})
+  routes,
+  // 将路由模式改为history
+  mode: 'history'
+});
+// router.beforeEach((to, from, next) => {
+//   if (to.path === "/login") return next();
+//   const token = window.sessionStorage.getItem("token");
+//   if (!token) return next("/login");
+//   next();
+// });
 
-export default router
+export default router;

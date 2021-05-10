@@ -1,0 +1,76 @@
+import Vue from "vue";
+import {
+  Button,
+  Form,
+  FormItem,
+  Input,
+  Message,
+  Container,
+  Main,
+  Header,
+  Aside,
+  Menu,
+  Submenu,
+  MenuItemGroup,
+  MenuItem,
+  Breadcrumb,
+  BreadcrumbItem,
+  Card,
+  Table,
+  TableColumn,
+  Pagination,
+  Dialog,
+  Col,
+  Row,
+  Upload,
+  Radio,
+  RadioGroup,
+  Footer,
+  Tabs,
+  TabPane,
+  MessageBox,
+  DatePicker,
+  Checkbox,
+  Tree,
+  Option,
+  Select,
+  Tag,
+  Switch
+} from "element-ui";
+
+Vue.use(Button)
+  .use(Form)
+  .use(FormItem)
+  .use(Container)
+  .use(Main)
+  .use(Header)
+  .use(Aside)
+  .use(Input)
+  .use(Menu)
+  .use(Submenu)
+  .use(MenuItemGroup)
+  .use(MenuItem)
+  .use(Breadcrumb)
+  .use(Card)
+  .use(Table)
+  .use(TableColumn)
+  .use(BreadcrumbItem)
+  .use(Pagination)
+  .use(Dialog)
+  .use(Col)
+  .use(Row)
+  .use(Upload)
+  .use(Radio)
+  .use(RadioGroup)
+  .use(Footer)
+  .use(Tabs)
+  .use(TabPane)
+  .use(DatePicker)
+  .use(Checkbox)
+  .use(Tree)
+  .use(Option)
+  .use(Select)
+  .use(Tag)
+  .use(Switch);
+Vue.prototype.$message = Message;
+Vue.prototype.$confirm = MessageBox.confirm;
