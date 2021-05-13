@@ -177,8 +177,8 @@ export default {
       // 获取用户参数列表对象
       queryInfo: {
         name: '',
-        pagenumber: 1,
-        pagesize: 10
+        pageNumber: 1,
+        pageSize: 10
       },
       // 当前选中的课程类型
       activeName: '晚辅',
@@ -341,7 +341,7 @@ export default {
     },
     // 分页获取页码
     handleCurrentChange(e) {
-      this.queryInfo.pagenumber = e
+      this.queryInfo.pageNumber = e
       this.getUserList(this.activeName)
     },
     // 确定提交

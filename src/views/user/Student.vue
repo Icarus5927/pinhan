@@ -109,7 +109,7 @@
                   </el-col>
                 </el-row>
 
-                <el-row >
+                <el-row>
                   <el-col>
                     <el-form-item label="来源" prop="origin">
                       <el-radio-group v-model="form.origin">
@@ -169,13 +169,12 @@
         </el-form>
       </div>
     </el-dialog>
-    <!-- <el-dialog title="修改学生" :visible.sync="editdialogVisible" width="64%" :show-close="false">
-        <student @onupload="onupload" @onclose="onclose"></student>
-    </el-dialog> -->
   </div>
 </template>
 <script>
 // import Student from "../../components/Student"
+import { handleAlert, handleConfirm } from '../../utils/confirm';
+
 export default {
   name: 'studentInfo',
   data() {
@@ -198,43 +197,43 @@ export default {
           result: [
             {
               name: '语文',
-              score: ''
+              score: '/'
             },
             {
               name: '数学',
-              score: ''
+              score: '/'
             },
             {
               name: '英语',
-              score: ''
+              score: '/'
             },
             {
               name: '物理',
-              score: ''
+              score: '/'
             },
             {
               name: '化学',
-              score: ''
+              score: '/'
             },
             {
               name: '历史',
-              score: ''
+              score: '/'
             },
             {
               name: '地理',
-              score: ''
+              score: '/'
             },
             {
               name: '生物',
-              score: ''
+              score: '/'
             },
             {
               name: '道法',
-              score: ''
+              score: '/'
             },
             {
               name: '微机',
-              score: ''
+              score: '/'
             }
           ]
         }
@@ -303,11 +302,11 @@ export default {
       // 表具体数据
       list: [
         {
-          work_id: 'ddd',
-          name: 'fff',
+          work_id: '2222001',
+          name: '小明',
           gender: '男',
-          grade: '1',
-          school: 'peking university',
+          grade: '初三',
+          school: '十三中',
           contact: '110',
           address: 'dddd',
           origin: '其他',
@@ -405,30 +404,15 @@ export default {
       this.title = '修改用户'
       this.dialogVisible = true
       this.form = data
-      // console.log(id)
     },
     removeuserByid() {
-      const res = this.$confirm(
-        '此操作将永久删除该用户, 是否继续?',
-        '提示',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
+      const res = handleConfirm('此操作将永久删除该用户, 是否继续?', 'warning', '提示')
         .then(() => {
           // 调用接口完成删除用户操作
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
+          handleAlert()
         })
         .catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          })
+          handleAlert('已取消操作', 'info')
         })
       console.log(res)
     },
@@ -449,57 +433,57 @@ export default {
     // form中的数据重设
     onreset() {
       const form = {
-        work_id: '/',
-        name: '/',
-        gender: '/',
-        grade: '/',
-        school: '/',
-        contact: '/',
-        address: '/',
-        origin: '/',
+        work_id: '',
+        name: '',
+        gender: '',
+        grade: '',
+        school: '',
+        contact: '',
+        address: '',
+        origin: '',
         img: require('../../assets/bg.png'),
         score: {
           date: '',
           result: [
             {
               name: '语文',
-              score: ''
+              score: '/'
             },
             {
               name: '数学',
-              score: ''
+              score: '/'
             },
             {
               name: '英语',
-              score: ''
+              score: '/'
             },
             {
               name: '物理',
-              score: ''
+              score: '/'
             },
             {
               name: '化学',
-              score: ''
+              score: '/'
             },
             {
               name: '历史',
-              score: ''
+              score: '/'
             },
             {
               name: '地理',
-              score: ''
+              score: '/'
             },
             {
               name: '生物',
-              score: ''
+              score: '/'
             },
             {
               name: '道法',
-              score: ''
+              score: '/'
             },
             {
               name: '微机',
-              score: ''
+              score: '/'
             }
           ]
         }

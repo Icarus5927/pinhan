@@ -1,4 +1,4 @@
-import Vue from "vue";
+import Vue from 'vue';
 import {
   Button,
   Form,
@@ -35,8 +35,12 @@ import {
   Option,
   Select,
   Tag,
-  Switch
-} from "element-ui";
+  Switch,
+  Image,
+  Icon,
+  InputNumber,
+  TimeSelect
+} from 'element-ui';
 
 Vue.use(Button)
   .use(Form)
@@ -71,6 +75,10 @@ Vue.use(Button)
   .use(Option)
   .use(Select)
   .use(Tag)
-  .use(Switch);
+  .use(Switch)
+  .use(Image)
+  .use(Icon)
+  .use(InputNumber)
+  .use(TimeSelect)
 Vue.prototype.$message = Message;
 Vue.prototype.$confirm = MessageBox.confirm;

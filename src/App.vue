@@ -46,6 +46,11 @@ export default {
 .el-table td {
     padding: 0 !important;
 }
+// 表格对齐
+body .el-table th.gutter{
+  display: table-cell!important;
+}
+
 .el-table .cell {
     padding: 0 !important;
 }

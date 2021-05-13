@@ -37,7 +37,7 @@
                     </el-table>
                 </el-tabs>
                 <el-footer>
-                    <div class="balance-count"><span>合计：{{  }}</span></div>
+                    <div class="balance-count"><span>合计：{{ totalSalary }}</span></div>
                 </el-footer>
                 <!-- 分页区 -->
                 <el-pagination background layout="total,prev, pager, next" :total="total" @current-change="handleCurrentChange">
@@ -123,142 +123,154 @@
 import { handleAlert, handleConfirm } from '../../utils/confirm';
 
 export default {
-    name: "",
-    data() {
-      return {
-        title: "添加工资",
+  name: "",
+  data() {
+    return {
+      title: "添加工资",
 
-        // 控制增加对话框的显示与隐藏
-        dialogVisible: false,
-        // 获取用户参数列表对象
-        queryInfo: {
-            name: "",
-            pagenumber: 1,
-            pagesize: 10
-        },
-        staffList: [
-            { prop: "work_id", label: "工号" },
-            { prop: "name", label: "姓名" },
-            { prop: "department", label: "部门" },
-            { prop: "position", label: "职位" },
-            { prop: "base_pay", label: "基本工资" },
-            { prop: "perfect_attendance_award", label: "全勤奖" },
-            { prop: "commission", label: "提成" },
-            { prop: "housing_allowance", label: "住房补贴" },
-            { prop: "leave_late", label: "请假/迟到" },
-            { prop: "travel_allowance", label: "差旅补助" },
-            { prop: "phone_allowance", label: "话费补助" },
-            { prop: "net_salary", label: "实发工资" }
-        ],
-        // 新增用户表单
-        form: {
-          work_id: '',
-          name: '',
-          department: '',
-          position: '',
-          base_pay: '',
-          perfect_attendance_award: '',
-          commission: '',
-          housing_allowance: '',
-          leave_late: '',
-          travel_allowance: '',
-          phone_allowance: '',
-          net_salary: ''
-        },
-        // 获取后台接口数据
-        list: [
-          {
-            work_id: '1001',
-            name: '张三丰',
-            department: '教学部',
-            position: '讲师',
-            base_pay: '6000',
-            perfect_attendance_award: '500',
-            commission: '1000',
-            housing_allowance: '300',
-            leave_late: '0',
-            travel_allowance: '200',
-            phone_allowance: '300',
-            net_salary: '7300'
-          }
-        ],
-        total: 100
-      }
-    },
-    created() {
-        this.getUserList()
-    },
-    methods: {
-      // 获取后端传过来的数据
-      getUserList() {},
-      // 分页获取页码
-      handleCurrentChange(e) {
-        this.queryInfo.pagenumber = e
-        this.getUserList()
+      // 控制增加对话框的显示与隐藏
+      dialogVisible: false,
+      // 获取用户参数列表对象
+      queryInfo: {
+          name: "",
+          pageNumber: 1,
+          pageSize: 10
       },
-      // 确定
-      upload() {
-        // console.log(val)
-        if (this.title === "添加工资") {
-          // 调用添加用户接口
-
-        } else {
-          console.log(456)
-          // 调用修改用户接口
-
+      staffList: [
+          { prop: "work_id", label: "工号" },
+          { prop: "name", label: "姓名" },
+          { prop: "department", label: "部门" },
+          { prop: "position", label: "职位" },
+          { prop: "base_pay", label: "基本工资" },
+          { prop: "perfect_attendance_award", label: "全勤奖" },
+          { prop: "commission", label: "提成" },
+          { prop: "housing_allowance", label: "住房补贴" },
+          { prop: "leave_late", label: "请假/迟到" },
+          { prop: "travel_allowance", label: "差旅补助" },
+          { prop: "phone_allowance", label: "话费补助" },
+          { prop: "net_salary", label: "实发工资" }
+      ],
+      // 新增用户表单
+      form: {
+        work_id: '',
+        name: '',
+        department: '',
+        position: '',
+        base_pay: '',
+        perfect_attendance_award: '',
+        commission: '',
+        housing_allowance: '',
+        leave_late: '',
+        travel_allowance: '',
+        phone_allowance: '',
+        net_salary: ''
+      },
+      // 获取后台接口数据
+      list: [
+        {
+          work_id: '1001',
+          name: '张三丰',
+          department: '教学部',
+          position: '讲师',
+          base_pay: '6000',
+          perfect_attendance_award: '500',
+          commission: '1000',
+          housing_allowance: '300',
+          leave_late: '0',
+          travel_allowance: '200',
+          phone_allowance: '300',
+          net_salary: '7300'
         }
-        this.dialogVisible = false
-        handleAlert()
-      },
-      // 关闭弹框
-      onclose() {
-        this.dialogVisible = false
-        handleAlert('取消操作', 'info')
-      },
-      // 增加用户弹框
-      addFinance() {
-        this.title = "添加工资"
-        this.dialogVisible = true
-      },
+      ],
+      // 数据总条数
+      total: 100
+    }
+  },
 
-      // 修改用户弹框
-      showEditDialog(data) {
-        this.title = "修改工资"
-        this.dialogVisible = true
-        this.form = data
-        // console.log(id)
-      },
-      removeUserById() {
-        const res = handleConfirm('此操作将永久删除该工资记录, 是否继续?', 'warning', '提示')
-          .then(() => {
-            // 调用接口完成删除用户操作
-
-            handleAlert()
-          })
-          .catch(() => {
-            handleAlert('已取消操作', 'info')
-          })
-          console.log(res)
-      },
-      // 把form中的数据重新设置
-      onreset() {
-        let form = {
-          work_id: '',
-          name: '',
-          department: '',
-          position: '',
-          base_pay: '',
-          perfect_attendance_award: '',
-          commission: '',
-          housing_allowance: '',
-          leave_late: '',
-          travel_allowance: '',
-          phone_allowance: '',
-          net_salary: ''
-        }
-        this.form = form
+  created() {
+      this.getUserList()
+  },
+  computed: {
+    // 计算工资合计
+    totalSalary() {
+      let totalSalary = 0;
+      for (let item of this.list) {
+        totalSalary += parseFloat(item.net_salary)
       }
+      return totalSalary
+    }
+  },
+  methods: {
+    // 获取后端传过来的数据
+    getUserList() {},
+    // 分页获取页码
+    handleCurrentChange(e) {
+      this.queryInfo.pageNumber = e
+      this.getUserList()
     },
+    // 确定
+    upload() {
+      // console.log(val)
+      if (this.title === "添加工资") {
+        // 调用添加用户接口
+
+      } else {
+        console.log(456)
+        // 调用修改用户接口
+
+      }
+      this.dialogVisible = false
+      handleAlert()
+    },
+    // 关闭弹框
+    onclose() {
+      this.dialogVisible = false
+      handleAlert('取消操作', 'info')
+    },
+    // 增加用户弹框
+    addFinance() {
+      this.title = "添加工资"
+      this.dialogVisible = true
+    },
+
+    // 修改用户弹框
+    showEditDialog(data) {
+      this.title = "修改工资"
+      this.dialogVisible = true
+      this.form = data
+      // console.log(id)
+    },
+    removeUserById() {
+      const res = handleConfirm('此操作将永久删除该工资记录, 是否继续?', 'warning', '提示')
+        .then(() => {
+          // 调用接口完成删除用户操作
+
+          handleAlert()
+        })
+        .catch(() => {
+          handleAlert('已取消操作', 'info')
+        })
+        console.log(res)
+    },
+    // 把form中的数据重新设置
+    onreset() {
+      let form = {
+        work_id: '',
+        name: '',
+        department: '',
+        position: '',
+        base_pay: '',
+        perfect_attendance_award: '',
+        commission: '',
+        housing_allowance: '',
+        leave_late: '',
+        travel_allowance: '',
+        phone_allowance: '',
+        net_salary: ''
+      }
+      this.form = form
+    }
+  },
     mounted() {},
     watch: {
         // $route: {

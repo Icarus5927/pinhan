@@ -12,7 +12,7 @@
 
         <div class="block">
           <el-row>
-            <el-col :span="5">
+            <el-col :span="4">
               <el-date-picker
                 v-model="query.date"
                 type="week"
@@ -27,15 +27,15 @@
                 <template slot="prepend">学生</template>
               </el-input>
             </el-col>
-            <el-col :span="5">
+            <el-col :span="4">
               <el-input v-model="query.teacher_name" type="text" clearable style="width: 200px" placeholder="请输入教师姓名">
                 <template slot="prepend">教师</template>
               </el-input>
             </el-col>
           </el-row>
 
-          <el-row>
-            <el-col :span="6">
+          <el-row :gutter="8">
+            <el-col :span="4">
               <el-select v-model="query.grade" placeholder="选择年级">
                 <el-option
                   v-for="item in grades"
@@ -45,7 +45,7 @@
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="4">
               <el-select v-model="query.course_name" placeholder="选择课程">
                 <el-option
                   v-for="item in courses"
@@ -55,7 +55,7 @@
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="5">
               <el-select v-model="query.subject" placeholder="选择科目">
                 <el-option
                   v-for="item in subjects"
@@ -65,7 +65,7 @@
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="4">
               <el-button icon="el-icon-search" class="search">查询</el-button>
               <el-button type="primary" @click="addCourse()">添加课程</el-button>
             </el-col>
@@ -102,9 +102,9 @@
         <el-row>
           <el-col :span="12">
 
-            <el-form-item label="日期" prop="type">
-              <el-select v-model="form.type" placeholder="请选择">
-                <el-option v-for="(item,index) in options" :key="index" :label="item" :value="item">
+            <el-form-item label="日期" prop="date">
+              <el-select v-model="form.date" placeholder="请选择">
+                <el-option v-for="(item,index) in dealDate" :key="index" :label="item" :value="item">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -133,12 +133,12 @@
 
           <el-col :span="12">
             <el-form-item label="科目" prop="subject">
-              <el-input v-model="form.subiect"></el-input>
+              <el-input v-model="form.subject"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="时间" prop="date">
-              <el-input v-model="form.date"></el-input>
+            <el-form-item label="时间" prop="time">
+              <el-input v-model="form.time"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -159,7 +159,7 @@
         <el-form-item>
           <div class="click-bottom">
             <el-button @click="cancelForm()"> 取消</el-button>
-            <el-button type="primary" @click="submitForm('form')">确定</el-button>
+            <el-button type="primary" @click="submitForm(form)">确定</el-button>
           </div>
         </el-form-item>
       </el-form>
@@ -187,12 +187,79 @@ export default {
         course_name: '',
         subject: '',
       },
-      form: {},
+      // 添加课程表单
+      form: {
+        work_id: '',
+        date: '',
+        time: '',
+        name: '',
+        course: '',
+        subject: '',
+        hour: '',
+        student: []
+      },
       dialogVisible: false,
+      // 弹窗标题
       title: '',
-      options: '',
-      studentData: '',
-      defaultProps: '',
+      // 学生列表
+      studentData: [
+        {
+        label: '初中',
+        children: [
+          {
+            label: '初一',
+            children: [
+              { label: '学生A' }
+            ]
+          },
+          {
+            label: '初二',
+            children: [
+              { label: '学生B' }
+          ]
+          },
+          {
+            label: '初三',
+            children: [
+              { label: '学生C' }
+            ]
+          },
+          {
+            label: '初四',
+            children: [
+              { label: '学生D' }
+            ]
+          },
+        ]
+        },
+        {
+        label: '高中',
+        children: [
+          {
+            label: '高一',
+            children: [
+              { label: '学生A' }
+            ]
+          },
+          {
+            label: '高二',
+            children: [
+              { label: '学生B' }
+          ]
+          },
+          {
+            label: '高三',
+            children: [
+              { label: '学生C' }
+            ]
+          },
+        ]
+        }
+      ],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
       // 向接口请求的数据格式
       tableData: [
         {
@@ -200,7 +267,7 @@ export default {
           'date': '3月1日',
           'courses': [
             {
-              'start': '8:00',
+              'start': '08:00',
               'end': '10:00',
               'duration': 2,
               'course_name': '一对一',
@@ -257,13 +324,25 @@ export default {
           'date': '3月5日',
           'courses': [
             {
-              'start': '8:00',
-              'end': '9:00',
+              'start': '08:00',
+              'end': '09:00',
               'duration': 1,
               'course_name': '班课',
               'subject': '语文',
               'teacher_name': '张三',
               'student_name': '李四',
+              'class_teacher': '王五',
+              'adviser': '赵六',
+              'grade': '初一'
+            },
+            {
+              'start': '09:00',
+              'end': '10:00',
+              'duration': 1,
+              'course_name': '班课',
+              'subject': '语文',
+              'teacher_name': '张三',
+              'student_name': '鲁豫',
               'class_teacher': '王五',
               'adviser': '赵六',
               'grade': '初一'
@@ -275,18 +354,6 @@ export default {
               'course_name': '班课',
               'subject': '生物',
               'teacher_name': '哈哈',
-              'student_name': '李四',
-              'class_teacher': '王五',
-              'adviser': '赵六',
-              'grade': '初一'
-            },
-            {
-              'start': '9:00',
-              'end': '12:00',
-              'duration': 1,
-              'course_name': '班课',
-              'subject': '语文',
-              'teacher_name': '张三',
               'student_name': '李四',
               'class_teacher': '王五',
               'adviser': '赵六',
@@ -322,77 +389,37 @@ export default {
         {
           id: 1,
           time: '上午',
-          period: '8:00-9:00'
+          period: '08:00-10:00'
         },
         {
           id: 2,
           time: '上午',
-          period: '9:00-10:00'
+          period: '10:00-12:00'
         },
         {
           id: 3,
-          time: '上午',
-          period: '10:00-11:00'
+          time: '下午',
+          period: '13:00-15:00'
         },
         {
           id: 4,
-          time: '上午',
-          period: '11:00-12:00'
+          time: '下午',
+          period: '15:00-17:00'
         },
         {
           id: 5,
-          time: '中午',
-          period: '12:00-13:00'
+          time: '晚上',
+          period: '17:00-19:00'
         },
         {
           id: 6,
-          time: '中午',
-          period: '13:00-14:00'
+          time: '晚上',
+          period: '19:00-21:00'
         },
         {
           id: 7,
-          time: '下午',
-          period: '14:00-15:00'
-        },
-        {
-          id: 8,
-          time: '下午',
-          period: '15:00-16:00'
-        },
-        {
-          id: 9,
-          time: '下午',
-          period: '16:00-17:00'
-        },
-        {
-          id: 10,
-          time: '下午',
-          period: '17:00-18:00'
-        },
-        {
-          id: 11,
           time: '晚上',
-          period: '18:00-19:00'
-        },
-        {
-          id: 12,
-          time: '晚上',
-          period: '19:00-20:00'
-        },
-        {
-          id: 13,
-          time: '晚上',
-          period: '20:00-21:00'
-        },
-        {
-          id: 14,
-          time: '晚上',
-          period: '21:00-22:00'
-        },
-        {
-          id: 15,
-          time: '晚上',
-          period: '22:00-23:00'
+          period: '21:00-23:00'
         },
       ]
     }
@@ -407,10 +434,12 @@ export default {
   },
   computed: {
     dealData() {
-      // 对从接口传来的数据进行处理
-      // [每天的第一节课
+      // 数据的格式
+      // [
       // { day1: [{student_name, grade, subject, teacher, course_name, duration, class_teacher, adviser }, ...], day2: [], day3, day4, day5, day6, day7 },
-      // {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
+      // {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+      // ]
+      // 初始化数据
       let dData = [
         {
           day1: [],
@@ -475,310 +504,101 @@ export default {
           day6: [],
           day7: []
         },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
       ];
+      // 对从接口传来的数据进行处理
       for (let day of this.tableData) {// 遍历每周的课程
         // console.log(i);
         for (let course of day.courses) {// 遍历某天的课程
-          let start = -1// 课程开始时间
+          let pos = -1// 课程在表格中的位置
           switch (course.start) {
-            case '8:00':
-              start = 1
+            case '08:00':
+              pos = 1
               break;
-            case '8:30':
-              start = 2
+            case '08:30':
+              pos = 1
               break;
-            case '9:00':
-              start = 3
+            case '09:00':
+              pos = 1
               break;
-            case '9:30':
-              start = 4
+            case '09:30':
+              pos = 1
               break;
             case '10:00':
-              start = 5
+              pos = 2
               break;
             case '10:30':
-              start = 6
+              pos = 2
               break;
             case '11:00':
-              start = 7
+              pos = 2
               break;
             case '11:30':
-              start = 8
-              break;
-            case '12:00':
-              start = 9
-              break;
-            case '12:30':
-              start = 10
+              pos = 2
               break;
             case '13:00':
-              start = 11
+              pos = 3
               break;
             case '13:30':
-              start = 12
+              pos = 3
               break;
             case '14:00':
-              start = 13
+              pos = 3
               break;
             case '14:30':
-              start = 14
+              pos = 3
               break;
             case '15:00':
-              start = 15
+              pos = 4
               break;
             case '15:30':
-              start = 16
+              pos = 4
               break;
             case '16:00':
-              start = 17
+              pos = 4
               break;
             case '16:30':
-              start = 18
+              pos = 4
               break;
             case '17:00':
-              start = 19
+              pos = 5
               break;
             case '17:30':
-              start = 20
+              pos = 5
               break;
             case '18:00':
-              start = 21
+              pos = 5
               break;
             case '18:30':
-              start = 22
+              pos = 5
               break;
             case '19:00':
-              start = 23
+              pos = 6
               break;
             case '19:30':
-              start = 24
+              pos = 6
               break;
             case '20:00':
-              start = 25
+              pos = 6
               break;
             case '20:30':
-              start = 26
+              pos = 6
               break;
             case '21:00':
-              start = 27
+              pos = 7
               break;
             case '21:30':
-              start = 28
+              pos = 7
               break;
             case '22:00':
-              start = 29
+              pos = 7
               break;
             case '22:30':
-              start = 30
+              pos = 7
               break;
           }
+          let start = course.start
+          let end = course.end
+          let time = start + '-' + end
           let student_name = course.student_name
           let grade = course.grade
           let subject = course.subject
@@ -788,8 +608,11 @@ export default {
           let class_teacher = course.class_teacher
           let adviser = course.adviser
           let dayName = 'day' + day.week;// 周几
-
-          dData[start - 1][dayName].push({
+          // 根据课程开始的时间，将课程信息保存到各个区间
+          dData[pos - 1][dayName].push({
+            start,
+            end,
+            time,
             student_name,
             grade,
             subject,

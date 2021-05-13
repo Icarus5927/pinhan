@@ -46,8 +46,9 @@ export default {
     eleTableColumn
   },
   methods: {
+    // 设置单元格的样式
     cellStyle() {
-      return 'background-color: lightblue; height: 80px'
+      return 'background-color: lightblue; height: 160px'
     },
     // 修改table header的背景色
     tableHeaderColor({ row, column, rowIndex, columnIndex }) {
@@ -64,26 +65,20 @@ export default {
       if (columnIndex === 0){ // 第一列
         if (rowIndex === 0 ) { // 行index是偶数
           return {
-            rowspan: 4, // 上午占4行
+            rowspan: 2, // 上午占4行
+            colspan: 1
+          };
+        } else if (rowIndex === 2){
+          return {
+            rowspan: 2, // 下午占2行
             colspan: 1
           };
         } else if (rowIndex === 4){
           return {
-            rowspan: 2, // 中午占2行
-            colspan: 1
-          };
-        } else if (rowIndex === 6){
-          return {
             rowspan: 4, // 下午占4行
             colspan: 1
           };
-        } else if (rowIndex === 10){
-          return {
-            rowspan: 5,// 晚上占5行
-            colspan: 1
-          }
-        }
-        else {
+        } else {
           return {
             rowspan: 0,
             colspan: 0

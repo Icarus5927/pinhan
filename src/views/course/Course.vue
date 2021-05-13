@@ -10,22 +10,24 @@
       <div class="table-header">
         <div class="block">
           <el-row>
-            <el-col :span="5">
+            <el-col :span="7">
               <el-date-picker
                 v-model="query.date"
-                type="week"
-                format="yyyy 第 WW 周"
-                placeholder="选择周"
-                :picker-options="{'firstDayOfWeek': 1}"
-              >
+                type="daterange"
+                align="right"
+                unlink-panels
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :picker-options="pickerOptions">
               </el-date-picker>
             </el-col>
-            <el-col :span="5">
+            <el-col :span="4">
               <el-input v-model="query.student_name" type="text" clearable style="width: 200px" placeholder="请输入学生姓名">
                 <template slot="prepend">学生</template>
               </el-input>
             </el-col>
-            <el-col :span="5">
+            <el-col :span="4">
               <el-input v-model="query.teacher_name" type="text" clearable style="width: 200px" placeholder="请输入教师姓名">
                 <template slot="prepend">教师</template>
               </el-input>
@@ -33,7 +35,7 @@
           </el-row>
 
           <el-row>
-            <el-col :span="6">
+            <el-col :span="4">
               <el-select v-model="query.grade" placeholder="选择年级">
                 <el-option
                   v-for="item in grades"
@@ -43,7 +45,7 @@
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="4">
               <el-select v-model="query.course_name" placeholder="选择课程">
                 <el-option
                   v-for="item in courses"
@@ -53,7 +55,7 @@
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="4">
               <el-select v-model="query.subject" placeholder="选择科目">
                 <el-option
                   v-for="item in subjects"
@@ -63,7 +65,7 @@
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="4">
               <el-button icon="el-icon-search" type="primary" class="search">查询</el-button>
             </el-col>
           </el-row>
@@ -71,15 +73,12 @@
       </div>
 
       <div class="tableClass">
-
         <edit-table
           :table-header="courseHeader"
           :table-data="tableData"
           :show-summary="true"
         />
-
       </div>
-
 
     </el-card>
   </div>
@@ -147,7 +146,35 @@ export default {
           duration: 1.5,
           class_teacher: '王艺颖'
         },
-      ]
+      ],
+      // datepicker的快捷选项
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+      }
     }
   },
   methods: {
@@ -156,5 +183,8 @@ export default {
 </script>
 
 <style scoped>
-
+  .el-row {
+    display: flex;
+    flex-wrap: wrap;
+  }
 </style>

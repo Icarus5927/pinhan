@@ -51,7 +51,7 @@ export default {
             this.$refs.form.resetFields()
         },
         login() {
-            var a = 1
+            let a = 1
             if (a === 1) {
                 this.$message.success("登陆成功")
                 window.sessionStorage.setItem("token", 234)
