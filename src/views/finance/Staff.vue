@@ -47,73 +47,111 @@
         <!-- 添加工资弹窗 -->
         <el-dialog :title="title" :visible.sync="dialogVisible" width="40%" :show-close="false" @close="onreset()">
             <div>
-                <el-form ref="form" label-width="90px" :model="form">
-                    <el-row>
-                        <el-form-item label="工号" prop=work_id>
-                            <el-input v-model="form.work_id"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-row>
-                        <el-form-item label="姓名" prop=name>
-                            <el-input v-model="form.name"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-row>
-                        <el-form-item label="基本工资" prop="base_pay">
-                            <el-input v-model="form.base_pay"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-row>
-                        <el-form-item label="部门" prop="department">
-                            <el-input v-model="form.department"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-row>
-                        <el-form-item label="职位" prop="position">
-                            <el-input v-model="form.position"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-row>
-                        <el-form-item label="全勤奖" prop="perfect_attendance_award">
-                            <el-input v-model="form.perfect_attendance_award"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-row>
-                        <el-form-item label="提成" prop="commission">
-                            <el-input v-model="form.commission"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-row>
-                        <el-form-item label="住房补贴" prop="housing_allowance">
-                            <el-input v-model="form.housing_allowance"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-row>
-                        <el-form-item label="请假/迟到" prop="leave_late">
-                            <el-input v-model="form.leave_late"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-row>
-                        <el-form-item label="差旅补助" prop="travel_allowance">
-                            <el-input v-model="form.travel_allowance"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-row>
-                        <el-form-item label="花费补助" prop="phone_allowance">
-                            <el-input v-model="form.phone_allowance"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-row>
-                        <el-form-item label="实发工资" prop="net_salary">
-                            <el-input v-model="form.net_salary"></el-input>
-                        </el-form-item>
-                    </el-row>
-                    <el-form-item>
-                        <div class="click-bottom">
-                          <el-button type="primary" @click="upload()">确定</el-button>
-                          <el-button @click="onclose()"> 取消</el-button>
-                        </div>
-                    </el-form-item>
+                <el-form ref="form" label-width="90px" :model="form" :rules="rules">
+                  <el-row>
+                    <el-col :span="12">
+                      <el-form-item label="工号" prop=work_id>
+                        <el-input v-model="form.work_id"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="姓名" prop=name>
+                        <el-input v-model="form.name"></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <br>
+
+                  <el-row>
+                    <el-col :span="12">
+                      <el-form-item label="部门" prop="department">
+                        <el-select v-model="form.department">
+                          <el-option label="办公室" value="办公室">
+                          </el-option>
+                          <el-option label="市场部" value="市场部">
+                          </el-option>
+                          <el-option label="财务部" value="财务部">
+                          </el-option>
+                          <el-option label="教务部" value="教务部">
+                          </el-option>
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="职位" prop="position">
+                        <el-select v-model="form.post">
+                          <el-option label="1" value="1">
+                          </el-option>
+                          <el-option label="2" value="2">
+                          </el-option>
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <br>
+
+                  <el-row>
+                    <el-col :span="12">
+                      <el-form-item label="基本工资" prop="base_pay">
+                        <el-input v-model="form.base_pay"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="全勤奖" prop="perfect_attendance_award">
+                        <el-input v-model="form.perfect_attendance_award"></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <br>
+
+                  <el-row>
+                    <el-col :span="12">
+                      <el-form-item label="提成" prop="commission">
+                        <el-input v-model="form.commission"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="住房补贴" prop="housing_allowance">
+                        <el-input v-model="form.housing_allowance"></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <br>
+
+                  <el-row>
+                    <el-col :span="12">
+                      <el-form-item label="请假/迟到" prop="leave_late">
+                        <el-input v-model="form.leave_late"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="差旅补助" prop="travel_allowance">
+                        <el-input v-model="form.travel_allowance"></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <br>
+
+                  <el-row>
+                    <el-col :span="12">
+                      <el-form-item label="花费补助" prop="phone_allowance">
+                        <el-input v-model="form.phone_allowance"></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="实发工资" prop="net_salary">
+                        <el-input v-model="form.net_salary"></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <br>
+
+                  <el-form-item>
+                    <div class="click-bottom">
+                      <el-button type="primary" @click="upload()">确定</el-button>
+                      <el-button @click="onclose()"> 取消</el-button>
+                    </div>
+                  </el-form-item>
                 </el-form>
             </div>
         </el-dialog>
@@ -150,7 +188,6 @@ export default {
           { prop: "phone_allowance", label: "话费补助" },
           { prop: "net_salary", label: "实发工资" }
       ],
-      // 新增用户表单
       form: {
         work_id: '',
         name: '',
@@ -164,6 +201,55 @@ export default {
         travel_allowance: '',
         phone_allowance: '',
         net_salary: ''
+      },
+      // 新增用户表单
+      rules: {
+        work_id: [
+          { required: true, message: '请输入学号', trigger: 'blur' },
+          { min: 3, max: 10, message: '学号必须为数字,长度在3到10个字符', trigger: 'blur' },
+        ],
+        name: [
+          { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
+        ],
+        department: [
+
+        ],
+        position: [
+
+        ],
+        base_pay: [
+          { required: true, message: '请输入基本工资', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        perfect_attendance_award: [
+          { required: true, message: '请输入全勤奖', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        commission: [
+          { required: true, message: '请输入提成', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        housing_allowance: [
+          { required: true, message: '请输入住房补贴', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        leave_late: [
+          { required: true, message: '请输入请假迟到', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        travel_allowance: [
+          { required: true, message: '请输入差旅补贴', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        phone_allowance: [
+          { required: true, message: '请输入花费补贴', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        net_salary: [
+          { required: true, message: '请输入实发工资', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ]
       },
       // 获取后台接口数据
       list: [
@@ -212,15 +298,33 @@ export default {
     upload() {
       // console.log(val)
       if (this.title === "添加工资") {
-        // 调用添加用户接口
+        // 表单校验
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            // 调用添加工资接口
 
+            this.dialogVisible = false
+            handleAlert()
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       } else {
-        console.log(456)
-        // 调用修改用户接口
+        // 表单校验
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            // 调用修改工资接口
+
+            this.dialogVisible = false
+            handleAlert()
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
 
       }
-      this.dialogVisible = false
-      handleAlert()
     },
     // 关闭弹框
     onclose() {

@@ -59,9 +59,19 @@
           v-model="scope.row[item.name]"
           active-color="#13ce66"
           inactive-color="#6666"></el-switch>
-        <div v-else >
+        <div v-else-if="item.type === 'text'" >
           <el-input  v-show="currentRowIndex === scope.row.index && currentColIndex === scope.column.index" size="small" :disabled="item.disabled || disabled" v-model="scope.row[item.name]"
                      placeholder="请输入"
+                     @change="handleEdit(scope.$index, scope.row)"
+                     :ref='"cell" + scope.row.index + scope.column.index'
+                     @blur="onblur"
+                     @keyup.enter.native="$event.target.blur"
+          />
+        </div>
+        <div v-else>
+          <el-input  v-show="currentRowIndex === scope.row.index && currentColIndex === scope.column.index" size="small" :disabled="item.disabled || disabled" v-model="scope.row[item.name]"
+                     placeholder="请输入"
+                     type="number"
                      @change="handleEdit(scope.$index, scope.row)"
                      :ref='"cell" + scope.row.index + scope.column.index'
                      @blur="onblur"
@@ -124,11 +134,8 @@ export default {
     },
     // 当内容修改时
     handleEdit(index, row) {
-      console.log(index);
-      this.$emit('handleEdit', {
-        index: index,
-        row: row
-      })
+      // console.log(index, row);
+      this.$emit('handleEdit', { index: index, row: row })
     },
     // 当select被选中时
     onSelected: function (index, row) {

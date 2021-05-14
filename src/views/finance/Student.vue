@@ -24,10 +24,22 @@
         <!-- 学生缴费数据区 -->
         <el-tabs type="border-card" v-model="activeName">
           <el-tab-pane :label="item" v-for="(item,index) in label" :key="index" :name="item">
-            <edit-table
-              :table-header="studentListHeader"
-              :table-data="list"
-              @onTableBtn="deleteStuInfo"/>
+
+            <el-table :data="list" stripe border>
+              <el-table-column type="index" label="#">
+              </el-table-column>
+              <el-table-column v-for="(item,index) in studentHeader" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+              </el-table-column>
+              <el-table-column label="操作" width="150px">
+                <template slot-scope="scope">
+                  <!--修改按钮 -->
+                  <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
+                  <!-- 删除按钮 -->
+                  <el-button type="danger" icon="el-icon-delete" size="mini" @click=" removeUserById(scope.row.work_id) "></el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+
           </el-tab-pane>
         </el-tabs>
         <!-- 分页区 -->
@@ -51,7 +63,9 @@
           :disabled="disabled"
           :tableHeader="standardHeader"
           @onTableBtn="deleteStandard"
+          @handleEdit="updateStandard"
           />
+
       </div>
       <!--添加行按钮 -->
       <div>
@@ -66,7 +80,7 @@
     <!-- 添加费用弹窗   -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="70%" :show-close="false" @close="onreset()">
       <div>
-        <el-form ref="form" label-width="90px" :model="form">
+        <el-form ref="addForm" label-width="90px" :model="form" :rules="rules">
           <el-row>
             <el-col :span="8">
               <el-form-item label="学号" prop=work_id>
@@ -79,72 +93,81 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="年级" prop="name">
+              <el-form-item label="年级" prop="grade">
                 <el-input v-model="form.grade"></el-input>
               </el-form-item>
             </el-col>
 
           </el-row>
+          <br>
           <el-row>
             <el-col :span="8">
-              <el-form-item label="课程" prop=work_id>
+              <el-form-item label="课程" prop=course_name>
                 <el-input v-model="form.course_name"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="科目" prop="name">
+              <el-form-item label="科目" prop="subject">
                 <el-input v-model="form.subject"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="实际缴费" prop="name">
-                <el-input v-model="form.actualPay"></el-input>
+              <el-form-item label="实际缴费" prop="actualPay">
+                <el-input v-model="form.actualPay" type="number"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
+          <br>
           <el-row>
             <el-col :span="8">
-              <el-form-item label="支付方式" prop="name">
-                <el-input v-model="form.payment"></el-input>
+              <el-form-item label="支付方式" prop="payment">
+                <el-select v-model="form.payment" placeholder="支付方式" style="width: 100%">
+                  <el-option label="微信" value="微信"></el-option>
+                  <el-option label="支付宝" value="支付宝"></el-option>
+                  <el-option label="银行卡" value="银行卡"></el-option>
+                </el-select>
               </el-form-item>
+
             </el-col>
             <el-col :span="8">
-              <el-form-item label="教学顾问" prop="name">
+              <el-form-item label="教学顾问" prop="counselor">
                 <el-input v-model="form.counselor"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="A辅转入" prop=work_id>
-                <el-input v-model="form.fromA"></el-input>
+              <el-form-item label="A辅转入" prop="fromA">
+                <el-input v-model="form.fromA" type="number"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
+          <br>
           <el-row>
             <el-col :span="8">
-              <el-form-item label="B辅转入" prop="name">
-                <el-input v-model="form.fromB"></el-input>
+              <el-form-item label="B辅转入" prop="fromB">
+                <el-input v-model="form.fromB" type="number"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="一对一转入" prop="name">
-                <el-input v-model="form.from121"></el-input>
+              <el-form-item label="一对一转入" prop="from121">
+                <el-input v-model="form.from121" type="number"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="班课转入" prop=work_id>
-                <el-input v-model="form.fromClass"></el-input>
+              <el-form-item label="班课转入" prop="fromClass">
+                <el-input v-model="form.fromClass" type="number"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
+          <br>
           <el-row>
             <el-col :span="8">
-              <el-form-item label="合计" prop="name">
-                <el-input v-model="form.total"></el-input>
+              <el-form-item label="优惠/减免" prop="discount">
+                <el-input v-model="form.discount" type="number"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="优惠/减免" prop="name">
-                <el-input v-model="form.discount"></el-input>
+              <el-form-item label="合计" prop="total">
+                <el-input v-model="form.total" type="number"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -183,20 +206,19 @@ export default {
       // 当前选中的课程类型
       activeName: '晚辅',
       label: ['晚辅', '一对一', '班课'],
-      // 主数据表头
-      studentListHeader: [
-        { name: 'name', title: '姓名', width: 'fit-content', type: "text" },
-        { name: 'grade', title: '年级', width: 'fit-content', type: "text" },
-        { name: 'actualPay', title: '实际缴费', width: 'fit-content', type: "text" },
-        { name: 'fromA', title: 'A辅转入', width: 'fit-content', type: 'text' },
-        { name: 'fromB', title: 'B辅转入', width: 'fit-content', type: 'text' },
-        { name: 'from121', title: '一对一转入', width: 'fit-content', type: 'text' },
-        { name: 'fromClass', title: '班课转入', width: 'fit-content', type: 'text' },
-        { name: 'total', title: '合计', width: 'fit-content', type: 'text' },
-        { name: 'discount', title: '优惠/减免', width: 'fit-content', type: 'text' },
-        { name: 'cost', title: '消费费用', width: 'fit-content', type: 'text' },
-        { name: 'RemainingFee', title: '剩余课时费', width: 'fit-content', type: 'text' },
-        { name: 'btn-d', title: '操作', width: 'fit-content', type: 'btn-d', text: '删除' },
+      // 表头
+      studentHeader: [
+        { prop: "name", label: "姓名" },
+        { prop: "grade", label: "年级" },
+        { prop: "actualPay", label: "实际缴费" },
+        { prop: "fromA", label: "A辅转入" },
+        { prop: "fromB", label: "B辅转入" },
+        { prop: "from121", label: "一对一转入" },
+        { prop: "fromClass", label: "班课转入" },
+        { prop: "total", label: "合计" },
+        { prop: "discount", label: "优惠/减免" },
+        { prop: "cost", label: "消费费用" },
+        { prop: "RemainingFee", label: "剩余课时费" }
       ],
       // 添加费用表单
       form: {
@@ -215,11 +237,62 @@ export default {
         total: '',
         discount: ''
       },
+      // 添加费用表单规则
+      rules: {
+        work_id: [
+          { required: true, message: '请输入学号', trigger: 'blur' },
+          { min: 3, max: 10, message: '学号必须为数字,长度在3到10个字符', trigger: 'blur' },
+        ],
+        name: [
+          { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
+        ],
+        grade: [
+          { required: true, message: '请输入年级', trigger: 'blur' },
+        ],
+        course_name: [
+          { message: '课程不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { required: true, min: 2, max: 10, message: '请输入课程名，长度在2到10之间', trigger: 'blur' }
+        ],
+        subject: [
+          { required: true, min: 2, max: 10, message: '请输入学科名，长度在2到10之间', trigger: 'blur' }
+        ],
+        actualPay: [
+          { required: true, message: '请输入金额', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        payment: [
+          { required: true, message: '请选择类别', trigger: 'change' },
+        ],
+        fromA: [
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        fromB: [
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        from121: [
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        fromClass: [
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        total: [
+          { required: true, message: '请输入金额', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        discount: [
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ]
+      },
       // 获取后台接口数据
       list: [
         {
+          work_id: '10021',
           name: 'Tom',
-          grade: 2,
+          grade: '初一',
+          course_name: '一对一',
+          subject: '数学',
+          payment: '支付宝',
           actualPay: 1000,
           fromA: 0,
           fromB: 0,
@@ -346,22 +419,43 @@ export default {
     },
     // 确定提交
     upload() {
-      // console.log(val)
       if (this.title === '添加费用') {
-        console.log("添加费用")
-        // 调用添加用户接口
+        // 表单校验
+        this.$refs.addForm.validate((valid) => {
+          if (valid) {
+            // 调用添加费用接口
+            console.log("添加费用")
+
+            this.dialogVisible = false
+            handleAlert()
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       } else {
-        console.log("修改费用")
-        // 调用修改用户接口
+        // 表单校验
+        this.$refs.addForm.validate((valid) => {
+          if (valid) {
+            this.ratesdialogVisible = false;
+            console.log("修改费用")
+            // 调用修改用户接口
+
+            this.dialogVisible = false
+            handleAlert()
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
+
       }
-      handleAlert()
-      this.dialogVisible = false;
-      this.ratesdialogVisible = false;
     },
     // 关闭弹框
     onclose() {
       this.dialogVisible = false;
       this.ratesdialogVisible = false;
+      handleAlert('操作已取消', 'info')
     },
     // 收费标准
     addRates() {
@@ -375,17 +469,43 @@ export default {
     },
 
     // 修改用户弹框
-    // showEditDialog(data) {
-    //   this.title = '修改费用'
-    //   this.dialogVisible = true
-    //   this.form = data
-    //   // console.log(id)
-    // },
-    // 把form中的数据重新设置，这里我还没命名
+    showEditDialog(data) {
+      this.title = '修改费用'
+      this.dialogVisible = true
+      this.form = data
+      // console.log(id)
+    },
+    // 根据id删除用户信息
+    removeUserById(id) {
+      const res = handleConfirm('此操作将永久删除该费用,是否继续?', 'warning', '提示')
+        .then(() => {
+          // 调用接口完成删除用户操作
+          console.log(id);
+          handleAlert()
+        })
+        .catch(() => {
+          handleAlert('已取消删除', 'info')
+        })
+      console.log(res)
+    },
+
+    // 把form中的数据重新设置
     onreset() {
       const form = {
         work_id: '',
-        name: ''
+        name: '',
+        grade: '',
+        course_name: '',
+        subject: '',
+        actualPay: '',
+        payment: '',
+        counselor: '',
+        fromA: '',
+        fromB: '',
+        from121: '',
+        fromClass: '',
+        total: '',
+        discount: ''
       }
       this.form = form
     },
@@ -423,6 +543,9 @@ export default {
       // row 包含index和行信息row
       handleConfirm('此操作将永久删除该收费标准信息, 是否继续?', 'warning', '提示')
         .then(res => {
+
+          // 调用收费标准删除接口
+
           this.charges[this.activeTag].splice(row.index, 1);
           handleAlert('删除成功', 'success')
           console.log(res);
@@ -432,20 +555,17 @@ export default {
       })
     },
     /**
-    * @Description: 删除学生费用信息
+    * @Description: 调用接口更改收费标准
     * @author oldMe
-    * @date 2021/4/22
+    * @date 2021/5/14
     */
-    deleteStuInfo(row) {
-      handleConfirm('此操作将永久删除该缴费信息, 是否继续?', 'warning', '提示')
-      .then(res => {
-        this.list.splice(row.index,1)
-        handleAlert('删除成功', 'success')
-      }).catch(err => {
-        handleAlert('已取消删除','info')
-        console.log(err);
-      })
-    },
+    updateStandard(info) {
+      console.log(info);
+      // 调用接口更改收费标准
+      setTimeout(() => {
+        handleAlert()
+      },500)
+    }
   },
   mounted() {
   },

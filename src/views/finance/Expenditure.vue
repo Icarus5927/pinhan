@@ -64,47 +64,52 @@
         </el-card>
         <!-- 添加支出弹窗 -->
         <el-dialog :title="title" :visible.sync="dialogVisible" width="40%" :show-close="false" @close="onreset()">
-            <el-form ref="form" :model="form" label-width="100px">
+            <el-form ref="form" :model="form" label-width="100px" :rules="rules">
 
-                <el-form-item label="类型" prop="type">
-                    <el-select v-model="form.type" placeholder="请选择支付类型">
-                        <el-option label="微信" value="微信"></el-option>
-                        <el-option label="支付宝" value="支付宝"></el-option>
-                        <el-option label="银行卡" value="银行卡"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="日期" prop="date">
-                    <el-date-picker v-model="form.date" type="date" placeholder="选择日期">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="姓名" prop="name">
-                    <el-input v-model="form.name"></el-input>
-                </el-form-item>
-                <el-form-item label="项目" prop="project">
-                    <el-input v-model="form.project"></el-input>
-                </el-form-item>
-
-                <el-form-item label="金额" prop="sum">
-                    <el-input v-model="form.sum"></el-input>
-                </el-form-item>
-                <el-form-item label="教学顾问" prop="counselor">
-                    <el-input v-model="form.counselor"></el-input>
-                </el-form-item>
-                <el-form-item label="备注" prop="remark">
-                    <el-input v-model="form.remark"></el-input>
-                </el-form-item>
-                <el-form-item>
-                    <div class="click-bottom">
-                        <el-button @click="onclose()"> 取消</el-button>
-                        <el-button type="primary" @click="upload()">确定</el-button>
-                    </div>
-                </el-form-item>
+              <el-form-item label="类型" prop="type">
+                <el-select v-model="form.type" placeholder="请选择支付类型">
+                  <el-option label="微信" value="微信"></el-option>
+                  <el-option label="支付宝" value="支付宝"></el-option>
+                  <el-option label="银行卡" value="银行卡"></el-option>
+                </el-select>
+              </el-form-item>
+              <br>
+              <el-form-item label="日期" prop="date">
+                <el-date-picker v-model="form.date" type="date" placeholder="选择日期">
+                </el-date-picker>
+              </el-form-item>
+              <br>
+              <el-form-item label="姓名" prop="name">
+                <el-input v-model="form.name"></el-input>
+              </el-form-item>
+              <br>
+              <el-form-item label="项目" prop="project">
+                <el-input v-model="form.project"></el-input>
+              </el-form-item>
+              <br>
+              <el-form-item label="金额" prop="sum" >
+                <el-input v-model="form.sum" type="number"></el-input>
+              </el-form-item>
+              <br>
+              <el-form-item label="教学顾问" prop="counselor">
+                <el-input v-model="form.counselor"></el-input>
+              </el-form-item>
+              <br>
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="form.remark"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <div class="click-bottom">
+                  <el-button @click="onclose()"> 取消</el-button>
+                  <el-button type="primary" @click="upload()">确定</el-button>
+                </div>
+              </el-form-item>
             </el-form>
         </el-dialog>
     </div>
 </template>
 <script>
-import { handleConfirm } from '../../utils/confirm';
+import { handleAlert, handleConfirm } from '../../utils/confirm';
 
 export default {
   name: "",
@@ -146,6 +151,31 @@ export default {
         counselor: "",
         remark: ""
       },
+      // 表单校验规则
+      rules: {
+        type: [
+          { required: true, message: '请选择类别', trigger: 'change' },
+        ],
+        date: [
+          { required: true, message: '请选择日期', trigger: 'blur' },
+        ],
+        name: [
+          { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
+        ],
+        project: [
+          { required: true, message: '请输入项目', trigger: 'blur' },
+        ],
+        sum: [
+          { required: true, message: '请输入金额', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+        ],
+        counselor: [
+          { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
+        ]
+      },
+
       dialogVisible: false,
       // 用户选择的日期
       date: "",
@@ -203,13 +233,35 @@ export default {
     // 确定按钮
     upload() {
       if (this.title === "添加支出") {
-        // 调用添加支出接口
-        console.log("添加支出")
+
+        // 表单校验
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            // 调用添加支出接口
+            console.log("添加支出")
+
+            this.dialogVisible = false
+            handleAlert()
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       } else {
-        // 调用修改支出接口
-        console.log("修改支出")
+        // 表单校验
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            // 调用修改支出接口
+            console.log("修改支出")
+
+            this.dialogVisible = false
+            handleAlert()
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       }
-      this.dialogVisible = false
     },
     // 添加支出
     addFinance() {

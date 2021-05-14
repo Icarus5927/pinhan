@@ -32,6 +32,7 @@
             :table-data="list"
             :show-index="true"
             :day-of-month="dayOfMonth"
+            @handleEdit="handleEdit"
           ></CheckinForm>
         <!-- 分页区 -->
         <el-pagination background layout="total,prev, pager, next" :total="total" @current-change="handleCurrentChange">
@@ -132,9 +133,13 @@ export default {
       this.queryInfo.pageNumber = e
       this.getUserList(this.activeName)
     },
-    // 向后端传输考勤记录
-    upload() {
-    }
+    // 用户输入事件响应函数
+    handleEdit(info) {
+      console.log(info);// 包含rowIndex，row信息
+      // console.log(info['row'].name);
+
+      //向后端传递修改数据
+    },
   },
   mounted() {
     // 设置默认的时间

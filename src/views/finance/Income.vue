@@ -63,9 +63,9 @@
           </el-pagination>
         </el-container>
       </el-card>
-        <!-- 添加 -->
+        <!-- 弹窗 -->
         <el-dialog :title="title" :visible.sync="dialogVisible" width="40%" :show-close="false" @close="onreset()">
-          <el-form ref="form" :model="form" label-width="100px">
+          <el-form ref="incomeForm" :model="form" label-width="100px" :rules="rules">
 
             <el-form-item label="类型" prop="type">
               <el-select v-model="form.type" placeholder="请选择支付类型">
@@ -74,25 +74,32 @@
                 <el-option label="银行卡" value="银行卡"></el-option>
               </el-select>
             </el-form-item>
+            <br>
             <el-form-item label="日期" prop="date">
               <el-date-picker v-model="form.date" type="date" placeholder="选择日期">
               </el-date-picker>
             </el-form-item>
+            <br>
             <el-form-item label="姓名" prop="name">
               <el-input v-model="form.name"></el-input>
             </el-form-item>
+            <br>
             <el-form-item label="年级" prop="grade">
               <el-input v-model="form.grade"></el-input>
             </el-form-item>
+            <br>
             <el-form-item label="课程" prop="course">
               <el-input v-model="form.course"></el-input>
             </el-form-item>
+            <br>
             <el-form-item label="金额" prop="sum">
-              <el-input v-model="form.sum"></el-input>
+              <el-input v-model="form.sum" type="number"></el-input>
             </el-form-item>
+            <br>
             <el-form-item label="教学顾问" prop="counselor">
               <el-input v-model="form.counselor"></el-input>
             </el-form-item>
+            <br>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.remark"></el-input>
             </el-form-item>
@@ -157,6 +164,35 @@ export default {
         counselor: "",
         remark: ""
       },
+      // 表单校验规则
+      rules: {
+        type: [
+          { required: true, message: '请选择类别', trigger: 'change' },
+        ],
+        date: [
+          { required: true, message: '请选择日期', trigger: 'blur' },
+        ],
+        name: [
+          { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
+        ],
+        grade: [
+          { required: true, message: '请输入年级', trigger: 'blur' },
+        ],
+        course: [
+          { message: '课程不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { min: 2, max: 10, message: '请输入课程，长度在2到10之间', trigger: 'blur' }
+        ],
+        sum: [
+          { required: true, message: '请输入金额', trigger: 'blur' },
+          { pattern: /^[+]?(\d+)$|^[+]?(\d+\.\d+)$/, message: '输入值需大于零',trigger: 'blur'}
+
+        ],
+        counselor: [
+          { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
+        ]
+      },
       dialogVisible: false,
       activeName: "微信",
       // 数据总条数
@@ -215,14 +251,33 @@ export default {
     // 确定按钮
     upload() {
       if (this.title === "添加流水") {
-          // 调用添加流水接口
-          console.log('添加流水')
+
+        // 表单校验
+        this.$refs.incomeForm.validate((valid) => {
+          if (valid) {
+            // 调用添加流水接口
+
+            this.dialogVisible = false
+            handleAlert()
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       } else {
-          // 调用修改流水接口
-          console.log('修改流水')
+        // 表单校验
+        this.$refs.incomeForm.validate((valid) => {
+          if (valid) {
+            // 调用修改流水接口
+
+            this.dialogVisible = false
+            handleAlert()
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       }
-      this.dialogVisible = false
-      handleAlert()
     },
     // 添加用户
     addFinance() {

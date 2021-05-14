@@ -46,19 +46,11 @@
                    :default-checked-keys="defkeys" show-checkbox>
           </el-tree>
         </el-form-item>
-        <!-- <el-col :span="8"><span>设置权限</span></el-col>
-        <el-col :span="16">
-            <el-tree :props="treeprops" :data="rightslist" ref="tree" node-key="id" default-expand-all :default-checked-keys="defkeys" show-checkbox>
-            </el-tree>
-        </el-col> -->
-        <!-- </el-row> -->
         <el-form-item>
           <div class="click-bottom">
             <el-button @click="onclose()"> 取消</el-button>
             <el-button type="primary" @click=" upload()">确定</el-button>
-
           </div>
-          <!-- </div> -->
         </el-form-item>
 
       </el-form>
@@ -79,16 +71,16 @@ export default {
       // 所有权限的数据
       rightslist: [
         {
-          id: 103,
-          label: 'hhh',
+          id: 1,
+          label: '教师',
           children: [
             {
-              id: 124,
-              label: 'hhhgggh',
+              id: 12,
+              label: '讲师',
               children: [
                 {
-                  id: 1234,
-                  label: 'uubnj'
+                  id: 3,
+                  label: '添加课程'
                 }
               ]
             }
@@ -96,15 +88,15 @@ export default {
         },
         {
           id: 105,
-          label: 'hhh',
+          label: '员工',
           children: [
             {
               id: 12,
-              label: 'hhhgggh',
+              label: 'right1',
               children: [
                 {
-                  id: 123455,
-                  label: 'wdffg'
+                  id: 123,
+                  label: 'right2'
                 }
               ]
             }
@@ -118,23 +110,24 @@ export default {
         roleName: '',
         roleDesc: ''
       },
+      // 从后台返回的数据
       RoleList: [
         {
           // roleId: "",
-          roleName: '123',
-          roleDesc: '123',
+          roleName: '管理员',
+          roleDesc: '管理员',
           rightslist: [
             {
-              id: 103,
-              label: 'hhh',
+              id: 1,
+              label: 'r1',
               children: [
                 {
-                  id: 124,
-                  label: 'hhhgggh',
+                  id: 12,
+                  label: 'r12',
                   children: [
                     {
-                      id: 1234,
-                      label: 'uubnj'
+                      id: 123,
+                      label: 'r123'
                     }
                   ]
                 }
@@ -144,20 +137,20 @@ export default {
         },
         {
           // roleId: "",
-          roleName: '12uii3',
+          roleName: '2213',
           roleDesc: '123',
           rightslist: [
             {
-              id: 105,
-              label: 'hhh',
+              id: 2,
+              label: 'r1',
               children: [
                 {
-                  id: 12,
-                  label: 'hhhgggh',
+                  id: 21,
+                  label: 'r12',
                   children: [
                     {
-                      id: 123455,
-                      label: 'wdffg'
+                      id: 212,
+                      label: 'r123'
                     }
                   ]
                 }
@@ -204,6 +197,7 @@ export default {
           this.getLeafkeys(item.children, arr)
         })
       })
+      console.log(this.defkeys);
     },
     // 重置
     onreset() {

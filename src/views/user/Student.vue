@@ -45,7 +45,7 @@
       <!-- 添加用户区 -->
       <div class="contanier">
         <!-- 表单区域 -->
-        <el-form ref="form" label-width="90px" :model="form">
+        <el-form ref="stuForm" label-width="90px" :model="form" :rules="rules">
           <div class="main">
             <!-- 头部信息区  -->
             <div class="header">
@@ -71,6 +71,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
+                <br>
 
                 <el-row>
                   <el-col :span="12">
@@ -87,6 +88,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
+                <br>
 
                 <el-row>
                   <el-col :span="12">
@@ -95,11 +97,12 @@
                     </el-form-item>
                   </el-col>
                   <el-col :span="12 ">
-                    <el-form-item label="父母联系方式" prop="contact">
+                    <el-form-item label="父母手机号" prop="contact">
                       <el-input v-model="form.contact"></el-input>
                     </el-form-item>
                   </el-col>
                 </el-row>
+                <br>
 
                 <el-row>
                   <el-col>
@@ -108,6 +111,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
+                <br>
 
                 <el-row>
                   <el-col>
@@ -120,6 +124,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
+                <br>
 
                 <el-row>
                   <el-col :span="12">
@@ -135,6 +140,7 @@
                 </el-row>
               </div>
             </div>
+            <br>
             <!-- 中部成绩区 -->
             <div class="middle">
               <div class="student-score">
@@ -142,12 +148,13 @@
                   <span>成绩</span>
                   <!--日期-->
                   <div class="score-date">
-                    <el-form-item prop="address" label="日期">
+                    <el-form-item prop="score.date" label="日期">
                       <el-date-picker v-model="form.score.date" type="date" placeholder="选择日期">
                       </el-date-picker>
                     </el-form-item>
                   </div>
                 </div>
+                <br>
                 <!-- 成绩 -->
                 <ul class="score-ul">
                   <li class="score-li" v-for="(item,index) in form.score.result" :key="index">
@@ -163,10 +170,11 @@
           <el-form-item>
             <div class="click-bottom">
               <el-button @click="onclose()"> 取消</el-button>
-              <el-button type="primary" @click="upload()">确定</el-button>
+              <el-button type="primary" @click="upload('stuForm')">确定</el-button>
             </div>
           </el-form-item>
         </el-form>
+
       </div>
     </el-dialog>
   </div>
@@ -185,6 +193,7 @@ export default {
         work_id: '',
         name: '',
         gender: '',
+        grade: '',
         class_rank: '',
         dep_rank: '',
         school: '',
@@ -238,14 +247,55 @@ export default {
           ]
         }
       },
-      // path: "/students",
+      // 表单校验规则
+      rules: {
+        work_id: [
+          { required: true, message: '请输入学号', trigger: 'blur' },
+          { min: 3, max: 10, message: '学号必须为数字,长度在3到10个字符', trigger: 'change' },
+        ],
+        name: [
+          { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
+        ],
+        gender: [
+          { required: true, message: '请选择性别', trigger: 'blur' },
+        ],
+        grade: [
+          { required: true, message: '请输入年级', trigger: 'blur' },
+        ],
+        class_rank: [
+          { required: true, message: '请输入班级排名', trigger: 'blur' },
+        ],
+        dep_rank: [
+          { required: true, message: '请输入年级排名', trigger: 'blur' },
+        ],
+        school: [
+          { required: true, message: '请输入学校名', trigger: 'blur' },
+          { min: 2, max: 15, message: '长度在2到15个字符', trigger: 'blur' }
+        ],
+        contact: [
+          { required: true, message: '请输入联系方式', trigger: 'blur' },
+          { min: 11, max: 11, message: '请输入11位手机号', trigger: 'blur' }
+        ],
+        address: [
+          { required: true, message: '请输入家庭地址', trigger: 'blur' },
+          { min: 2, max: 25, message: '长度在2到25个字符', trigger: 'blur' }
+        ],
+        origin: [
+          { required: true, message: '请选择来源', trigger: 'blur' },
+        ],
+        'score.date': [
+          { required: true, message: '请选择日期', trigger: 'blur' },
+
+        ]
+      },
       // 控制增加对话框的显示与隐藏
       dialogVisible: false,
       // 获取用户参数列表对象
       queryInfo: {
         name: '',
-        pagenumber: 1,
-        pagesize: 10
+        pagenNmber: 1,
+        pageSize: 10
       },
       // 构建表的信息
       studentList: [
@@ -307,14 +357,14 @@ export default {
           gender: '男',
           grade: '初三',
           school: '十三中',
-          contact: '110',
+          contact: '15094877412',
           address: 'dddd',
           origin: '其他',
           class_rank: 1,
           dep_rank: 1,
           img: require('../../assets/bg.png'),
           score: {
-            date: '',
+            date: '2021-01-15',
             result: [
               {
                 name: '语文',
@@ -374,24 +424,44 @@ export default {
     },
     // 分页获取页码
     handleCurrentChange(e) {
-      this.queryInfo.pagenumber = e
+      this.queryInfo.pagenNmber = e
       this.getUserList()
     },
     // 确定
-    upload() {
-      // console.log(val)
+    upload(formName) {
       if (this.title === '添加用户') {
-        console.log(123)
-        // 调用添加用户接口
+        // 表单校验
+        this.$refs.stuForm.validate((valid) => {
+          if (valid) {
+            this.dialogVisible = false
+            handleAlert()
+            // 调用添加用户接口
+
+
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       } else {
-        console.log(456)
-        // 调用修改用户接口
+        // 表单校验
+        this.$refs.stuForm.validate((valid) => {
+          if (valid) {
+            this.dialogVisible = false
+            handleAlert()
+            // 调用修改用户接口
+
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       }
-      this.dialogVisible = false
     },
     // 关闭弹框
     onclose() {
       this.dialogVisible = false
+      handleAlert('操作已取消', 'info')
     },
     // 增加用户弹窗
     addUser() {

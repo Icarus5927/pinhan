@@ -11,7 +11,7 @@
       <div class="text item">
         <!-- 头部搜索区 -->
         <div class="card-header">
-          <el-input placeholder="请输入姓名" v-model="queryInfo.query" class="input-with-select" clearable
+          <el-input placeholder="请输入姓名" v-model="queryInfo.name" class="input-with-select" clearable
                     @clear="getUserList()">
             <el-button slot="append" icon="el-icon-search" @click="getUserList()"></el-button>
           </el-input>
@@ -47,7 +47,7 @@
     <!-- 添加用户弹窗 -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="70%" :show-close="false" @close="onreset()">
       <div>
-        <el-form ref="form" label-width="90px" :model="form">
+        <el-form ref="staffForm" label-width="90px" :model="form" :rules="rules">
           <div class="picture">
 
             <img :src="form.img" class="grid-content-picture-img">
@@ -57,7 +57,7 @@
           <div class="aaa">
             <el-row>
               <el-col :span="12">
-                <el-form-item label="工号号" prop=work_id>
+                <el-form-item label="工号" prop=work_id>
                   <el-input v-model="form.work_id"></el-input>
                 </el-form-item>
               </el-col>
@@ -67,6 +67,7 @@
                 </el-form-item>
               </el-col>
             </el-row>
+            <br>
             <el-row>
               <el-col :span="12">
                 <el-form-item label="性别" prop="gender">
@@ -92,6 +93,7 @@
                 </el-form-item>
               </el-col>
             </el-row>
+            <br>
             <el-row>
               <el-col :span="12">
                 <el-form-item label="职位" prop="post">
@@ -110,6 +112,7 @@
                 </el-form-item>
               </el-col>
             </el-row>
+            <br>
             <el-row>
               <el-col>
                 <el-form-item label="家庭住址" prop="address">
@@ -117,6 +120,7 @@
                 </el-form-item>
               </el-col>
             </el-row>
+            <br>
           </div>
 
           <el-form-item>
@@ -148,15 +152,15 @@ export default {
         contact: '',
         address: ''
       },
-      // path: "/students",
       // 控制增加对话框的显示与隐藏
       dialogVisible: false,
       // 获取用户参数列表对象
       queryInfo: {
-        query: '',
+        name: '',
         pageNumber: 1,
         pageSize: 10
       },
+      // 建表信息
       userList: [
         {
           prop: 'work_id',
@@ -192,6 +196,7 @@ export default {
           label: '家庭住址'
         }
       ],
+      // 实际传入数据
       list: [
         {
           work_id: '1002',
@@ -204,12 +209,37 @@ export default {
           img: require('../../assets/bg.png')
         }
       ],
+      rules: {
+        work_id: [
+          { required: true, message: '请输入工号', trigger: 'blur' },
+          { min: 3, max: 10, message: '学号必须为数字,长度在3到10个字符', trigger: 'change' },
+        ],
+        name: [
+          { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
+        ],
+        gender: [
+          { required: true, message: '请选择性别', trigger: 'blur' },
+        ],
+        post: [
+          { required: true, message: '请选择职位', trigger: 'blur' },
+        ],
+        department: [
+          { required: true, message: '请选择部门', trigger: 'blur' },
+        ],
+        contact: [
+          { required: true, message: '请输入联系方式', trigger: 'blur' },
+          { min: 11, max: 11, message: '请输入11位手机号', trigger: 'blur' }
+        ],
+        address: [
+          { required: true, message: '请输入家庭地址', trigger: 'blur' },
+          { min: 2, max: 25, message: '长度在2到25个字符', trigger: 'blur' }
+        ]
+      },
       total: 100
     }
   },
   created() {
-    // var path = window.sessionStorage.getItem("path")
-    // if (path === "/user1") {
     this.getUserList()
   },
   methods: {
@@ -223,16 +253,35 @@ export default {
     },
     // 确定按钮
     upload() {
-      // console.log(val)
       if (this.title === '添加用户') {
-        console.log(123)
-        // 调用添加用户接口
+
+        // 表单校验
+        this.$refs.staffForm.validate((valid) => {
+          if (valid) {
+            this.dialogVisible = false
+            handleAlert()
+            // 调用添加用户接口
+
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       } else {
-        console.log(456)
-        // 调用修改用户接口
+        // 表单校验
+        this.$refs.staffForm.validate((valid) => {
+          if (valid) {
+            this.dialogVisible = false
+            handleAlert()
+            // 调用修改用户接口
+
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       }
-      this.dialogVisible = false
-      handleAlert()
+
     },
     // 添加用户
     addUser() {

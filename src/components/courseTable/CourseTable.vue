@@ -181,10 +181,8 @@ export default {
         if (start < min || end > max) {
           isLegal = false
         }
-        console.log(isLegal);
-        return isLegal
       }
-
+      return isLegal
     },
     // 对课时进行计算
     getDuration(start,end) {

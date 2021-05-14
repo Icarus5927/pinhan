@@ -97,13 +97,13 @@
 
     </el-card>
     <!-- 添加弹窗 -->
-    <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" :show-close="false" @close="closeDialog()">
-      <el-form ref="form" :model="form" label-width="100px">
-        <el-row>
+    <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" :show-close="false" @close="closeDialog()" :close-on-click-modal="false">
+      <el-form ref="courseForm" :model="courseForm" label-width="100px" :rules="rules">
+        <el-row :gutter="20">
           <el-col :span="12">
 
             <el-form-item label="日期" prop="date">
-              <el-select v-model="form.date" placeholder="请选择">
+              <el-select v-model="courseForm.date" placeholder="请选择">
                 <el-option v-for="(item,index) in dealDate" :key="index" :label="item" :value="item">
                 </el-option>
               </el-select>
@@ -112,45 +112,75 @@
 
           <el-col :span="12">
             <el-form-item label="工号" prop="work_id">
-              <el-input v-model="form.work_id"></el-input>
+              <el-input v-model="courseForm.work_id"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
+        <br>
+        <el-row :gutter="20">
 
           <el-col :span="12">
-            <el-form-item label="教师" prop="name">
-              <el-input v-model="form.name"></el-input>
+            <el-form-item label="教师" prop="teacher_name">
+              <el-input v-model="courseForm.teacher_name"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="课程" prop="course">
-              <el-input v-model="form.course"></el-input>
+            <el-form-item label="课程" prop="course_name">
+              <el-input v-model="courseForm.course_name"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
+        <br>
+        <el-row :gutter="20">
 
           <el-col :span="12">
             <el-form-item label="科目" prop="subject">
-              <el-input v-model="form.subject"></el-input>
+              <el-input v-model="courseForm.subject"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="时间" prop="time">
-              <el-input v-model="form.time"></el-input>
+              <el-time-select
+                placeholder="起始时间"
+                style="width:50%"
+                :clearable="false"
+                v-model="courseForm.start"
+                :picker-options="{
+                  start: '08:00',
+                  step: '00:30',
+                  end: '22:30'
+                }">
+              </el-time-select>
+              <el-time-select
+                placeholder="结束时间"
+                style="width:50%"
+                :clearable="false"
+                v-model="courseForm.end"
+                :picker-options="{
+                  start: '08:30',
+                  step: '00:30',
+                  end: '23:00',
+                  minTime: courseForm.start
+                }">
+              </el-time-select>
+              <!--为了进行表单检验-->
+              <span style="display: none">{{ courseForm.start !== '' && courseForm.end !== '' ? courseForm.time = courseForm.start + '-' + courseForm.end : courseForm.time = ''}}</span>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
+        <br>
+        <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="课时" prop="course">
-              <el-input v-model="form.date"></el-input>
+            <el-form-item label="课时" prop="duration">
+              <template>
+                <span v-show="courseForm.start !== '' && courseForm.end !== ''">{{ getDuration(courseForm.start, courseForm.end) }}</span>
+              </template>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="学生" prop="student">
               <el-tree :data="studentData" :props="defaultProps" show-checkbox
+                       ref="studentTree"
                        @check-change="handleCheckChange"></el-tree>
             </el-form-item>
           </el-col>
@@ -159,7 +189,7 @@
         <el-form-item>
           <div class="click-bottom">
             <el-button @click="cancelForm()"> 取消</el-button>
-            <el-button type="primary" @click="submitForm(form)">确定</el-button>
+            <el-button type="primary" @click="submitForm('courseForm')">确定</el-button>
           </div>
         </el-form-item>
       </el-form>
@@ -188,15 +218,44 @@ export default {
         subject: '',
       },
       // 添加课程表单
-      form: {
-        work_id: '',
-        date: '',
-        time: '',
-        name: '',
-        course: '',
-        subject: '',
-        hour: '',
-        student: []
+      courseForm: {
+        work_id: '',// 工号
+        date: '',// 日期
+        start: '',// 开始时间
+        end: '',// 结束时间
+        time: '',// 时间区间
+        teacher_name: '',// 教师姓名
+        course_name: '',// 课程姓名
+        subject: '',// 科目
+        duration: '',// 课时
+        student: []// 学生列表
+      },
+      // 表单检验规则
+      rules: {
+        work_id: [
+          { required: true, message: '请输入工号', trigger: 'blur' },
+          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+        date: [
+          { type: 'string', required: true, message: '请选择日期', trigger: 'change' }
+        ],
+        time: [
+          { type: 'string', required: true, message: '请选择时间', trigger: 'change' }
+        ],
+        teacher_name: [
+          { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
+        ],
+        course_name: [
+          { required: true, message: '请输入课程名', trigger: 'blur' },
+          { min: 2, max: 15, message: '长度在2到15个字符', trigger: 'blur' }
+        ],
+        subject: [
+          { message: '学科名不可包含特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/, },
+          { required: true, message: '请输入学科名', trigger: 'blur' },
+          { min: 2, max: 5, message: '长度在 2 到 5 个字符', trigger: 'blur' }
+        ],
+        student: [ { type: 'array', required: true, message: '请至少选择一个学生', trigger: 'change' }]
       },
       dialogVisible: false,
       // 弹窗标题
@@ -646,12 +705,32 @@ export default {
       this.title = '添加课程'
       this.dialogVisible = true
     },
-    submitForm(form) {
-      this.$refs[form].validate((valid) => {
+    // 对课时进行计算
+    getDuration(start,end) {
+      let clock1 = parseInt(start.split(':')[0]);
+      let minutes1 = parseInt(start.split(':')[1]);
+      let clock2 = parseInt(end.split(':')[0]);
+      let minutes2 = parseInt(end.split(':')[1]);
+      let duration = clock2 - clock1;
+      if (minutes1 === 30) {
+        duration -= 0.5
+      }
+      if (minutes2 === 30) {
+        duration += 0.5
+      }
+      return duration
+    },
+    submitForm(formName) {
+      this.courseForm.duration = this.getDuration(this.courseForm.start, this.courseForm.end);
+      this.courseForm.time = this.courseForm.start + '-' + this.courseForm.end;
+      // 表单验证
+      this.$refs.courseForm.validate((valid) => {
         if (valid) {
-          this.resetForm(form)
+          // console.log(this.courseForm);
+          // 验证成功，提交并重置表
+          this.resetForm()
           this.dialogVisible = false
-          console.log(valid)
+          // console.log(valid)
           alert('submit!')
         } else {
           console.log('error submit!!')
@@ -659,20 +738,25 @@ export default {
         }
       })
     },
-    closeDialog() {
-      let form = {
-        type: '',
+    // 重置表单
+    resetForm() {
+      this.courseForm = {
         work_id: '',
         date: '',
-        name: '',
-        course: '',
+        start: '',
+        end: '',
+        time: '',
+        teacher_name: '',
+        course_name: '',
         subject: '',
-        hour: '',
+        duration: '',
         student: []
-        // counselor: ""
-      }
-      this.form = form
+      };
     },
+    closeDialog() {
+      this.resetForm()
+    },
+    // 关闭弹窗
     cancelForm() {
       this.dialogVisible = false
     },
@@ -684,9 +768,11 @@ export default {
       console.log(this.form)
       // console.log(val)
     },
-    // 选择学生
+    // 学生tree选择改变响应方法
     handleCheckChange(data) {
-      console.log(data)
+      // 只获取叶子节点的数据
+      this.courseForm.student = this.$refs.studentTree.getCheckedNodes(true, false)
+      console.log(this.courseForm.student)
     }
   },
   mounted() {

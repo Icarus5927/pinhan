@@ -42,10 +42,11 @@
         </el-pagination>
       </div>
     </el-card>
+    <!--  添加教师弹窗  -->
     <el-dialog title="添加教师" :visible.sync="dialogVisible" width="64%" :show-close="false" @close="onreset()">
       <!-- 内容主体区 -->
       <div class="container">
-        <el-form ref="form" label-width="90px" :model="form">
+        <el-form ref="teacherForm" label-width="90px" :model="form" :rules="rules">
           <div class="main">
             <div class="header">
               <div class="picture">
@@ -65,8 +66,8 @@
                       <el-input v-model="form.name"></el-input>
                     </el-form-item>
                   </el-col>
-
                 </el-row>
+                <br>
                 <el-row>
                   <el-col :span="12">
                     <el-form-item label="性别" prop="gender">
@@ -82,6 +83,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
+                <br>
                 <el-row>
                   <el-col :span="12">
                     <el-form-item label="联系方式" prop="contact">
@@ -94,6 +96,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
+                <br>
 
                 <el-row>
                   <el-col>
@@ -102,6 +105,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
+                <br>
               </div>
             </div>
             <div class="middle">
@@ -158,6 +162,7 @@ export default {
         pageNumber: 1,
         pageSize: 10
       },
+      // 建表信息
       teacherList: [
         {
           prop: 'work_id',
@@ -194,19 +199,48 @@ export default {
           label: '辅导科目'
         }
       ],
+      // 实际传入数据
       list: [
         {
           work_id: '123',
           name: '张三',
           gender: '女',
           education: '本科',
-          contact: '1325512223',
+          contact: '15094866411',
           address: '淄博市张店区',
           subject: '数学',
           img: require('../../assets/bg.png'),
           experience: ''
         }
       ],
+      rules : {
+        work_id: [
+          { required: true, message: '请输入工号', trigger: 'blur' },
+          { min: 3, max: 10, message: '学号必须为数字,长度在3到10个字符', trigger: 'change' },
+        ],
+        name: [
+          { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
+        ],
+        gender: [
+          { required: true, message: '请选择性别', trigger: 'blur' },
+        ],
+        education: [
+          { required: true, message: '请输入学历信息', trigger: 'blur' },
+        ],
+        contact: [
+          { required: true, message: '请输入联系方式', trigger: 'blur' },
+          { min: 11, max: 11, message: '请输入11位手机号', trigger: 'blur' }
+        ],
+        address: [
+          { required: true, message: '请输入家庭地址', trigger: 'blur' },
+          { min: 2, max: 25, message: '长度在2到25个字符', trigger: 'blur' }
+        ],
+        subject: [
+          { required: true, message: '请输入学科', trigger: 'blur' },
+          { min: 2, max: 10, message: '长度在2到10个字符', trigger: 'blur' }
+        ]
+      },
       total: 100
     }
   },
@@ -227,15 +261,34 @@ export default {
       this.title = '添加用户'
     },
     // 确定用户弹框
-    upload() {
+    upload(formName) {
       // 上传成功隐藏就行
-      this.dialogVisible = false
       if (this.title === '添加用户') {
-        console.log(123)
-        // 调用添加用户接口
+        // 表单校验
+        this.$refs.teacherForm.validate((valid) => {
+          if (valid) {
+            this.dialogVisible = false
+            handleAlert()
+            // 调用添加用户接口
+
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       } else {
-        console.log(456)
-        // 调用修改用户接口
+        // 表单校验
+        this.$refs.teacherForm.validate((valid) => {
+          if (valid) {
+            this.dialogVisible = false
+            handleAlert()
+            // 调用修改用户接口
+
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       }
       handleAlert()
     },
