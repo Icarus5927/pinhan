@@ -1,9 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-// import { component } from "vue/types/umd";
 import Login from "../views/Login.vue";
 import Main from "../views/Main";
-// import Welcome from "../views/Welcome.vue";
 import Student from "../views/user/Student.vue";
 import StudentF from "../views/finance/Student.vue";
 import StaffF from "../views/finance/Staff.vue";
@@ -11,17 +9,16 @@ import TeacherF from "../views/finance/Teacher.vue";
 import Teacher from "../views/user/Teacher.vue";
 import Income from "../views/finance/Income.vue";
 import Expenditure from "../views/finance/Expenditure.vue";
-// import Rights from "../views/power/Rights";
 import Roles from "../views/power/Roles";
 import Password from "../views/power/Password";
 import Staff from "../views/user/Staff";
-// import Course from "../views/course/Course.vue";
 import Arrangement from "../views/course/Course-arrangement.vue";
 import Course from "../views/course/Course"
 import StudentC from "../views/checking-in/Student.vue";
 import TeacherC from "../views/checking-in/Teacher.vue";
 import StaffC from "../views/checking-in/Staff.vue";
-// import add from "../components/AddTeacher.vue";
+import store from '../store';
+import { handleAlert } from '../utils/confirm';
 
 Vue.use(VueRouter);
 
@@ -110,11 +107,22 @@ const router = new VueRouter({
   // 将路由模式改为history
   mode: 'history'
 });
-// router.beforeEach((to, from, next) => {
-//   if (to.path === "/login") return next();
-//   const token = window.sessionStorage.getItem("token");
-//   if (!token) return next("/login");
-//   next();
-// });
+
+// 全局导航守卫
+router.beforeEach((to, from, next) => {
+  // 通过vuex state获取当前的token
+  const token = store.state.token;
+  if (to.path === '/login') {
+    next();
+  } else {
+    // 如果未登录，则跳回login界面
+    if (token === null || token === '')  {
+      handleAlert('您尚未登录', 'warning')
+      next('/login');
+    } else {
+      next();
+    }
+  }
+});
 
 export default router;
