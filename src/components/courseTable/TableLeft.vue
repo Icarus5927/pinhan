@@ -63,7 +63,7 @@ export default {
     */
     rowMerge({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 0){ // 第一列
-        if (rowIndex === 0 ) { // 行index是偶数
+        if (rowIndex === 0 ) {
           return {
             rowspan: 2, // 上午占4行
             colspan: 1
@@ -75,7 +75,7 @@ export default {
           };
         } else if (rowIndex === 4){
           return {
-            rowspan: 4, // 下午占4行
+            rowspan: 2, // 晚上占2行
             colspan: 1
           };
         } else {
@@ -85,6 +85,14 @@ export default {
           };
         }
       }
+      // if (columnIndex === 1) {// 第二列
+      //   if (rowIndex === 4) {
+      //     return {
+      //       rowspan: 2,
+      //       colspan: 1
+      //     }
+      //   }
+      // }
     },
   },
   mounted() {

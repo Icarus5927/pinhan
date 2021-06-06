@@ -109,20 +109,20 @@ const router = new VueRouter({
 });
 
 // 全局导航守卫
-router.beforeEach((to, from, next) => {
-  // 通过vuex state获取当前的token
-  const token = store.state.token;
-  if (to.path === '/login') {
-    next();
-  } else {
-    // 如果未登录，则跳回login界面
-    if (token === null || token === '')  {
-      handleAlert('您尚未登录', 'warning')
-      next('/login');
-    } else {
-      next();
-    }
-  }
-});
+// router.beforeEach((to, from, next) => {
+//   // 通过vuex state获取当前的token
+//   const token = store.state.token;
+//   if (to.path === '/login') {
+//     next();
+//   } else {
+//     // 如果未登录，则跳回login界面
+//     if (token === null || token === '')  {
+//       handleAlert('您尚未登录', 'warning')
+//       next('/login');
+//     } else {
+//       next();
+//     }
+//   }
+// });
 
 export default router;

@@ -23,7 +23,7 @@
         <el-table :data="list" stripe border>
           <el-table-column type="index" label="#">
           </el-table-column>
-          <el-table-column v-for="(item,index) in userList" :key="index" :prop="item.prop" :label="item.label"
+          <el-table-column v-for="(item,index) in tableHeader" :key="index" :prop="item.prop" :label="item.label"
                            :width="item.width">
           </el-table-column>
           <el-table-column label="操作" width="110px">
@@ -48,12 +48,11 @@
     <el-dialog :title="title" :visible.sync="dialogVisible" width="70%" :show-close="false" @close="onreset()">
       <div>
         <el-form ref="staffForm" label-width="90px" :model="form" :rules="rules">
-          <div class="picture">
-
-            <img :src="form.img" class="grid-content-picture-img">
-            <div @click="picture" class="grid-content-picture-button">上传照片</div>
-            <input type="file" ref="setfile" @change="upfile" hidden accept="image/*">
-          </div>
+<!--          <div class="picture">-->
+<!--            <img :src="form.img" class="grid-content-picture-img">-->
+<!--            <div @click="picture" class="grid-content-picture-button">上传照片</div>-->
+<!--            <input type="file" ref="setfile" @change="upfile" hidden accept="image/*">-->
+<!--          </div>-->
           <div class="aaa">
             <el-row>
               <el-col :span="12">
@@ -143,7 +142,7 @@ export default {
     return {
       title: '添加用户',
       form: {
-        img: require('../../assets/bg.png'),
+        // img: require('../../assets/bg.png'),
         work_id: '',
         name: '',
         gender: '',
@@ -161,7 +160,7 @@ export default {
         pageSize: 10
       },
       // 建表信息
-      userList: [
+      tableHeader: [
         {
           prop: 'work_id',
           label: '工号',
@@ -206,7 +205,7 @@ export default {
           department: '教学部',
           contact: '155556328',
           address: '淄博市张店区',
-          img: require('../../assets/bg.png')
+          // img: require('../../assets/bg.png')
         }
       ],
       rules: {
@@ -315,16 +314,16 @@ export default {
     picture() {
       this.$refs.setfile.click()
     },
-    upfile(e) {
-      let that = this
-      if (!e || !window.FileReader) return // 看支持不支持FileReader
-      let reader = new FileReader()
-      reader.readAsDataURL(e.target.files[0]) // 这里是最关键的一步，转换就在这里 （参数必须是blob对象）
-      reader.onloadend = function () {
-        that.form.img = this.result
-      }
-      // console.log(this.item)
-    },
+    // upfile(e) {
+    //   let that = this
+    //   if (!e || !window.FileReader) return // 看支持不支持FileReader
+    //   let reader = new FileReader()
+    //   reader.readAsDataURL(e.target.files[0]) // 这里是最关键的一步，转换就在这里 （参数必须是blob对象）
+    //   reader.onloadend = function () {
+    //     that.form.img = this.result
+    //   }
+    //   // console.log(this.item)
+    // },
     onreset() {
       let form = {
         work_id: '',
@@ -333,7 +332,7 @@ export default {
         post: '',
         department: '',
         contact: '',
-        img: require('../../assets/bg.png')
+        // img: require('../../assets/bg.png')
       }
       this.form = form
     }
@@ -395,12 +394,12 @@ export default {
     border: 1px solid rgb(243, 241, 241);
     border-left: 1px solid rgb(226, 219, 219);
 
-    .grid-content-picture-img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      object-position: center;
-    }
+    //.grid-content-picture-img {
+    //  width: 100%;
+    //  height: 120px;
+    //  object-fit: cover;
+    //  object-position: center;
+    //}
 
     .grid-content-picture-button {
       line-height: 37px;

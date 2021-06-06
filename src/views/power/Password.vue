@@ -26,6 +26,9 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页区 -->
+      <el-pagination background layout="total,prev, pager, next" :total="total" @current-change="handleCurrentChange">
+      </el-pagination>
 
     </el-card>
     <!--修改密码弹窗-->
@@ -64,6 +67,7 @@
 </template>
 <script>
 import { handleAlert } from '../../utils/confirm';
+import { get, post } from '../../network/request/request';
 
 export default {
   name: '',
@@ -95,10 +99,12 @@ export default {
           { required: true, message: '请再次确认新密码', trigger: 'blur' },
           { min: 8, max: 16, message: '长度在 8 到 16 个字符', trigger: 'blur' }
         ]
-      }
-
-
-
+      },
+      total: 100,
+      queryInfo: {
+        pageSize: 10,
+        pageNumber: 1
+      },
     }
   },
   created() {
@@ -141,7 +147,10 @@ export default {
         }
         if (valid) {
           // 调用修改密码接口
-
+          post('user/reset', {workId: "1001", newPassWord: this.form.newPWD })
+          .then(res => {
+            console.log(res);
+          })
           this.dialogVisible = false
           handleAlert()
         } else {
@@ -150,7 +159,12 @@ export default {
         }
       })
 
-    }
+    },
+    // 分页获取页码
+    handleCurrentChange(e) {
+      this.queryInfo.pageNumber = e
+      this.getUserList()
+    },
 
 
   },

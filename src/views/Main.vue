@@ -43,11 +43,11 @@
               <span>财务管理</span>
             </template>
             <el-menu-item index="/income" @click="saveNavState('/income')"><i class="el-icon-menu"></i>
-              <span>收入流水</span>
+              <span>流水</span>
             </el-menu-item>
-            <el-menu-item index="/expenditure" @click="saveNavState('/expenditure')"><i class="el-icon-menu"></i>
+            <!-- <el-menu-item index="/expenditure" @click="saveNavState('/expenditure')"><i class="el-icon-menu"></i>
               <span>支出流水</span>
-            </el-menu-item>
+            </el-menu-item> -->
             <el-menu-item index="/student_finance" @click="saveNavState('/student_finance')"><i
               class="el-icon-menu"></i>
               <span>学生费用</span>
@@ -60,14 +60,6 @@
               <span>员工工资</span>
             </el-menu-item>
           </el-submenu>
-          <!-- <el-menu-item index="/course" @click="saveNavState('/course')">
-              <i class="el-icon-s-grid"></i>
-              <span slot="title">课程管理</span>
-          </el-menu-item> -->
-<!--          <el-menu-item index="/arrangement" @click="saveNavState('/course')">-->
-<!--            <i class="el-icon-s-grid"></i>-->
-<!--            <span slot="title">课程管理</span>-->
-<!--          </el-menu-item>-->
 
           <el-submenu index="/arrangement">
             <template slot="title">
@@ -112,13 +104,6 @@
               <span>修改密码</span>
             </el-menu-item>
           </el-submenu>
-          <!-- <el-menu-item index="2-1"> <i class="el-icon-location"></i>
-                  <span>选项1</span>
-              </el-menu-item>
-              <el-menu-item index="2-2"> <i class="el-icon-location"></i>
-                  <span>选项2</span>
-              </el-menu-item> -->
-          <!-- </el-submenu> -->
         </el-menu>
       </el-aside>
       <!--主体显示区-->

@@ -49,11 +49,11 @@
         <el-form ref="teacherForm" label-width="90px" :model="form" :rules="rules">
           <div class="main">
             <div class="header">
-              <div class="picture">
-                <img :src="form.img" class="grid-content-picture-img">
-                <div @click="picture" class="grid-content-picture-button">上传照片</div>
-                <input type="file" ref="setfile" @change="upFile" hidden accept="image/*">
-              </div>
+<!--              <div class="picture">-->
+<!--                <img :src="form.img" class="grid-content-picture-img">-->
+<!--                <div @click="picture" class="grid-content-picture-button">上传照片</div>-->
+<!--                <input type="file" ref="setfile" @change="upFile" hidden accept="image/*">-->
+<!--              </div>-->
               <div class="userInf">
                 <el-row>
                   <el-col :span="12">
@@ -150,7 +150,7 @@ export default {
         contact: '',
         address: '',
         subject: '',
-        img: require('../../assets/bg.png'),
+        // img: require('../../assets/bg.png'),
         experience: ''
       },
 
@@ -209,7 +209,7 @@ export default {
           contact: '15094866411',
           address: '淄博市张店区',
           subject: '数学',
-          img: require('../../assets/bg.png'),
+          // img: require('../../assets/bg.png'),
           experience: ''
         }
       ],
@@ -319,16 +319,16 @@ export default {
     picture() {
       this.$refs.setfile.click()
     },
-    upFile(e) {
-      let that = this
-      if (!e || !window.FileReader) return // 看支持不支持FileReader
-      let reader = new FileReader()
-      reader.readAsDataURL(e.target.files[0]) // 这里是最关键的一步，转换就在这里 （参数必须是blob对象）
-      reader.onloadend = function () {
-        that.form.img = this.result
-      }
-      // console.log(this.item)
-    },
+    // upFile(e) {
+    //   let that = this
+    //   if (!e || !window.FileReader) return // 看支持不支持FileReader
+    //   let reader = new FileReader()
+    //   reader.readAsDataURL(e.target.files[0]) // 这里是最关键的一步，转换就在这里 （参数必须是blob对象）
+    //   reader.onloadend = function () {
+    //     that.form.img = this.result
+    //   }
+    //   // console.log(this.item)
+    // },
     // form中的数据重设
     onreset() {
       let form = {
@@ -339,7 +339,7 @@ export default {
         contact: '',
         // address: "",
         subject: '',
-        img: require('../../assets/bg.png'),
+        // img: require('../../assets/bg.png'),
         experience: ''
       }
       this.form = form
@@ -406,13 +406,13 @@ export default {
     right: 2px;
     width: 10%;
     // border-left: 1px solid rgb(226, 219, 219);
-    .grid-content-picture-img {
-      width: 100%;
-      height: 122px;
-      object-fit: cover;
-      object-position: center;
-      border: 1px solid rgb(226, 219, 219);
-    }
+    //.grid-content-picture-img {
+    //  width: 100%;
+    //  height: 122px;
+    //  object-fit: cover;
+    //  object-position: center;
+    //  border: 1px solid rgb(226, 219, 219);
+    //}
 
     .grid-content-picture-button {
       margin-left: 2px;

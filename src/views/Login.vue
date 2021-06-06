@@ -21,9 +21,10 @@
   </div>
 </template>
 <script>
-import { request } from '../network/request/request';
+import { post, request } from '../network/request/request';
 import { handleAlert } from '../utils/confirm';
 import store from '../store';
+import { SET_TOKEN } from '../store/mutation-types';
 
 export default {
   name: 'Login',
@@ -51,25 +52,32 @@ export default {
     resetForm(formName) {
       this.$refs.loginForm.resetFields()
     },
-    // 测试
+    // 登录
     login() {
-      let a = 1
-      if (a === 1) {
-        // request({
-        //   url: '/xxx/xxx',
-        //   methods: 'post'
-        // }).then(res => {
-        //   console.log(res);
-        // }).catch(err => {
-        //   console.log(err);
-        // })
+      // let a = 1
+      // if (a === 1) {
+      //
+      //   // this.$message.success('登陆成功')
+      //   // window.sessionStorage.setItem('token', 234)
+      //   this.$router.push('/main')
+      // } else {
+      //   this.$message.error('登陆失败')
+      // }
 
-        this.$message.success('登陆成功')
-        window.sessionStorage.setItem('token', 234)
-        this.$router.push('/main')
-      } else {
-        this.$message.error('登陆失败')
-      }
+      post('user/login', this.loginForm)
+        .then(res => {
+          console.log('请求成功');
+          console.log(res);
+          if (res === 0 || res === 1){
+            handleAlert('登录成功', 'success')
+            this.$router.push('/main')
+          } else {
+            handleAlert(res, 'warning')
+          }
+        }).catch(err => {
+        console.log(err);
+      })
+
     },
     // 登录
     submitLogin () {

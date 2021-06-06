@@ -152,11 +152,9 @@ export default {
       courseDuration: [
         {start: '08:00', step: '00:30', end: '10:00'},
         {start: '10:00', step: '00:30', end: '12:00'},
-        {start: '13:00', step: '00:30', end: '15:00'},
-        {start: '15:00', step: '00:30', end: '17:00'},
-        {start: '17:00', step: '00:30', end: '19:00'},
-        {start: '19:00', step: '00:30', end: '21:00'},
-        {start: '21:00', step: '00:30', end: '23:00'}
+        {start: '14:00', step: '00:30', end: '16:00'},
+        {start: '16:00', step: '00:30', end: '18:00'},
+        {start: '18:00', step: '00:30', end: '23:00'}
       ]
     };
   },
@@ -275,10 +273,8 @@ export default {
      * @param event 事件
      */
     handleDragEnd(dragging, drop, dropType, event) {
-
       this.dragging = dragging;
       this.drop = drop;
-
       // 获取拖拽单元格的数据
       this.draggingData = this.tableData[dragging.draggingrow.index][dragging.draggingcolumn.property];
       // 保存原始的数据(JSON转换后不受响应式影响)
@@ -288,7 +284,6 @@ export default {
       // 获取行index
       let rowIndex = drop.droprow.index;
       this.dropRowIndex = rowIndex;
-
     },
     // 拖拽完成时触发的事件
     handleDrop(row, column, cell, event, draggingNode, dropNode) {
@@ -344,6 +339,12 @@ export default {
   min-height: 159px;
   /*必须加important，不加不生效*/
   white-space:pre-line!important;
+}
+/*调整表头高度*/
+.main-table .el-table__header-wrapper {
+  height: 64px;
+  line-height: 30px;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .buttons {

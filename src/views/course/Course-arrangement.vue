@@ -458,28 +458,18 @@ export default {
         {
           id: 3,
           time: '下午',
-          period: '13:00-15:00'
+          period: '14:00-16:00'
         },
         {
           id: 4,
           time: '下午',
-          period: '15:00-17:00'
+          period: '16:00-18:00'
         },
         {
           id: 5,
           time: '晚上',
-          period: '17:00-19:00'
-        },
-        {
-          id: 6,
-          time: '晚上',
-          period: '19:00-21:00'
-        },
-        {
-          id: 7,
-          time: '晚上',
-          period: '21:00-23:00'
-        },
+          period: '18:00-23:00'
+        }
       ]
     }
   },
@@ -544,25 +534,7 @@ export default {
           day5: [],
           day6: [],
           day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
-        {
-          day1: [],
-          day2: [],
-          day3: [],
-          day4: [],
-          day5: [],
-          day6: [],
-          day7: []
-        },
+        }
       ];
       // 对从接口传来的数据进行处理
       for (let day of this.tableData) {// 遍历每周的课程
@@ -571,88 +543,40 @@ export default {
           let pos = -1// 课程在表格中的位置
           switch (course.start) {
             case '08:00':
-              pos = 1
-              break;
             case '08:30':
-              pos = 1
-              break;
             case '09:00':
-              pos = 1
-              break;
             case '09:30':
               pos = 1
               break;
             case '10:00':
-              pos = 2
-              break;
             case '10:30':
-              pos = 2
-              break;
             case '11:00':
-              pos = 2
-              break;
             case '11:30':
               pos = 2
               break;
-            case '13:00':
-              pos = 3
-              break;
-            case '13:30':
-              pos = 3
-              break;
             case '14:00':
-              pos = 3
-              break;
             case '14:30':
-              pos = 3
-              break;
             case '15:00':
-              pos = 4
-              break;
             case '15:30':
-              pos = 4
+              pos = 3
               break;
             case '16:00':
-              pos = 4
-              break;
             case '16:30':
-              pos = 4
-              break;
             case '17:00':
-              pos = 5
-              break;
             case '17:30':
-              pos = 5
+              pos = 4
               break;
             case '18:00':
-              pos = 5
-              break;
             case '18:30':
-              pos = 5
-              break;
             case '19:00':
-              pos = 6
-              break;
             case '19:30':
-              pos = 6
-              break;
             case '20:00':
-              pos = 6
-              break;
             case '20:30':
-              pos = 6
-              break;
             case '21:00':
-              pos = 7
-              break;
             case '21:30':
-              pos = 7
-              break;
             case '22:00':
-              pos = 7
-              break;
             case '22:30':
-              pos = 7
+              pos = 5
               break;
           }
           let start = course.start

@@ -25,10 +25,12 @@
             <!-- 删除按钮 -->
             <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
             <!-- <el-button type="warning" icon="el-icon-setting" size="mini">分配权限</el-button> -->
-
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页区 -->
+      <el-pagination background layout="total,prev, pager, next" :total="total" @current-change="handleCurrentChange">
+      </el-pagination>
 
     </el-card>
     <el-dialog :title="title" :visible.sync="setRightDialogVisible" width="40%" @close="onreset()">
@@ -42,7 +44,7 @@
         </el-form-item>
         <!-- <el-row> -->
         <el-form-item label="设置权限" pro="treeprops">
-          <el-tree :props="treeprops" :data="rightslist" ref="tree" node-key="id" default-expand-all
+          <el-tree :props="treeprops" :data="rightsList" ref="tree" node-key="id" default-expand-all
                    :default-checked-keys="defkeys" show-checkbox>
           </el-tree>
         </el-form-item>
@@ -58,18 +60,25 @@
   </div>
 </template>
 <script>
+import { get } from '../../network/request/request';
+
 export default {
   name: '',
   data() {
     return {
       title: '修改角色',
+      total: 100,
+      queryInfo: {
+        pageSize: 10,
+        pageNumber: 1
+      },
       // 属性控制的属性绑定对象
       treeprops: {
         label: 'label',
         children: 'children'
       },
       // 所有权限的数据
-      rightslist: [
+      rightsList: [
         {
           id: 1,
           label: '教师',
@@ -116,7 +125,7 @@ export default {
           // roleId: "",
           roleName: '管理员',
           roleDesc: '管理员',
-          rightslist: [
+          rightsList: [
             {
               id: 1,
               label: 'r1',
@@ -137,9 +146,9 @@ export default {
         },
         {
           // roleId: "",
-          roleName: '2213',
-          roleDesc: '123',
-          rightslist: [
+          roleName: '管理员',
+          roleDesc: '管理员',
+          rightsList: [
             {
               id: 2,
               label: 'r1',
@@ -178,7 +187,7 @@ export default {
     updateRightDialog(data) {
       this.title = '修改角色'
       this.form = data
-      this.getLeafkeys(data.rightslist, this.defkeys)
+      this.getLeafkeys(data.rightsList, this.defkeys)
       this.$nextTick(() => {
         this.$refs.tree.setCheckedKeys(this.defkeys)
       })
@@ -224,7 +233,16 @@ export default {
         // 调用修改角色接口
       }
       this.setRightDialogVisible = false
-    }
+    },
+    // 分页获取页码
+    handleCurrentChange(e) {
+      this.queryInfo.pageNumber = e
+      get('/user/page',{'page': this.queryInfo.pageNumber})
+        .then(res => {
+          console.log(res);
+        })
+      this.getRoleList()
+    },
   },
   mounted() {
   }

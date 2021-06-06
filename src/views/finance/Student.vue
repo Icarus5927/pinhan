@@ -25,10 +25,40 @@
         <el-tabs type="border-card" v-model="activeName">
           <el-tab-pane :label="item" v-for="(item,index) in label" :key="index" :name="item">
 
-            <el-table :data="list" stripe border>
+            <el-table :data="list" stripe border v-show="activeName === 'A辅'|| activeName === 'B辅'">
               <el-table-column type="index" label="#">
               </el-table-column>
-              <el-table-column v-for="(item,index) in studentHeader" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+              <el-table-column  v-for="(item,index) in studentHeaderAB" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+              </el-table-column>
+              <el-table-column label="操作" width="150px">
+                <template slot-scope="scope">
+                  <!--修改按钮 -->
+                  <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
+                  <!-- 删除按钮 -->
+                  <el-button type="danger" icon="el-icon-delete" size="mini" @click=" removeUserById(scope.row.work_id) "></el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+
+            <el-table :data="list" stripe border v-show="activeName === '一对一'">
+              <el-table-column type="index" label="#">
+              </el-table-column>
+              <el-table-column  v-for="(item,index) in studentHeader121" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+              </el-table-column>
+              <el-table-column label="操作" width="150px">
+                <template slot-scope="scope">
+                  <!--修改按钮 -->
+                  <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
+                  <!-- 删除按钮 -->
+                  <el-button type="danger" icon="el-icon-delete" size="mini" @click=" removeUserById(scope.row.work_id) "></el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+
+            <el-table :data="list" stripe border v-show="activeName === '班课'">
+              <el-table-column type="index" label="#">
+              </el-table-column>
+              <el-table-column  v-for="(item,index) in studentHeaderClassCourse" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
               </el-table-column>
               <el-table-column label="操作" width="150px">
                 <template slot-scope="scope">
@@ -47,8 +77,8 @@
         </el-pagination>
       </div>
     </el-card>
-    <!-- 标准收费弹窗-->
-    <el-dialog title="收费标准" :visible.sync="ratesdialogVisible" width="50%" :show-close="false" @close="onreset()">
+    <!-- 收费标准弹窗-->
+    <el-dialog title="收费标准" :visible.sync="ratesdialogVisible" width="50%" :show-close="false" @close="onreset()" :close-on-click-modal="false"	>
       <!-- 收费标准 -->
       <div class="standard">
         <el-tabs type="border-card" v-model="activeName" @tab-click="tabClick">
@@ -56,12 +86,39 @@
           </el-tab-pane>
         </el-tabs>
         <!-- 收费标准数据表格 -->
-        <editTable
+        <editTable v-show="activeTag === 'A'"
           ref="editTable"
           :tableData="charges[activeTag]"
           :height="tableHeight"
           :disabled="disabled"
-          :tableHeader="standardHeader"
+          :tableHeader="standardHeaderA"
+          @onTableBtn="deleteStandard"
+          @handleEdit="updateStandard"
+          />
+        <editTable v-show="activeTag === 'B'"
+          ref="editTable"
+          :tableData="charges[activeTag]"
+          :height="tableHeight"
+          :disabled="disabled"
+          :tableHeader="standardHeaderB"
+          @onTableBtn="deleteStandard"
+          @handleEdit="updateStandard"
+          />
+        <editTable v-show="activeTag === 'one2one'"
+          ref="editTable"
+          :tableData="charges[activeTag]"
+          :height="tableHeight"
+          :disabled="disabled"
+          :tableHeader="standardHeaderOne2one"
+          @onTableBtn="deleteStandard"
+          @handleEdit="updateStandard"
+          />
+        <editTable v-show="activeTag === 'classCourse'"
+          ref="editTable"
+          :tableData="charges[activeTag]"
+          :height="tableHeight"
+          :disabled="disabled"
+          :tableHeader="standardHeaderCourse"
           @onTableBtn="deleteStandard"
           @handleEdit="updateStandard"
           />
@@ -78,9 +135,30 @@
       </div>
     </el-dialog>
     <!-- 添加费用弹窗   -->
-    <el-dialog :title="title" :visible.sync="dialogVisible" width="70%" :show-close="false" @close="onreset()">
+    <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" :show-close="false" @close="onreset()" :close-on-click-modal="false">
       <div>
-        <el-form ref="addForm" label-width="90px" :model="form" :rules="rules">
+        <el-form v-show="activeName === 'A辅'|| activeName === 'B辅'" ref="addFormAB" label-width="90px" :model="form" :rules="rules">
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="费用类型" prop="type">
+                <el-input disabled :placeholder="activeName">{{ form.type = activeName }}</el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br/>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="收费标准" prop="charge_standard">
+                <el-select v-show="activeName === 'A辅'" v-model="form.charge_standard" placeholder="收费标准" style="width: 100%">
+                  <el-option v-for="item in charges['A']" :key="item.type" :label="item.type" :value="item.type"></el-option>
+                </el-select>
+                <el-select v-show="activeName === 'B辅'" v-model="form.charge_standard" placeholder="收费标准" style="width: 100%">
+                  <el-option v-for="item in charges['B']" :key="item.type" :label="item.type" :value="item.type"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
           <el-row>
             <el-col :span="8">
               <el-form-item label="学号" prop=work_id>
@@ -125,6 +203,7 @@
                   <el-option label="微信" value="微信"></el-option>
                   <el-option label="支付宝" value="支付宝"></el-option>
                   <el-option label="银行卡" value="银行卡"></el-option>
+                  <el-option label="现金" value="现金"></el-option>
                 </el-select>
               </el-form-item>
 
@@ -170,6 +249,29 @@
                 <el-input v-model="form.total" type="number"></el-input>
               </el-form-item>
             </el-col>
+            <el-col :span="8">
+              <el-form-item label="实际天数" prop="actualDays">
+                <el-input v-model="form.actualDays" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="剩余天数" prop="remainDays">
+                <el-input v-model="form.remainDays" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="实际费用" prop="cost">
+                <el-input v-model="form.cost" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="余额" prop="balance">
+                <el-input v-model="form.balance" type="number"></el-input>
+              </el-form-item>
+            </el-col>
           </el-row>
           <el-form-item>
             <div class="click-bottom">
@@ -178,6 +280,282 @@
             </div>
           </el-form-item>
         </el-form>
+        <el-form v-show="activeName === '一对一'" ref="addForm121" label-width="90px" :model="form" :rules="rules">
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="费用类型" prop="type">
+                <el-input disabled :placeholder="activeName">{{ form.type = activeName }}</el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br/>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="收费标准" prop="charge_standard">
+                <el-select v-model="form.charge_standard" placeholder="收费标准" style="width: 100%">
+                  <el-option v-for="item in charges['one2one']" :key="item.type" :label="item.type" :value="item.type"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="学号" prop=work_id>
+                <el-input v-model="form.work_id"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="姓名" prop="name">
+                <el-input v-model="form.name"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="年级" prop="grade">
+                <el-input v-model="form.grade"></el-input>
+              </el-form-item>
+            </el-col>
+
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="课程" prop=course_name>
+                <el-input v-model="form.course_name"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="科目" prop="subject">
+                <el-input v-model="form.subject"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="实际缴费" prop="actualPay">
+                <el-input v-model="form.actualPay" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="支付方式" prop="payment">
+                <el-select v-model="form.payment" placeholder="支付方式" style="width: 100%">
+                  <el-option label="微信" value="微信"></el-option>
+                  <el-option label="支付宝" value="支付宝"></el-option>
+                  <el-option label="银行卡" value="银行卡"></el-option>
+                  <el-option label="现金" value="现金"></el-option>
+                </el-select>
+              </el-form-item>
+
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="教学顾问" prop="counselor">
+                <el-input v-model="form.counselor"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="A辅转入" prop="fromA">
+                <el-input v-model="form.fromA" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="B辅转入" prop="fromB">
+                <el-input v-model="form.fromB" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="一对一转入" prop="from121">
+                <el-input v-model="form.from121" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="班课转入" prop="fromClass">
+                <el-input v-model="form.fromClass" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="优惠/减免" prop="discount">
+                <el-input v-model="form.discount" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="合计" prop="total">
+                <el-input v-model="form.total" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="赠课时" prop="present">
+                <el-input v-model="form.present" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="合计课时" prop="total_hour">
+                <el-input v-model="form.total_hour" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="备注" prop="remarks">
+                <el-input v-model="form.remarks" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item>
+            <div class="click-bottom">
+              <el-button @click="onclose()">取消</el-button>
+              <el-button type="primary" @click="upload()">确定</el-button>
+            </div>
+          </el-form-item>
+        </el-form>
+        <el-form v-show="activeName === '班课'" ref="addFormClassCourse" label-width="90px" :model="form" :rules="rules">
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="费用类型" prop="type">
+                <el-input disabled :placeholder="activeName">{{ form.type = activeName }}</el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="收费标准" prop="charge_standard">
+                <el-select v-model="form.charge_standard" placeholder="收费标准" style="width: 100%">
+                  <el-option v-for="item in charges['classCourse']" :key="item.type" :label="item.type" :value="item.type"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br/>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="学号" prop=work_id>
+                <el-input v-model="form.work_id"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="姓名" prop="name">
+                <el-input v-model="form.name"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="年级" prop="grade">
+                <el-input v-model="form.grade"></el-input>
+              </el-form-item>
+            </el-col>
+
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="课程" prop=course_name>
+                <el-input v-model="form.course_name"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="科目" prop="subject">
+                <el-input v-model="form.subject"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="实际缴费" prop="actualPay">
+                <el-input v-model="form.actualPay" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="支付方式" prop="payment">
+                <el-select v-model="form.payment" placeholder="支付方式" style="width: 100%">
+                  <el-option label="微信" value="微信"></el-option>
+                  <el-option label="支付宝" value="支付宝"></el-option>
+                  <el-option label="银行卡" value="银行卡"></el-option>
+                  <el-option label="现金" value="现金"></el-option>
+                </el-select>
+              </el-form-item>
+
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="教学顾问" prop="counselor">
+                <el-input v-model="form.counselor"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="A辅转入" prop="fromA">
+                <el-input v-model="form.fromA" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="B辅转入" prop="fromB">
+                <el-input v-model="form.fromB" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="一对一转入" prop="from121">
+                <el-input v-model="form.from121" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="班课转入" prop="fromClass">
+                <el-input v-model="form.fromClass" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="优惠/减免" prop="discount">
+                <el-input v-model="form.discount" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="合计" prop="total">
+                <el-input v-model="form.total" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="剩余课时" prop="remain_hour">
+                <el-input v-model="form.remain_hour" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <br>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item label="剩余课次" prop="remain_time">
+                <el-input v-model="form.remain_time" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="余额" prop="balance">
+                <el-input v-model="form.balance" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="备注" prop="remarks">
+                <el-input v-model="form.remarks" type="number"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item>
+            <div class="click-bottom">
+              <el-button @click="onclose()">取消</el-button>
+              <el-button type="primary" @click="upload()">确定</el-button>
+            </div>
+          </el-form-item>
+        </el-form>
+
       </div>
     </el-dialog>
   </div>
@@ -204,12 +582,12 @@ export default {
         pageSize: 10
       },
       // 当前选中的课程类型
-      activeName: '晚辅',
-      label: ['晚辅', '一对一', '班课'],
-      // 表头
-      studentHeader: [
-        { prop: "name", label: "姓名" },
+      activeName: 'A辅',
+      label: ['A辅', 'B辅', '一对一', '班课'],
+      // A\B辅表头
+      studentHeaderAB: [
         { prop: "grade", label: "年级" },
+        { prop: "name", label: "姓名" },
         { prop: "actualPay", label: "实际缴费" },
         { prop: "fromA", label: "A辅转入" },
         { prop: "fromB", label: "B辅转入" },
@@ -217,11 +595,48 @@ export default {
         { prop: "fromClass", label: "班课转入" },
         { prop: "total", label: "合计" },
         { prop: "discount", label: "优惠/减免" },
-        { prop: "cost", label: "消费费用" },
-        { prop: "RemainingFee", label: "剩余课时费" }
+        { prop: "actualDays", label: "实际天数" },
+        { prop: "remainDays", label: "剩余天数" },
+        { prop: "cost", label: "实际费用" },
+        { prop: "balance", label: "余额" }
       ],
+      // 一对一表头
+      studentHeader121: [
+        { prop: "grade", label: "年级" },
+        { prop: "name", label: "姓名" },
+        { prop: "subject", label: "补习科目" },
+        { prop: "actualPay", label: "实际缴费" },
+        { prop: "fromA", label: "A辅转入" },
+        { prop: "fromB", label: "B辅转入" },
+        { prop: "from121", label: "一对一转入" },
+        { prop: "fromClass", label: "班课转入" },
+        { prop: "total", label: "合计" },
+        { prop: "discount", label: "优惠/减免" },
+        { prop: "present", label: "赠课时" },
+        { prop: "total_hour", label: "合计课时" },
+        { prop: "remarks", label: "备注" }
+      ],
+      studentHeaderClassCourse: [
+        { prop: "grade", label: "年级" },
+        { prop: "name", label: "姓名" },
+        { prop: "name", label: "补习科目" },
+        { prop: "actualPay", label: "实际缴费" },
+        { prop: "fromA", label: "A辅转入" },
+        { prop: "fromB", label: "B辅转入" },
+        { prop: "from121", label: "一对一转入" },
+        { prop: "fromClass", label: "班课转入" },
+        { prop: "total", label: "合计" },
+        { prop: "discount", label: "优惠/减免" },
+        { prop: "remain_hour", label: "剩余课时" },
+        { prop: "remain_time", label: "剩余课次" },
+        { prop: "balance", label: "余额" },
+        { prop: "remarks", label: "备注" }
+      ],
+
       // 添加费用表单
       form: {
+        type: '',
+        charge_standard: '',
         work_id: '',
         name: '',
         grade: '',
@@ -235,10 +650,22 @@ export default {
         from121: '',
         fromClass: '',
         total: '',
-        discount: ''
+        discount: '',
+        actualDays: '',
+        remainDays: '',
+        cost: '',
+        balance: '',
+        present: '',
+        total_hour: '',
+        remarks: '',
+        remain_hour: '',
+        remain_time: '',
       },
       // 添加费用表单规则
       rules: {
+        type: [
+          { required: true, message: '请选择类别', trigger: 'change' },
+        ],
         work_id: [
           { required: true, message: '请输入学号', trigger: 'blur' },
           { min: 3, max: 10, message: '学号必须为数字,长度在3到10个字符', trigger: 'blur' },
@@ -309,25 +736,33 @@ export default {
       // 收费标准数据
       charges: {
         // 晚辅
-        evening: [
+        A: [
           {
-            type: 'A辅',
+            type: 'A辅1',
             standard: '2',
             hours: '',
             dayCost: ''
           },
           {
-            type: 'B辅',
+            type: 'A辅2',
+            standard: '2',
+            hours: '',
+            dayCost: ''
+          }
+        ],
+        B: [
+          {
+            type: 'B辅1',
             standard: '3',
             hours: '',
             dayCost: ''
           },
           {
-            type: 'C辅',
-            standard: '4',
+            type: 'B辅2',
+            standard: '3',
             hours: '',
             dayCost: ''
-          }
+          },
         ],
         // 1对1
         one2one: [
@@ -391,16 +826,36 @@ export default {
         ]
       },
       // 选中的课程类别
-      activeTag: 'evening',
+      activeTag: 'A',
       tableHeight: 300,
       // 设置表格可编辑
       disabled: false,
       // 收费标准table_header
-      standardHeader: [
-        { name: 'type', title: '类型', width: '100', type: "text" },
-        { name: 'standard', title: '收费标准', width: '150', type: "text" },
-        { name: 'hours', title: '预计上课', width: '150', type: "text" },
-        { name: 'dayCost', title: '每天费用', width: '150', type: 'text' },
+      standardHeaderA: [
+        { name: 'type', title: '类型', width: 'fit-content', type: "text" },
+        { name: 'standard', title: '收费/月', width: 'fit-content', type: "text" },
+        { name: 'hours', title: '预计上课', width: 'fit-content', type: "text" },
+        { name: 'dayCost', title: '每天费用', width: 'fit-content', type: 'text' },
+        { name: 'btn', title: '操作', width: '100', type: 'btn-d', text: '删除' }
+      ],
+      standardHeaderB: [
+        { name: 'type', title: '类型', width: 'fit-content', type: "text" },
+        { name: 'standard', title: '收费标准', width: 'fit-content', type: "text" },
+        { name: 'hours', title: '预计上课', width: 'fit-content', type: "text" },
+        { name: 'dayCost', title: '每天费用', width: 'fit-content', type: 'text' },
+        { name: 'btn', title: '操作', width: '100', type: 'btn-d', text: '删除' }
+      ],
+      standardHeaderOne2one: [
+        { name: 'type', title: '类型', width: 'fit-content', type: "text" },
+        { name: 'standard', title: '收费/h', width: 'fit-content', type: "text" },
+        { name: 'btn', title: '操作', width: '100', type: 'btn-d', text: '删除' }
+      ],
+      standardHeaderCourse: [
+        { name: 'type', title: '类型', width: 'fit-content', type: "text" },
+        { name: 'standard', title: '收费标准', width: 'fit-content', type: "text" },
+        { name: 'hours', title: '课次', width: 'fit-content', type: "text" },
+        { name: 'dayCost', title: '课时', width: 'fit-content', type: 'text' },
+        { name: 'dayCost', title: '课时费/h', width: 'fit-content', type: 'text' },
         { name: 'btn', title: '操作', width: '100', type: 'btn-d', text: '删除' }
       ]
     }
@@ -489,9 +944,11 @@ export default {
       console.log(res)
     },
 
-    // 把form中的数据重新设置
+    // 把form中的数据重置
     onreset() {
       const form = {
+        type: '',
+        charge_standard: '',
         work_id: '',
         name: '',
         grade: '',
@@ -505,19 +962,30 @@ export default {
         from121: '',
         fromClass: '',
         total: '',
-        discount: ''
+        discount: '',
+        actualDays: '',
+        remainDays: '',
+        cost: '',
+        balance: '',
+        present: '',
+        total_hour: '',
+        remarks: '',
+        remain_hour: '',
+        remain_time: '',
       }
       this.form = form
     },
     /**
-    * @Description: tab标签点击事件
+    * @Description: tab标签点击事件,修改活跃tag
     * @author oldMe
     * @date 2021/4/22
     */
     tabClick(tab) {
       const name = tab.$options.propsData.name;
-      if (name === '晚辅') {
-        this.activeTag = 'evening'
+      if (name === 'A辅') {
+        this.activeTag = 'A'
+      } else if (name === 'B辅') {
+        this.activeTag = 'B'
       } else if (name === '一对一') {
         this.activeTag = 'one2one'
       } else {

@@ -79,7 +79,9 @@
           :show-summary="true"
         />
       </div>
-
+      <!-- 分页区 -->
+      <el-pagination background layout="total,prev, pager, next" :total="total" @current-change="handleCurrentChange">
+      </el-pagination>
     </el-card>
   </div>
 </template>
@@ -106,7 +108,11 @@ export default {
         grade: '',
         course_name: '',
         subject: '',
+        pageNumber: 1,
+        pageSize: 10
       },
+      // 数据总条数
+      total: 100,
       // 表头
       courseHeader: [
         { name: 'date', title: '日期', width: 'fit-content', type: "text" },
@@ -178,6 +184,11 @@ export default {
     }
   },
   methods: {
+    // 分页获取页码
+    handleCurrentChange(e) {
+      this.queryInfo.pageNumber = e
+      this.getFinanceList(this.activeName)
+    },
   }
 }
 </script>

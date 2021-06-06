@@ -1,8 +1,8 @@
 import { get, post, remove, update } from '../request/request';
 // api的统一管理
-export const apiData = params => post('tableData', params);
-export const apiDelete = params => remove('/remove', params);
-export const apiUpdate = (id, params) => update('/update', id, params);
+// export const apiData = params => post('tableData', params);
+// export const apiDelete = params => remove('/remove', params);
+// export const apiUpdate = (id, params) => update('/update', id, params);
 
 // 具体使用方法
 // apiData({

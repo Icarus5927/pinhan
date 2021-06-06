@@ -109,7 +109,7 @@ export default {
     }
   },
   created() {
-    this.getUserList(this.activeName)
+    // this.getUserList(this.activeName)
   },
   computed: {
     // 计算选中月的天数

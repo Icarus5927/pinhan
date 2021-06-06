@@ -22,7 +22,7 @@
         <el-table :data="list" stripe border>
           <el-table-column type="index" label="#">
           </el-table-column>
-          <el-table-column v-for="(item,index) in studentList" :key="index" :prop="item.prop" :label="item.label"
+          <el-table-column v-for="(item,index) in formHeader" :key="index" :prop="item.prop" :label="item.label"
                            :width="item.width">
           </el-table-column>
           <el-table-column label="操作" width="110px">
@@ -50,12 +50,12 @@
             <!-- 头部信息区  -->
             <div class="header">
               <!--上传头像 -->
-              <div class="picture">
-                <img :src="form.img" class="grid-content-picture-img">
-                <div @click="picture" class="grid-content-picture-button">上传照片</div>
-                <!-- 隐藏input -->
-                <input type="file" ref="setfile" @change="upfile" hidden accept="image/*">
-              </div>
+<!--              <div class="picture" >-->
+<!--                <img :src="form.img" class="grid-content-picture-img">-->
+<!--                <div @click="picture" class="grid-content-picture-button">上传照片</div>-->
+<!--                &lt;!&ndash; 隐藏input &ndash;&gt;-->
+<!--                <input type="file" ref="setfile" @change="upfile" hidden accept="image/*">-->
+<!--              </div>-->
 
               <!-- 左侧添加信息区 -->
               <div class="infoArea">
@@ -182,6 +182,7 @@
 <script>
 // import Student from "../../components/Student"
 import { handleAlert, handleConfirm } from '../../utils/confirm';
+import { get, post } from '../../network/request/request';
 
 export default {
   name: 'studentInfo',
@@ -200,7 +201,7 @@ export default {
         contact: '',
         address: '',
         origin: '',
-        img: require('../../assets/bg.png'),
+        // img: require('../../assets/bg.png'),
         score: {
           date: '',
           result: [
@@ -294,11 +295,11 @@ export default {
       // 获取用户参数列表对象
       queryInfo: {
         name: '',
-        pagenNmber: 1,
+        pageNumber: 1,
         pageSize: 10
       },
       // 构建表的信息
-      studentList: [
+      formHeader: [
         {
           prop: 'work_id',
           label: '学号',
@@ -362,7 +363,7 @@ export default {
           origin: '其他',
           class_rank: 1,
           dep_rank: 1,
-          img: require('../../assets/bg.png'),
+          // img: require('../../assets/bg.png'),
           score: {
             date: '2021-01-15',
             result: [
@@ -421,10 +422,22 @@ export default {
   methods: {
     // 获取后端传过来的数据
     getUserList() {
+
     },
     // 分页获取页码
     handleCurrentChange(e) {
-      this.queryInfo.pagenNmber = e
+      this.queryInfo.pageNumber = e
+      get('/student/page',{'page': this.queryInfo.pageNumber})
+      .then(res => {
+        console.log(res);
+      })
+      // post('/user/page', {"page": this.queryInfo.pageNumber})
+      // .then(res => {
+      //   console.log('页码请求成功');
+      //   console.log(res);
+      // }).catch(err => {
+      //   console.log(err + '请求失败');
+      // })
       this.getUserList()
     },
     // 确定
@@ -490,16 +503,16 @@ export default {
       this.$refs.setfile.click()
     },
     // 上传头像图片
-    upfile(e) {
-      const that = this
-      if (!e || !window.FileReader) return // 看支持不支持FileReader
-      const reader = new FileReader()
-      reader.readAsDataURL(e.target.files[0]) // 这里是最关键的一步，转换就在这里 （参数必须是blob对象）
-      reader.onloadend = function () {
-        that.form.img = this.result
-      }
-      // console.log(this.item)
-    },
+    // upfile(e) {
+    //   const that = this
+    //   if (!e || !window.FileReader) return // 看支持不支持FileReader
+    //   const reader = new FileReader()
+    //   reader.readAsDataURL(e.target.files[0]) // 这里是最关键的一步，转换就在这里 （参数必须是blob对象）
+    //   reader.onloadend = function () {
+    //     that.form.img = this.result
+    //   }
+    //   // console.log(this.item)
+    // },
     // form中的数据重设
     onreset() {
       const form = {
@@ -511,7 +524,7 @@ export default {
         contact: '',
         address: '',
         origin: '',
-        img: require('../../assets/bg.png'),
+        // img: require('../../assets/bg.png'),
         score: {
           date: '',
           result: [
@@ -620,12 +633,12 @@ export default {
     width: 15%;
     border-left: 1px solid rgb(226, 219, 219);
 
-    .grid-content-picture-img {
-      width: 100%;
-      height: 160px;
-      object-fit: cover;
-      object-position: center;
-    }
+    //.grid-content-picture-img {
+    //  width: 100%;
+    //  height: 160px;
+    //  object-fit: cover;
+    //  object-position: center;
+    //}
 
     .grid-content-picture-button {
       line-height: 37px;

@@ -14,17 +14,46 @@
                     <el-input placeholder="请输入姓名" v-model="queryInfo.name" class="input-with-select" clearable @clear="getUserList()">
                         <el-button slot="append" icon="el-icon-search" @click="getUserList()"></el-button>
                     </el-input>
-
                     <el-button type="primary" @click="addFinance()">添加费用</el-button>
                 </div>
                 <!-- 数据区 -->
                 <el-tabs type="border-card" v-model="activeName">
                     <el-tab-pane :label="item" v-for="(item,index) in label" :key="index" :name="item">
 
-                        <el-table :data="list" stripe border>
+                        <el-table :data="list" stripe border v-show="activeName === 'A辅' || activeName === 'B辅'">
                             <el-table-column type="index" label="#">
                             </el-table-column>
-                            <el-table-column v-for="(item,index) in teacherList" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+                            <el-table-column  v-for="(item,index) in headerAB" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+                            </el-table-column>
+                            <el-table-column label="操作" width="150px">
+                                <template slot-scope="scope">
+                                  <!--修改按钮 -->
+                                  <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
+                                  <!-- 删除按钮 -->
+                                  <el-button type="danger" icon="el-icon-delete" size="mini" @click=" removeUserById(scope.row.work_id) "></el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+
+                        <el-table :data="list" stripe border v-show="activeName === '一对一'">
+                            <el-table-column type="index" label="#">
+                            </el-table-column>
+                            <el-table-column v-for="(item,index) in header121" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+                            </el-table-column>
+                            <el-table-column label="操作" width="150px">
+                                <template slot-scope="scope">
+                                  <!--修改按钮 -->
+                                  <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
+                                  <!-- 删除按钮 -->
+                                  <el-button type="danger" icon="el-icon-delete" size="mini" @click=" removeUserById(scope.row.work_id) "></el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+
+                        <el-table :data="list" stripe border v-show="activeName === '班课'">
+                            <el-table-column type="index" label="#">
+                            </el-table-column>
+                            <el-table-column v-show="activeName === '班课'" v-for="(item,index) in headerClassCourse" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
                             </el-table-column>
                             <el-table-column label="操作" width="150px">
                                 <template slot-scope="scope">
@@ -56,7 +85,95 @@
         <!-- 添加费用弹窗 -->
         <el-dialog :title="title" :visible.sync="dialogVisible" width="40%" :show-close="false" @close="onreset()">
             <div>
-                <el-form ref="form" label-width="90px" :model="form" :rules="rules">
+              <el-form v-show="activeName === 'A辅'|| activeName === 'B辅'" ref="formA" label-width="90px" :model="form" :rules="rules">
+                <el-row>
+                  <el-col :span="24">
+                    <el-form-item label="辅导类型" prop="type">
+                      <el-input disabled :placeholder="activeName">{{ form.type = activeName }}</el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <br/>
+
+                <el-row>
+                  <el-col :span="12">
+                    <el-form-item label="工号" prop='work_id'>
+                      <el-input v-model="form.work_id"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="姓名" prop='name'>
+                      <el-input v-model="form.name"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <br>
+
+                <el-row>
+                  <el-col :span="12">
+                    <el-form-item label="工资/天" prop='daily_salary'>
+                      <el-input v-model="form.daily_salary"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="工作天数" prop='work_days'>
+                      <el-input v-model="form.work_days"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <br>
+
+                <el-row>
+                  <el-col :span="12">
+                    <el-form-item label="工资" prop='salary'>
+                      <el-input v-model="form.salary" type="number"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="全勤奖" prop='perfect_attendance_award'>
+                      <el-input v-model="form.perfect_attendance_award" type="number"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <br>
+
+                <el-row>
+                  <el-col :span="12">
+                    <el-form-item label="其他奖励" prop='other_award'>
+                      <el-input v-model="form.other_award" type="number"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="迟到/早退" prop='leave_late'>
+                      <el-input v-model="form.leave_late" type="number"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <br>
+                <el-row>
+                  <el-col :span="24">
+                    <el-form-item label="实发工资" prop='net_salary'>
+                      <el-input v-model="form.net_salary" type="number"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+
+                <el-form-item>
+                    <div class="click-bottom">
+                        <el-button type="primary" @click="upload()">确定</el-button>
+                        <el-button @click="onclose()"> 取消</el-button>
+                    </div>
+                </el-form-item>
+              </el-form>
+              <el-form v-show="activeName === '一对一'" ref="formB" label-width="90px" :model="form" :rules="rules">
+                  <el-row>
+                    <el-col :span="24">
+                      <el-form-item label="辅导类型" prop="type">
+                        <el-input disabled :placeholder="activeName">{{ form.type = activeName }}</el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <br/>
                   <el-row>
                     <el-col :span="12">
                       <el-form-item label="工号" prop='work_id'>
@@ -64,21 +181,16 @@
                       </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                      <el-form-item label="姓名" prop='teacher_name'>
-                        <el-input v-model="form.teacher_name"></el-input>
+                      <el-form-item label="姓名" prop='name'>
+                        <el-input v-model="form.name"></el-input>
                       </el-form-item>
                     </el-col>
                   </el-row>
                   <br>
 
                   <el-row>
-                    <el-col :span="12">
-                      <el-form-item label="课程" prop='course_name'>
-                        <el-input v-model="form.course_name"></el-input>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                      <el-form-item label="科目" prop='subject'>
+                    <el-col :span="24">
+                      <el-form-item label="辅导科目" prop='subject'>
                         <el-input v-model="form.subject"></el-input>
                       </el-form-item>
                     </el-col>
@@ -120,6 +232,73 @@
                       </div>
                   </el-form-item>
                 </el-form>
+              <el-form v-show="activeName === '班课'" ref="formClass" label-width="90px" :model="form" :rules="rules">
+                <el-row>
+                  <el-col :span="24">
+                    <el-form-item label="辅导类型" prop="type">
+                      <el-input disabled :placeholder="activeName">{{ form.type = activeName }}</el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <br/>
+                <el-row>
+                  <el-col :span="12">
+                    <el-form-item label="工号" prop='work_id'>
+                      <el-input v-model="form.work_id"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="姓名" prop='name'>
+                      <el-input v-model="form.name"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <br>
+
+                <el-row>
+                  <el-col :span="12">
+                    <el-form-item label="年级" prop='grade'>
+                      <el-input v-model="form.grade"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="课时费/h" prop='class_fee'>
+                      <el-input v-model="form.class_fee"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <br>
+
+                <el-row>
+                  <el-col :span="12">
+                    <el-form-item label="总课时" prop='total_hour'>
+                      <el-input v-model="form.total_hour" type="number"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="总课时费" prop='total_fee'>
+                      <el-input v-model="form.total_fee" type="number"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <br>
+
+                <el-row>
+                  <el-col :span="24">
+                    <el-form-item label="备注" prop='remarks'>
+                      <el-input v-model="form.remarks" type="number"></el-input>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <br>
+
+                <el-form-item>
+                  <div class="click-bottom">
+                    <el-button type="primary" @click="upload()">确定</el-button>
+                    <el-button @click="onclose()"> 取消</el-button>
+                  </div>
+                </el-form-item>
+              </el-form>
             </div>
         </el-dialog>
     </div>
@@ -144,30 +323,58 @@ export default {
       activeName: "A辅",
       label: ["A辅", "B辅", "一对一", "班课"],
       // 表头
-      teacherList: [
-          { prop: "teacher_name", label: "姓名" },
+      headerAB: [
+          { prop: "name", label: "姓名" },
+          { prop: "daily_salary", label: "工资/天" },
+          { prop: "work_days", label: "工作天数" },
+          { prop: "salary", label: "工资" },
+          { prop: "perfect_attendance_award", label: "全勤奖" },
+          { prop: "other_award", label: "其他奖励" },
+          { prop: "leave_late", label: "迟到/早退" },
+          { prop: "net_salary", label: "实发工资" }
+      ],
+      header121: [
+          { prop: "name", label: "姓名" },
           { prop: "subject", label: "辅导科目" },
-          { prop: "class_fee", label: "课时费" },
+          { prop: "class_fee", label: "课时费/h" },
           { prop: "total_hour", label: "总课时" },
           { prop: "total_fee", label: "总课时费" },
           { prop: "total_expenses", label: "个人总费用" }
       ],
+      headerClassCourse: [
+        { prop: "name", label: "姓名" },
+        { prop: "grade", label: "年级" },
+        { prop: "class_fee", label: "课时费/h" },
+        { prop: "total_hour", label: "总课时" },
+        { prop: "total_fee", label: "总课时费" },
+        { prop: "remarks", label: "备注" },
+      ],
+      // 添加费用表单
       form: {
-        work_id: '',
-        teacher_name: '',
-        course_name: '',
-        subject: '',
-        class_fee: '',
-        total_hour: '',
-        total_fee: '',
-        total_expenses: ''
+        type : '',// 辅导类型
+        work_id: '',//工号
+        name: '',//姓名
+        daily_salary: '',//日薪
+        work_days: '',//工作天数
+        salary: '',//工资
+        perfect_attendance_award: '',// 全勤奖
+        other_award: '',// 其他奖励
+        leave_late: '',// 迟到、早退
+        net_salary: '',// 实发工资
+        subject: '',// 辅导科目
+        class_fee: '',// 课时费
+        total_hour: '',// 总课时
+        total_fee: '',// 共课时费
+        total_expenses: '',// 个人总费用
+        grade: '',// 年级
+        remarks: ''// 备注
       },
       rules: {
         work_id: [
           { required: true, message: '请输入学号', trigger: 'blur' },
           { min: 3, max: 10, message: '学号必须为数字,长度在3到10个字符', trigger: 'blur' },
         ],
-        teacher_name: [
+        name: [
           { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
           { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
         ],
@@ -199,7 +406,7 @@ export default {
       list: [
         {
           work_id: '1001',
-          teacher_name: 'zs',
+          name: 'zs',
           subject: 'dsa',
           course_name: 'math',
           class_fee: 213,
@@ -315,7 +522,7 @@ export default {
     onreset() {
         let form = {
           work_id: '',
-          teacher_name: '',
+          name: '',
           course_name: '',
           subject: '',
           class_fee: undefined,
