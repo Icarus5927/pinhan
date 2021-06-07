@@ -9,12 +9,19 @@
       <div class="card-header">
         <el-button type="primary" @click="addRightDialog()">添加角色</el-button>
       </div>
-      <el-table :data="RoleList" stripe border>
+      <el-table :data="UserList" stripe border>
         <el-table-column type="index" label="#" width="80">
         </el-table-column>
-        <el-table-column prop="roleName" label="角色名称">
+        <el-table-column prop="work_id" label="工号">
         </el-table-column>
-        <el-table-column prop="roleDesc" label="角色描述">
+        <el-table-column prop="name" label="姓名">
+        </el-table-column>
+        <el-table-column prop="level" label="角色描述" >
+          <template slot-scope="scope">
+            <span v-if="scope.row.level === 0">管理员</span>
+            <span v-else-if="scope.row.level === 1">员工</span>
+            <span v-else-if="scope.row.level === 2">教师</span>
+          </template>
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
@@ -36,17 +43,18 @@
     <el-dialog :title="title" :visible.sync="setRightDialogVisible" width="40%" @close="onreset()">
       <el-form ref="form" label-width="90px" :model="form">
 
-        <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="form.roleName"></el-input>
+        <el-form-item label="工号" prop="work_id">
+          <el-input v-model="form.work_id"></el-input>
         </el-form-item>
-        <el-form-item label="角色描述" prop="roleDesc">
-          <el-input v-model="form.roleDesc"></el-input>
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="form.name"></el-input>
         </el-form-item>
-        <!-- <el-row> -->
-        <el-form-item label="设置权限" pro="treeprops">
-          <el-tree :props="treeprops" :data="rightsList" ref="tree" node-key="id" default-expand-all
-                   :default-checked-keys="defkeys" show-checkbox>
-          </el-tree>
+        <el-form-item label="设置权限" prop="level">
+          <el-select v-model="form.level" placeholder="请选择权限" style="width: 100%">
+            <el-option label="管理员" :value="0"></el-option>
+            <el-option label="员工" :value="1"></el-option>
+            <el-option label="教师" :value="2"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item>
           <div class="click-bottom">
@@ -72,111 +80,41 @@ export default {
         pageSize: 10,
         pageNumber: 1
       },
-      // 属性控制的属性绑定对象
-      treeprops: {
-        label: 'label',
-        children: 'children'
-      },
-      // 所有权限的数据
-      rightsList: [
-        {
-          id: 1,
-          label: '教师',
-          children: [
-            {
-              id: 12,
-              label: '讲师',
-              children: [
-                {
-                  id: 3,
-                  label: '添加课程'
-                }
-              ]
-            }
-          ]
-        },
-        {
-          id: 105,
-          label: '员工',
-          children: [
-            {
-              id: 12,
-              label: 'right1',
-              children: [
-                {
-                  id: 123,
-                  label: 'right2'
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      // 默认选中的节点ID值
-      defkeys: [],
       // 增加角色列表数据
       form: {
-        roleName: '',
-        roleDesc: ''
+        work_id: '',
+        name: '',
+        level: ''
       },
       // 从后台返回的数据
-      RoleList: [
+      UserList: [
         {
-          // roleId: "",
-          roleName: '管理员',
-          roleDesc: '管理员',
-          rightsList: [
-            {
-              id: 1,
-              label: 'r1',
-              children: [
-                {
-                  id: 12,
-                  label: 'r12',
-                  children: [
-                    {
-                      id: 123,
-                      label: 'r123'
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
+          work_id: '1223',
+          name: 'zx',
+          level: 1
         },
         {
-          // roleId: "",
-          roleName: '管理员',
-          roleDesc: '管理员',
-          rightsList: [
-            {
-              id: 2,
-              label: 'r1',
-              children: [
-                {
-                  id: 21,
-                  label: 'r12',
-                  children: [
-                    {
-                      id: 212,
-                      label: 'r123'
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
+          work_id: '3321',
+          name: 'zxc',
+          level: 0
         }
       ],
       setRightDialogVisible: false
     }
   },
   created() {
-    this.getRoleList()
+    this.getUserList()
   },
   methods: {
     // 获取所有角色的列表
-    getRoleList() {
+    getUserList() {
+      get('/user/page',{'page': this.queryInfo.pageNumber})
+        .then(res => {
+          // console.log(res);
+          console.log(res.records);
+          this.UserList = res.records
+          this.total = res.total
+        })
     },
     // 展示添加角色
     addRightDialog() {
@@ -187,35 +125,15 @@ export default {
     updateRightDialog(data) {
       this.title = '修改角色'
       this.form = data
-      this.getLeafkeys(data.rightsList, this.defkeys)
-      this.$nextTick(() => {
-        this.$refs.tree.setCheckedKeys(this.defkeys)
-      })
       this.setRightDialogVisible = true
-    },
-    // 通过递归的形式获取三级权限的ID,并保存到defkeys中
-    getLeafkeys(node, arr) {
-      // console.log(node)
-      node.forEach((item) => {
-        if (!item.children) {
-          return arr.push(item.id)
-        }
-        // console.log(item.children)
-        item.children.forEach((item) => {
-          // console.log(item)
-          this.getLeafkeys(item.children, arr)
-        })
-      })
-      console.log(this.defkeys);
     },
     // 重置
     onreset() {
       this.form = {
-        roleName: '',
-        roleDesc: ''
+        work_id: '',
+        name: '',
+        level: ''
       }
-      this.defkeys = []
-      this.$refs.tree.setCheckedKeys([])
     },
     // 关闭
     onclose() {
@@ -237,11 +155,7 @@ export default {
     // 分页获取页码
     handleCurrentChange(e) {
       this.queryInfo.pageNumber = e
-      get('/user/page',{'page': this.queryInfo.pageNumber})
-        .then(res => {
-          console.log(res);
-        })
-      this.getRoleList()
+      this.getUserList()
     },
   },
   mounted() {

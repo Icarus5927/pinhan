@@ -35,7 +35,7 @@ export function request(config) {
 
   // 响应拦截器
   instance.interceptors.response.use(res => {
-    console.log(res);
+    // console.log(res);
     // 如果返回的状态码为200，说明接口请求成功，可以正常拿到数据
     if (res.status === 200) {
       // 可以对接口返回的结果进行一些处理后，返回res

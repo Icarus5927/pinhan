@@ -14,7 +14,7 @@
         </el-table-column>
         <el-table-column prop="name" label="姓名">
         </el-table-column>
-        <el-table-column prop="pass_word" label="当前密码">
+        <el-table-column prop="password" label="当前密码">
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
@@ -39,6 +39,9 @@
         </el-col>
         <el-col :span="8">
           <span>姓名：{{ user.name }}</span>
+        </el-col>
+        <el-col :span="8">
+          <span>当前密码：{{ user.password }}</span>
         </el-col>
       </el-row>
       <el-form ref="form" label-width="90px" :model="form" :rules="rules">
@@ -73,14 +76,13 @@ export default {
   name: '',
   data() {
     return {
-      // 密码必须是8位到16位、必须含有字母、数字、特殊符号
-      reg : /^(?=.*\d)(?=.*[a-zA-Z])(?=.*[~!@#$%^&*.])[\da-zA-Z~!@#$%^&*.]{8,16}$/,
+      // 密码必须是6位到16位、必须含有字母、数字
+      reg : /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/,
       // 弹窗是否可见
       dialogVisible: false,
       // 用户信息列表
       userList: [
-        { work_id: '1001', name: '朱大全', pass_word: '123456' },
-        { work_id: '1002', name: '黎明', pass_word: '123456' }
+
       ],
       // 修改信息表单
       form: {
@@ -110,12 +112,21 @@ export default {
   created() {
     // 获取用户信息列表
     // this.userList = this.getUserList()
+    this.getUserList()
   },
   methods: {
     // 获取用户列表
     getUserList() {
       // 获取用户信息列表
-
+      get('/user/page',{'page': this.queryInfo.pageNumber})
+        .then(res => {
+          // console.log(res);
+          console.log(res.records);
+          // 获取用户列表
+          this.userList = res.records
+          // 获取页数
+          this.total = res.total;
+        })
     },
     // 修改密码
     update(user) {
@@ -138,7 +149,7 @@ export default {
       //表单验证
       this.$refs.form.validate((valid) => {
         if (!this.reg.test(this.form.newPWD)) {
-          handleAlert('密码必须是8位到16位、必须含有字母、数字、特殊符号', 'warning')
+          handleAlert('密码必须是6位到16位、必须含有字母、数字', 'warning')
           return
         }
         if (this.form.newPWD !== this.form.confirmPWD) {
@@ -150,9 +161,14 @@ export default {
           post('user/reset', {workId: "1001", newPassWord: this.form.newPWD })
           .then(res => {
             console.log(res);
+            if (res === 1) {
+              handleAlert()
+              this.dialogVisible = false
+            } else {
+              handleAlert('修改失败', 'warning')
+            }
+            this.getUserList()
           })
-          this.dialogVisible = false
-          handleAlert()
         } else {
           console.log('error submit!!')
           return false
