@@ -121,7 +121,7 @@ export default {
       get('/user/page',{'page': this.queryInfo.pageNumber})
         .then(res => {
           // console.log(res);
-          console.log(res.records);
+          // console.log(res.records);
           // 获取用户列表
           this.userList = res.records
           // 获取页数

@@ -484,7 +484,7 @@ export default {
     },
     removeUserById(id) {
       const res = handleConfirm(
-        '此操作将永久删除该收入流水，是否继续？',
+        '此操作将永久删除该流水，是否继续？',
         'warning',
         '提示'
       )

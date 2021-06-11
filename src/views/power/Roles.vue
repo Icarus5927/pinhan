@@ -30,7 +30,7 @@
             <el-button type="primary" icon="el-icon-edit" size="mini" @click="updateRightDialog(scope.row)">修改
             </el-button>
             <!-- 删除按钮 -->
-            <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteUser(scope.row.work_id)">删除</el-button>
             <!-- <el-button type="warning" icon="el-icon-setting" size="mini">分配权限</el-button> -->
           </template>
         </el-table-column>
@@ -69,6 +69,7 @@
 </template>
 <script>
 import { get } from '../../network/request/request';
+import { handleAlert, handleConfirm } from '../../utils/confirm';
 
 export default {
   name: '',
@@ -111,7 +112,7 @@ export default {
       get('/user/page',{'page': this.queryInfo.pageNumber})
         .then(res => {
           // console.log(res);
-          console.log(res.records);
+          // console.log(res.records);
           this.UserList = res.records
           this.total = res.total
         })
@@ -127,6 +128,24 @@ export default {
       this.form = data
       this.setRightDialogVisible = true
     },
+    //删除操作
+    deleteUser(work_id) {
+      const res = handleConfirm(
+        '此操作将永久删除该收入流水，是否继续？',
+        'warning',
+        '提示'
+      )
+        .then(work_id => {
+          // 调用接口完成删除用户操作
+
+          handleAlert();
+        })
+        .catch(() => {
+          handleAlert('已取消删除', 'info');
+        });
+      console.log(res);
+
+    },
     // 重置
     onreset() {
       this.form = {
@@ -138,6 +157,7 @@ export default {
     // 关闭
     onclose() {
       this.setRightDialogVisible = false
+      handleAlert('操作已取消', 'info')
       // this.onreset()
     },
     // 确定按钮
@@ -146,9 +166,14 @@ export default {
       if (this.title === '添加角色') {
         console.log(123)
         // 调用添加角色接口
+
+        handleAlert()
+
       } else {
         console.log(456)
         // 调用修改角色接口
+
+        handleAlert()
       }
       this.setRightDialogVisible = false
     },

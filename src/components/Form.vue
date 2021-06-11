@@ -60,7 +60,7 @@
           active-color="#13ce66"
           inactive-color="#6666"></el-switch>
         <div v-else-if="item.type === 'text'" >
-          <el-input  v-show="currentRowIndex === scope.row.index && currentColIndex === scope.column.index" size="small" :disabled="item.disabled || disabled" v-model="scope.row[item.name]"
+          <el-input  v-show="currentRowIndex === scope.row.index && currentColIndex === scope.column.index && $store.state.token !== '2'" size="small" :disabled="item.disabled || disabled" v-model="scope.row[item.name]"
                      placeholder="请输入"
                      @change="handleEdit(scope.$index, scope.row)"
                      :ref='"cell" + scope.row.index + scope.column.index'
@@ -69,7 +69,7 @@
           />
         </div>
         <div v-else>
-          <el-input  v-show="currentRowIndex === scope.row.index && currentColIndex === scope.column.index" size="small" :disabled="item.disabled || disabled" v-model="scope.row[item.name]"
+          <el-input  v-show="currentRowIndex === scope.row.index && currentColIndex === scope.column.index && $store.state.token !== '2'" size="small" :disabled="item.disabled || disabled" v-model="scope.row[item.name]"
                      placeholder="请输入"
                      type="number"
                      @change="handleEdit(scope.$index, scope.row)"
@@ -79,7 +79,7 @@
           />
         </div>
         <!--如果和当前选中cell的index相同，则隐藏 -->
-        <span v-show="!(currentRowIndex === scope.row.index && currentColIndex === scope.column.index) && item.type !== 'boolean'" >{{ showInfo(scope.row[item.name]) }}</span>
+        <span v-show="!(currentRowIndex === scope.row.index && currentColIndex === scope.column.index) && item.type !== 'boolean' || $store.state.token === '2'" >{{ showInfo(scope.row[item.name]) }}</span>
       </template>
     </el-table-column>
 
@@ -102,6 +102,10 @@ export default {
       default: true
     },
     'disabled': Boolean,
+    'notEdit': {// 是否不可编辑，默认可编辑
+      type: Boolean,
+      default: false
+    },
     'showSummary': {// 是否显示合计
       type: Boolean,
       default: false

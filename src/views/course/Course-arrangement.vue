@@ -67,7 +67,7 @@
             </el-col>
             <el-col :span="4">
               <el-button icon="el-icon-search" class="search">查询</el-button>
-              <el-button type="primary" @click="addCourse()">添加课程</el-button>
+              <el-button :disabled="isDisable" type="primary" @click="addCourse()">添加课程</el-button>
             </el-col>
           </el-row>
 
@@ -86,6 +86,7 @@
           <el-col :span="21">
             <div class="table">
               <course-table
+                :draggable="draggable"
                 :node="dealData"
                 :dates="dealDate"
               ></course-table>
@@ -204,6 +205,10 @@ export default {
   name: 'course-management',
   data() {
     return {
+      // 是否可进行拖拽调课
+      draggable: false,
+      // 是否可添加课程
+      isDisable: true,
       // 下拉菜单选项
       grades: ['初一','初二','初三','高一'],
       courses: ['一对一', '班课', '晚辅'],
@@ -479,6 +484,10 @@ export default {
   },
   comments: {},
   created() {
+    if (this.$store.state.token === '1' || this.$store.state.token === '0') {
+      this.draggable = true;
+      this.isDisable = false;
+    }
     this.getArrlist(this.activeName)
   },
   computed: {

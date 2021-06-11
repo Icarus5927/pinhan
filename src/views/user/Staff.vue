@@ -16,7 +16,7 @@
             <el-button slot="append" icon="el-icon-search" @click="getUserList()"></el-button>
           </el-input>
 
-          <el-button type="primary" @click="addUser()">添加用户</el-button>
+          <el-button type="primary" :disabled="isDisable" @click="addUser()">添加用户</el-button>
         </div>
         <!-- 数据区 -->
 
@@ -30,9 +30,9 @@
             <template slot-scope="scope">
               <!-- {{scope.row}} -->
               <!-- 修改按钮 -->
-              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
+              <el-button :disabled="isDisable" type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
               <!-- 删除按钮 -->
-              <el-button type="danger" icon="el-icon-delete" size="mini"
+              <el-button :disabled="isDisable" type="danger" icon="el-icon-delete" size="mini"
                          @click="removeuserByid(scope.row.work_id)"></el-button>
 
             </template>
@@ -235,10 +235,15 @@ export default {
           { min: 2, max: 25, message: '长度在2到25个字符', trigger: 'blur' }
         ]
       },
-      total: 100
+      total: 100,
+      // 控制是否可修改添加
+      isDisable: true
     }
   },
   created() {
+    if (this.$store.state.token === '0') {
+      this.isDisable = false;
+    }
     this.getUserList()
   },
   methods: {

@@ -12,8 +12,8 @@ export function request(config) {
     timeout: 5000,
     // 请求头设置
     headers: {
-      // 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
       'Content-Type': "application/json;charset=utf-8",
+      // 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
       // 'Content-Type': "text/plain",
       // 'Access-Control-Allow-Origin': '*',
       // 'Access-Control-Allow-Headers': 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With',

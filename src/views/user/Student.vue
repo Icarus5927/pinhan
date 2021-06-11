@@ -16,7 +16,7 @@
             <el-button slot="append" icon="el-icon-search" @click="getUserList()"></el-button>
           </el-input>
 
-          <el-button type="primary" @click="addUser()">添加用户</el-button>
+          <el-button type="primary" :disabled="isDisable" @click="addUser()">添加用户</el-button>
         </div>
         <!-- 数据区 -->
         <el-table :data="list" stripe border>
@@ -29,9 +29,9 @@
             <template slot-scope="scope">
               <!-- {{scope.row}} -->
               <!-- 修改按钮 -->
-              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
+              <el-button type="primary" icon="el-icon-edit" size="mini" :disabled="isDisable" @click="showEditDialog(scope.row)"></el-button>
               <!-- 删除按钮 -->
-              <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeuserByid(scope.row)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" size="mini" :disabled="isDisable" @click="removeuserByid(scope.row)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -292,6 +292,8 @@ export default {
       },
       // 控制增加对话框的显示与隐藏
       dialogVisible: false,
+      // 控制修改权限
+      isDisable: true,
       // 获取用户参数列表对象
       queryInfo: {
         name: '',
@@ -416,6 +418,9 @@ export default {
     }
   },
   created() {
+    if (this.$store.state.token === '0') {
+      this.isDisable = false;
+    }
     // 获取学生信息列表
     this.getUserList()
   },
@@ -431,13 +436,6 @@ export default {
       .then(res => {
         console.log(res);
       })
-      // post('/user/page', {"page": this.queryInfo.pageNumber})
-      // .then(res => {
-      //   console.log('页码请求成功');
-      //   console.log(res);
-      // }).catch(err => {
-      //   console.log(err + '请求失败');
-      // })
       this.getUserList()
     },
     // 确定

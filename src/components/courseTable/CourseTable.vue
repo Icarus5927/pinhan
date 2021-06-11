@@ -3,7 +3,7 @@
   <div id="course-table">
     <div class="main-table">
       <ele-table
-        draggable
+        :draggable="draggable"
         stripe
         border
         :cell-style="cellClass"
@@ -128,6 +128,10 @@ import { handleAlert, handleConfirm } from '../../utils/confirm';
 export default {
   name: "courseTable",
   props: {
+    draggable: {
+      type: Boolean,
+      default: false
+    },
     // 传入的实际数据
     node: {
       type: Array

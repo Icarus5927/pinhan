@@ -4,8 +4,10 @@
     <el-header>
       <div>
         <div class="header-img"></div>
-        <!-- <img src="" alt="" class="header-img"> -->
         <span>品涵教育管理系统</span>
+        <span class="user_name" v-if="this.$store.state.token === '0'">欢迎登录，管理员{{this.$store.state.user}}</span>
+        <span class="user_name" v-if="this.$store.state.token === '1'">欢迎登录，员工{{this.$store.state.user}}</span>
+        <span class="user_name" v-if="this.$store.state.token === '2'">欢迎登录，教师{{this.$store.state.user}}</span>
       </div>
       <el-button type="success" icon="el-icon-switch-button" @click="logout()">退出</el-button>
     </el-header>
@@ -37,7 +39,8 @@
             </el-menu-item>
           </el-submenu>
           <!-- <el-submenu index="/finance"> -->
-          <el-submenu index="/income">
+          <!--教师不可查看-->
+          <el-submenu index="/income" v-show="this.$store.state.token === '0' || this.$store.state.token === '1'">
             <template slot="title">
               <i class="el-icon-s-finance"></i>
               <span>财务管理</span>
@@ -56,7 +59,7 @@
               class="el-icon-menu"></i>
               <span>教师费用</span>
             </el-menu-item>
-            <el-menu-item index="/staff_finance" @click="saveNavState('/staff_finance')"><i class="el-icon-menu"></i>
+            <el-menu-item v-if="this.$store.state.token === '0'" index="/staff_finance" @click="saveNavState('/staff_finance')"><i class="el-icon-menu"></i>
               <span>员工工资</span>
             </el-menu-item>
           </el-submenu>
@@ -79,20 +82,24 @@
               <i class="el-icon-date"></i>
               <span>考勤</span>
             </template>
+            <!--管理员、员工、教师都可进行学生考勤-->
             <el-menu-item index="/student_checking-in" @click="saveNavState('/student_checking-in')"><i
               class="el-icon-menu"></i>
               <span>学生考勤</span>
             </el-menu-item>
-            <el-menu-item index="/teacher_checking-in" @click="saveNavState('/teacher_checking-in')"><i
+            <!--管理员、员工可进行教师考勤-->
+            <el-menu-item v-if="this.$store.state.token === '0' || this.$store.state.token === '1'" index="/teacher_checking-in" @click="saveNavState('/teacher_checking-in')"><i
               class="el-icon-menu"></i>
               <span>教师考勤</span>
             </el-menu-item>
-            <el-menu-item index="/staff_checking-in" @click="saveNavState('/staff_checking-in')"><i
+            <!--管理员可进行员工考勤-->
+            <el-menu-item v-if="this.$store.state.token === '0' " index="/staff_checking-in" @click="saveNavState('/staff_checking-in')"><i
               class="el-icon-menu"></i>
               <span>员工考勤</span>
             </el-menu-item>
           </el-submenu>
-          <el-submenu index="/roles">
+          <!--设置模块仅管理员有权限-->
+          <el-submenu index="/roles" v-if="this.$store.state.token === '0'">
             <template slot="title">
               <i class="el-icon-s-tools"></i>
               <span>设置</span>
@@ -114,6 +121,8 @@
   </el-container>
 </template>
 <script>
+import { GET_USER, SET_TOKEN } from '../store/mutation-types';
+
 export default {
   name: 'Main',
   data() {
@@ -126,12 +135,21 @@ export default {
     }
   },
   created() {
-    this.path = window.sessionStorage.getItem('path') || this.path
+    // this.path = window.sessionStorage.getItem('path') || this.path
+    // 刷新保持登录
+    if (window.sessionStorage.getItem('user')) {
+      this.$store.commit(GET_USER, window.sessionStorage.getItem('user'))
+    }
+    if (window.sessionStorage.getItem('token')) {
+      this.$store.commit(SET_TOKEN, window.sessionStorage.getItem('token'))
+    }
   },
   methods: {
     logout() {
-      // 清除sessionStorage，并跳转到登录页
+      // 清除sessionStorage和vux，并跳转到登录页
       window.sessionStorage.clear()
+      this.$store.commit(SET_TOKEN, '')
+      this.$store.commit(GET_USER, '')
       this.$router.replace('/login')
     },
     toggleCollapse() {
@@ -148,14 +166,6 @@ export default {
   mounted() {
   }
 
-  // watch: {
-  //     $route: {
-  //         handler(val) {
-  //             this.path = val.path
-  //             console.log(val.path)
-  //         }
-  //     }
-  // }
 }
 </script>
 <style lang="less" scoped>
@@ -195,6 +205,12 @@ export default {
       margin-right: 10px;
       background: #fff url(../assets/logo.png) no-repeat center;
       background-size: contain;
+    }
+    .user_name {
+      position: absolute;
+      font-size: 20px;
+      margin-left: 75%;
+      font-weight: 500;
     }
   }
 
