@@ -71,6 +71,7 @@
 <script>
 import { handleAlert } from '../../utils/confirm';
 import { get, post } from '../../network/request/request';
+import { apiChangePassWord, apiGetUserList } from '../../network/api/api';
 
 export default {
   name: '',
@@ -118,10 +119,8 @@ export default {
     // 获取用户列表
     getUserList() {
       // 获取用户信息列表
-      get('/user/page',{'page': this.queryInfo.pageNumber})
+      apiGetUserList(this.queryInfo.pageNumber)
         .then(res => {
-          // console.log(res);
-          // console.log(res.records);
           // 获取用户列表
           this.userList = res.records
           // 获取页数
@@ -158,7 +157,7 @@ export default {
         }
         if (valid) {
           // 调用修改密码接口
-          post('user/reset', {workId: "1001", newPassWord: this.form.newPWD })
+          apiChangePassWord({workId: this.user.work_id, newPassWord: this.form.newPWD })
           .then(res => {
             console.log(res);
             if (res === 1) {

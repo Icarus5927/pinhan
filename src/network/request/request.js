@@ -3,6 +3,20 @@ import store from '../../store';
 import router from '../../router';
 import QS from 'qs'
 import { handleAlert } from '../../utils/confirm';
+import {Loading} from 'element-ui';
+
+//加载动画
+let loading
+function startLoading() {
+  loading = Loading.service({
+    lock: true,
+    text: '加载中...',
+    background: 'rgba(0, 0, 0, 0.7)'
+  })
+}
+function endLoading() {
+  loading.close()
+}
 
 export function request(config) {
   // 创建axios的实例
@@ -21,30 +35,36 @@ export function request(config) {
     }
   })
   // 拦截请求
-  // instance.interceptors.request.use(config => {
-  //   console.log(config);
-  //   // 每次发送请求之前判断是否存在token，如果存在，则统一在http请求的header都加上token
-  //   // 即使本地存在token，也有可能token是过期的，所以在响应拦截器中要对返回状态进行判断
-  //   const token = store.state.token;
-  //   token && (config.headers.Authorization = token);
-  //   // 拦截后需要将config返回，否则没有配置信息，无法请求数据
-  //   return config
-  // },err => {
-  //   console.log(err);
-  // });
+  instance.interceptors.request.use(config => {
+    // 每次发送请求之前判断是否存在token，如果存在，则统一在http请求的header都加上token
+    // 即使本地存在token，也有可能token是过期的，所以在响应拦截器中要对返回状态进行判断
+    const token = store.state.token;
+    if (token) {
+      config.headers.Authorization = token;
+    }
+    startLoading()
+    console.log(config);
+    // 拦截后需要将config返回，否则没有配置信息，无法请求数据
+    return config
+  },err => {
+    endLoading()
+    console.log(err);
+  });
 
   // 响应拦截器
   instance.interceptors.response.use(res => {
     // console.log(res);
     // 如果返回的状态码为200，说明接口请求成功，可以正常拿到数据
     if (res.status === 200) {
+      endLoading()
       // 可以对接口返回的结果进行一些处理后，返回res
       return res.data
     } else {
       return 'error'
     }
   },err => {
-    console.log(err);
+    handleAlert(err, 'warning')
+    endLoading()
     switch (error.response.status) {
       // 401: 未登录
       // 未登录则跳转登录页面，并携带当前页面的路径
@@ -95,6 +115,7 @@ export function request(config) {
  * get方法，对应get请求
  * @param {String} url [请求的url地址]
  * @param  params [请求时携带的参数]
+ * @returns {AxiosPromise}
  */
 export function get(url, params) {
   return request({
@@ -108,6 +129,7 @@ export function get(url, params) {
  * post方法，对应post请求
  * @param {String} url [请求的url地址]
  * @param  params [请求时携带的参数]
+ * @returns {AxiosPromise}
  */
 export function post(url, params) {
   console.log(JSON.stringify(params))
@@ -150,14 +172,4 @@ export function remove(url, params) {
   })
 }
 
-
-// 使用方式
-// import {request} from "./network/request";
-// request({
-//   url: '/xxx/xxx'
-// }).then(res => {
-//   console.log(res);
-// }).catch(err => {
-//   console.log(err);
-// })
 

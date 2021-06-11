@@ -563,6 +563,7 @@
 <script>
 import editTable from '../../components/Form';
 import { handleConfirm, handleAlert} from '../../utils/confirm';
+import { apiGetStandardList } from '../../network/api/api';
 export default {
   name: '',
   components: {
@@ -862,10 +863,18 @@ export default {
   },
   created() {
     this.getUserList(this.activeName)
+    this.getStandard()
   },
   methods: {
     // 获取后端传过来的数据
     getUserList() {
+    },
+    // 获取收费标准
+    getStandard() {
+      apiGetStandardList(this.queryInfo.pageNumber)
+      .then(res => {
+        console.log(res);
+      })
     },
     // 分页获取页码
     handleCurrentChange(e) {

@@ -4,7 +4,6 @@ import router from "./router";
 import "./plugins/element.js";
 import "./assets/css/global.less";
 import axios from "axios";
-//到如vuex
 import store from './store';
 
 Vue.prototype.$http = axios;

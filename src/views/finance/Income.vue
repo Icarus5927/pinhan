@@ -11,11 +11,13 @@
         <el-main>
           <div class="block">
             <el-date-picker
-              v-model="queryInfo.date"
+              v-model="queryInfo.time"
               type="daterange"
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
+              value-format="yyyy-MM-dd"
+              format="yyyy-MM-dd"
             >
             </el-date-picker>
             <el-input v-model="search.name" placeholder="请输入姓名"></el-input>
@@ -111,8 +113,8 @@
           </el-select>
         </el-form-item>
         <br/>
-        <el-form-item label="类型" prop="money_type">
-          <el-select v-model="form.money_type" placeholder="请选择支付类型">
+        <el-form-item label="类型" prop="moneyType">
+          <el-select v-model="form.moneyType" placeholder="请选择支付类型">
             <el-option label="微信" value="微信"></el-option>
             <el-option label="支付宝" value="支付宝"></el-option>
             <el-option label="银行卡" value="银行卡"></el-option>
@@ -120,11 +122,13 @@
           </el-select>
         </el-form-item>
         <br/>
-        <el-form-item label="日期" prop="date">
+        <el-form-item label="日期" prop="time">
           <el-date-picker
-            v-model="form.date"
+            v-model="form.time"
             type="date"
             placeholder="选择日期"
+            value-format="yyyy-MM-dd"
+            format="yyyy-MM-dd"
           >
           </el-date-picker>
         </el-form-item>
@@ -141,12 +145,12 @@
           <el-input v-model="form.course"></el-input>
         </el-form-item>
         <br/>
-        <el-form-item label="金额" prop="sum">
-          <el-input v-model="form.sum" type="number"></el-input>
+        <el-form-item label="金额" prop="total">
+          <el-input v-model="form.total" type="number"></el-input>
         </el-form-item>
         <br/>
-        <el-form-item label="教学顾问" prop="counselor">
-          <el-input v-model="form.counselor"></el-input>
+        <el-form-item label="教学顾问" prop="adviser">
+          <el-input v-model="form.adviser"></el-input>
         </el-form-item>
         <br/>
         <el-form-item label="备注" prop="remark">
@@ -164,6 +168,7 @@
 </template>
 <script>
 import { handleAlert, handleConfirm } from '../../utils/confirm';
+import { apiAddStream, apiGetStreamList } from '../../network/api/api';
 
 export default {
   name: '',
@@ -178,7 +183,7 @@ export default {
       // 获取用户参数列表对象
       queryInfo: {
         // 用户选择的日期
-        date: '',
+        time: '',
         pageNumber: 1,
         pageSize: 10,
       },
@@ -186,21 +191,21 @@ export default {
       financeList: [
         {
           type: '支付宝',
-          date: '2021.3.1',
+          time: '2021.3.1',
           name: '张三',
           grade: '初一',
           course: '一对一',
-          sum: '1500',
-          counselor: '李四',
+          total: '1500',
+          adviser: '李四',
           remark: '',
-          money_type: '微信',
+          moneyType: '微信',
           income_wechat: 1500
         },
       ],
       // 表头
       list: [
         {
-          prop: 'date',
+          prop: 'time',
           label: '日期',
           width: '120px'
         },
@@ -225,12 +230,12 @@ export default {
           width: '120px'
         },
         {
-          prop: 'sum',
+          prop: 'total',
           label: '金额',
           width: '120px'
         },
         {
-          prop: 'counselor',
+          prop: 'adviser',
           label: '教学顾问',
           width: '120px'
         },
@@ -313,20 +318,21 @@ export default {
       // 收入类型
       label: ['微信', '支付宝', '银行卡'],
       form: {
+        streamId: '',
         type: '',
-        money_type: '',
-        date: '',
+        moneyType: '',
+        time: '',
         name: '',
         grade: '',
         course: '',
-        sum: '',
-        counselor: '',
+        total: '',
+        adviser: '',
         remark: '',
         income: '',
         WeChat: '',
         Alipay: '',
         BankCard: '',
-        Cash: '',
+        Cash: ''
       },
       // 表单校验规则
       rules: {
@@ -335,12 +341,12 @@ export default {
           message: '请选择流水类别',
           trigger: 'change'
         }],
-        money_type: [{
+        moneyType: [{
           required: true,
           message: '请选择支付类别',
           trigger: 'change'
         }],
-        date: [{
+        time: [{
           required: true,
           message: '请选择日期',
           trigger: 'blur'
@@ -377,7 +383,7 @@ export default {
             trigger: 'blur',
           },
         ],
-        sum: [
+        total: [
           {
             required: true,
             message: '请输入金额',
@@ -389,7 +395,7 @@ export default {
             trigger: 'blur',
           },
         ],
-        counselor: [
+        adviser: [
           {
             message: '姓名不支持特殊字符',
             trigger: 'blur',
@@ -419,7 +425,11 @@ export default {
     },
     // 获取流水接口
     getFinanceList() {
-      // console.log(this.date === '')
+      apiGetStreamList(this.queryInfo.pageNumber)
+      .then(res => {
+        this.financeList = res.records;
+        this.total = res.total;
+      })
     },
     // 确定按钮
     upload() {
@@ -427,10 +437,14 @@ export default {
         // 表单校验
         this.$refs.incomeForm.validate((valid) => {
           if (valid) {
+            this.form.streamId = Date.parse(new Date());
             // 调用添加流水接口
+            apiAddStream(this.form)
 
             this.dialogVisible = false;
             handleAlert();
+            // 重新获取列表
+            this.getFinanceList()
           } else {
             console.log('error submit!!');
             return false;
@@ -465,11 +479,11 @@ export default {
     onreset() {
       let form = {
         type: '',
-        date: '',
+        time: '',
         name: '',
         course: '',
-        sum: '',
-        counselor: '',
+        total: '',
+        adviser: '',
         remark: '',
       };
       this.form = form;
@@ -600,7 +614,7 @@ export default {
   }
 }
 
-.summation {
+.totalmation {
   height: 40px;
   // border: 1px solid #eee;
   display: flex;

@@ -16,7 +16,7 @@
             <el-button slot="append" icon="el-icon-search" @click="getUserList()"></el-button>
           </el-input>
 
-          <el-button type="primary" :disabled="isDisable" @click="addUser()">添加用户</el-button>
+          <el-button type="primary" :disabled="isDisable" @click="addUser()">添加学生</el-button>
         </div>
         <!-- 数据区 -->
         <el-table :data="list" stripe border>
@@ -40,9 +40,9 @@
         </el-pagination>
       </div>
     </el-card>
-    <!--添加用户弹窗dialog，根据dialogVisible的真假显示-->
+    <!--添加学生弹窗dialog，根据dialogVisible的真假显示-->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="64%" :show-close="false" @close="onreset()">
-      <!-- 添加用户区 -->
+      <!-- 添加学生区 -->
       <div class="contanier">
         <!-- 表单区域 -->
         <el-form ref="stuForm" label-width="90px" :model="form" :rules="rules">
@@ -61,8 +61,8 @@
               <div class="infoArea">
                 <el-row>
                   <el-col :span="12">
-                    <el-form-item label="学号" prop=work_id>
-                      <el-input v-model="form.work_id"></el-input>
+                    <el-form-item label="学号" prop=studentId>
+                      <el-input v-model="form.studentId"></el-input>
                     </el-form-item>
                   </el-col>
                   <el-col :span="12">
@@ -75,8 +75,8 @@
 
                 <el-row>
                   <el-col :span="12">
-                    <el-form-item label="性别" prop="gender">
-                      <el-radio-group v-model="form.gender">
+                    <el-form-item label="性别" prop="sex">
+                      <el-radio-group v-model="form.sex">
                         <el-radio label="男"></el-radio>
                         <el-radio label="女"></el-radio>
                       </el-radio-group>
@@ -97,8 +97,8 @@
                     </el-form-item>
                   </el-col>
                   <el-col :span="12 ">
-                    <el-form-item label="父母手机号" prop="contact">
-                      <el-input v-model="form.contact"></el-input>
+                    <el-form-item label="父母手机号" prop="parentTel">
+                      <el-input v-model="form.parentTel"></el-input>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -115,8 +115,8 @@
 
                 <el-row>
                   <el-col>
-                    <el-form-item label="来源" prop="origin">
-                      <el-radio-group v-model="form.origin">
+                    <el-form-item label="来源" prop="source">
+                      <el-radio-group v-model="form.source">
                         <el-radio label="地推"></el-radio>
                         <el-radio label="转介绍"></el-radio>
                         <el-radio label="其他"></el-radio>
@@ -128,13 +128,13 @@
 
                 <el-row>
                   <el-col :span="12">
-                    <el-form-item label="班级排名" prop="class_rank">
-                      <el-input v-model="form.class_rank"></el-input>
+                    <el-form-item label="班级排名" prop="classRank">
+                      <el-input v-model="form.classRank"></el-input>
                     </el-form-item>
                   </el-col>
                   <el-col :span="12">
-                    <el-form-item label="级部排名" prop="dep_rank">
-                      <el-input v-model="form.dep_rank"></el-input>
+                    <el-form-item label="级部排名" prop="gradeRank">
+                      <el-input v-model="form.gradeRank"></el-input>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -183,24 +183,25 @@
 // import Student from "../../components/Student"
 import { handleAlert, handleConfirm } from '../../utils/confirm';
 import { get, post } from '../../network/request/request';
+import { apiAddStudent, apiGetStudentList } from '../../network/api/api';
 
 export default {
   name: 'studentInfo',
   data() {
     return {
-      title: '添加用户',
-      // 添加用户的表单
+      title: '添加学生',
+      // 添加学生的表单
       form: {
-        work_id: '',
+        studentId: '',
         name: '',
-        gender: '',
+        sex: '',
         grade: '',
-        class_rank: '',
-        dep_rank: '',
+        classRank: '',
+        gradeRank: '',
         school: '',
-        contact: '',
+        parentTel: '',
         address: '',
-        origin: '',
+        source: '',
         // img: require('../../assets/bg.png'),
         score: {
           date: '',
@@ -250,7 +251,7 @@ export default {
       },
       // 表单校验规则
       rules: {
-        work_id: [
+        studentId: [
           { required: true, message: '请输入学号', trigger: 'blur' },
           { min: 3, max: 10, message: '学号必须为数字,长度在3到10个字符', trigger: 'change' },
         ],
@@ -258,23 +259,23 @@ export default {
           { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
           { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
         ],
-        gender: [
+        sex: [
           { required: true, message: '请选择性别', trigger: 'blur' },
         ],
         grade: [
           { required: true, message: '请输入年级', trigger: 'blur' },
         ],
-        class_rank: [
+        classRank: [
           { required: true, message: '请输入班级排名', trigger: 'blur' },
         ],
-        dep_rank: [
+        gradeRank: [
           { required: true, message: '请输入年级排名', trigger: 'blur' },
         ],
         school: [
           { required: true, message: '请输入学校名', trigger: 'blur' },
           { min: 2, max: 15, message: '长度在2到15个字符', trigger: 'blur' }
         ],
-        contact: [
+        parentTel: [
           { required: true, message: '请输入联系方式', trigger: 'blur' },
           { min: 11, max: 11, message: '请输入11位手机号', trigger: 'blur' }
         ],
@@ -282,7 +283,7 @@ export default {
           { required: true, message: '请输入家庭地址', trigger: 'blur' },
           { min: 2, max: 25, message: '长度在2到25个字符', trigger: 'blur' }
         ],
-        origin: [
+        source: [
           { required: true, message: '请选择来源', trigger: 'blur' },
         ],
         'score.date': [
@@ -303,7 +304,7 @@ export default {
       // 构建表的信息
       formHeader: [
         {
-          prop: 'work_id',
+          prop: 'studentId',
           label: '学号',
           width: '100px'
         },
@@ -313,7 +314,7 @@ export default {
           width: '90px'
         },
         {
-          prop: 'gender',
+          prop: 'sex',
           label: '姓别',
           width: '80px'
         },
@@ -328,7 +329,7 @@ export default {
           width: '190px'
         },
         {
-          prop: 'contact',
+          prop: 'parentTel',
           label: '父母联系方式',
           width: '190px'
         },
@@ -337,17 +338,17 @@ export default {
           label: '家庭住址'
         },
         {
-          prop: 'origin',
+          prop: 'source',
           label: '来源',
           width: '90px'
         },
         {
-          prop: 'class_rank',
+          prop: 'classRank',
           label: '班级排名',
           width: '90px'
         },
         {
-          prop: 'dep_rank',
+          prop: 'gradeRank',
           label: '级部排名',
           width: '90px'
         }
@@ -355,16 +356,16 @@ export default {
       // 表具体数据
       list: [
         {
-          work_id: '2222001',
+          studentId: '2222001',
           name: '小明',
-          gender: '男',
+          sex: '男',
           grade: '初三',
           school: '十三中',
-          contact: '15094877412',
+          parentTel: '15094877412',
           address: 'dddd',
-          origin: '其他',
-          class_rank: 1,
-          dep_rank: 1,
+          source: '其他',
+          classRank: 1,
+          gradeRank: 1,
           // img: require('../../assets/bg.png'),
           score: {
             date: '2021-01-15',
@@ -427,7 +428,11 @@ export default {
   methods: {
     // 获取后端传过来的数据
     getUserList() {
-
+      apiGetStudentList(this.queryInfo.pageNumber)
+      .then(res => {
+        this.list = res.records;
+        this.total = res.total;
+      })
     },
     // 分页获取页码
     handleCurrentChange(e) {
@@ -440,14 +445,21 @@ export default {
     },
     // 确定
     upload(formName) {
-      if (this.title === '添加用户') {
+      if (this.title === '添加学生') {
         // 表单校验
         this.$refs.stuForm.validate((valid) => {
           if (valid) {
             this.dialogVisible = false
             handleAlert()
-            // 调用添加用户接口
-
+            // 调用添加学生接口
+            apiAddStudent(this.form)
+              .then(res => {
+                console.log(res);
+                this.getUserList()
+              })
+              .catch(err => {
+                console.log(err);
+              })
 
           } else {
             console.log('error submit!!');
@@ -476,7 +488,7 @@ export default {
     },
     // 增加用户弹窗
     addUser() {
-      this.title = '添加用户'
+      this.title = '添加学生'
       this.dialogVisible = true
     },
 
@@ -514,14 +526,14 @@ export default {
     // form中的数据重设
     onreset() {
       const form = {
-        work_id: '',
+        studentId: '',
         name: '',
-        gender: '',
+        sex: '',
         grade: '',
         school: '',
-        contact: '',
+        parentTel: '',
         address: '',
-        origin: '',
+        source: '',
         // img: require('../../assets/bg.png'),
         score: {
           date: '',

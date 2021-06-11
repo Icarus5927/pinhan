@@ -135,6 +135,7 @@
 </template>
 <script>
 import { handleAlert, handleConfirm } from '../../utils/confirm';
+import { apiGetStaffList } from '../../network/api/api';
 
 export default {
   name: '',
@@ -249,6 +250,12 @@ export default {
   methods: {
     // 获取后端传过来的数据
     getUserList() {
+      apiGetStaffList(this.queryInfo.pageNumber)
+      .then(res => {
+        // console.log(res);
+        this.list = res.records;
+        this.total = res.total;
+      })
     },
     // 分页获取页码
     handleCurrentChange(e) {

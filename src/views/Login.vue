@@ -25,6 +25,7 @@ import { post, request } from '../network/request/request';
 import { handleAlert } from '../utils/confirm';
 import store from '../store';
 import { GET_USER, SET_TOKEN } from '../store/mutation-types';
+import { apiLogin } from '../network/api/api';
 
 export default {
   name: 'Login',
@@ -74,40 +75,8 @@ export default {
     submitLogin () {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          post('user/login', this.loginForm)
-            .then(res => {
-              // console.log(res);
-              if (res === 0 || res === 1 || res === 2){
-                this.$store.commit(SET_TOKEN, res)
-                this.$store.commit(GET_USER, this.loginForm.work_id)
-                handleAlert('登录成功', 'success')
-                this.$router.push('/main')
-                console.log(this.$store.state.user);
-                console.log(this.$store.state.token);
-                // 保持刷新后登录
-                window.sessionStorage.setItem('user', this.loginForm.work_id)
-                window.sessionStorage.setItem('token', res)
-              } else {
-                handleAlert(res, 'warning')
-              }
-            }).catch(err => {
-            console.log(err);
-          })
-            // .then((response) => {
-            //   if (response.status === 200) {
-            //     // 从store中获取
-            //     this.$store.commit(SET_TOKEN, response.data.token)
-            //     this.$store.commit(GET_USER, response.data.user)
-            //     handleAlert('登录成功', 'success')
-            //     this.$router.push('/main')
-            //   }
-            // })
-            // .catch(function (error) {
-            //   handleAlert('登录失败,账号或密码有误', 'warning')
-            //   console.log(error)
-            // })
+          apiLogin(this.loginForm)
         } else {
-          // console.log('error submit!!')
           return false
         }
       })

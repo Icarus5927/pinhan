@@ -70,6 +70,7 @@
 <script>
 import { get } from '../../network/request/request';
 import { handleAlert, handleConfirm } from '../../utils/confirm';
+import { apiGetUserList } from '../../network/api/api';
 
 export default {
   name: '',
@@ -109,10 +110,9 @@ export default {
   methods: {
     // 获取所有角色的列表
     getUserList() {
-      get('/user/page',{'page': this.queryInfo.pageNumber})
+      // get('/user/page',{'page': this.queryInfo.pageNumber})
+      apiGetUserList(this.queryInfo.pageNumber)
         .then(res => {
-          // console.log(res);
-          // console.log(res.records);
           this.UserList = res.records
           this.total = res.total
         })
