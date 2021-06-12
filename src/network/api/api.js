@@ -37,13 +37,14 @@ export const apiGetStudentList = params => get('student/page', {'page': params})
 export const apiGetTeacherList = params => get('teacher/page', {'page': params})
 // 根据页码获取员工
 export const apiGetStaffList = params => get('staff/page', {'page': params})
+// 根据页码获取收费标准
+export const apiGetStandardList = params => get('/standard/page', {'page': params})
 // 修改用户密码
 export const apiChangePassWord = params => post('user/reset', params)
 // 添加学生
 export const apiAddStudent = params => post('/student/add', params)
 // 添加流水
 export const apiAddStream = params => post('/stream/add', params)
-// 获取收费标准
-export const apiGetStandardList = params => get('/standard/page', {'page': params})
+
 
 

@@ -20,10 +20,10 @@
                 <el-tabs type="border-card" v-model="activeName">
                     <el-tab-pane :label="item" v-for="(item,index) in label" :key="index" :name="item">
 
-                        <el-table :data="list" stripe border v-show="activeName === 'A辅' || activeName === 'B辅'">
+                        <el-table :data="list" stripe border v-show="activeName === 'A辅' || activeName === 'B辅' || activeName === 'C辅'">
                             <el-table-column type="index" label="#">
                             </el-table-column>
-                            <el-table-column  v-for="(item,index) in headerAB" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+                            <el-table-column  v-for="(item,index) in headerABC" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
                             </el-table-column>
                             <el-table-column label="操作" width="150px">
                                 <template slot-scope="scope">
@@ -85,7 +85,7 @@
         <!-- 添加费用弹窗 -->
         <el-dialog :title="title" :visible.sync="dialogVisible" width="40%" :show-close="false" @close="onreset()">
             <div>
-              <el-form v-show="activeName === 'A辅'|| activeName === 'B辅'" ref="formA" label-width="90px" :model="form" :rules="rules">
+              <el-form v-show="activeName === 'A辅'|| activeName === 'B辅' || activeName === 'C辅'" ref="form" label-width="90px" :model="form" :rules="rules">
                 <el-row>
                   <el-col :span="24">
                     <el-form-item label="辅导类型" prop="type">
@@ -165,7 +165,7 @@
                     </div>
                 </el-form-item>
               </el-form>
-              <el-form v-show="activeName === '一对一'" ref="formB" label-width="90px" :model="form" :rules="rules">
+              <el-form v-show="activeName === '一对一'" ref="form" label-width="90px" :model="form" :rules="rules">
                   <el-row>
                     <el-col :span="24">
                       <el-form-item label="辅导类型" prop="type">
@@ -232,7 +232,7 @@
                       </div>
                   </el-form-item>
                 </el-form>
-              <el-form v-show="activeName === '班课'" ref="formClass" label-width="90px" :model="form" :rules="rules">
+              <el-form v-show="activeName === '班课'" ref="form" label-width="90px" :model="form" :rules="rules">
                 <el-row>
                   <el-col :span="24">
                     <el-form-item label="辅导类型" prop="type">
@@ -321,9 +321,9 @@ export default {
       },
 
       activeName: "A辅",
-      label: ["A辅", "B辅", "一对一", "班课"],
+      label: ["A辅", "B辅", "C辅", "一对一", "班课"],
       // 表头
-      headerAB: [
+      headerABC: [
           { prop: "name", label: "姓名" },
           { prop: "daily_salary", label: "工资/天" },
           { prop: "work_days", label: "工作天数" },

@@ -225,7 +225,7 @@ export default {
           width: '120px'
         },
         {
-          prop: 'remark',
+          prop: 'subject',
           label: '科目',
           width: '120px'
         },

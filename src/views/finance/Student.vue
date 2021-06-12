@@ -25,15 +25,17 @@
         <el-tabs type="border-card" v-model="activeName">
           <el-tab-pane :label="item" v-for="(item,index) in label" :key="index" :name="item">
 
-            <el-table :data="list" stripe border v-show="activeName === 'A辅'|| activeName === 'B辅'">
+            <el-table :data="list" stripe border v-show="activeName === 'A辅'|| activeName === 'B辅' || activeName === 'C辅'">
               <el-table-column type="index" label="#">
               </el-table-column>
-              <el-table-column  v-for="(item,index) in studentHeaderAB" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
+              <el-table-column  v-for="(item,index) in studentHeaderABC" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
               </el-table-column>
-              <el-table-column label="操作" width="150px">
+              <el-table-column label="操作" width="200px">
                 <template slot-scope="scope">
                   <!--修改按钮 -->
                   <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
+                  <!-- 结转按钮 -->
+                  <el-button type="success" icon="el-icon-top-right" size="mini" @click="showTransferDialog(scope.row)"></el-button>
                   <!-- 删除按钮 -->
                   <el-button type="danger" icon="el-icon-delete" size="mini" @click=" removeUserById(scope.row.work_id) "></el-button>
                 </template>
@@ -78,7 +80,7 @@
       </div>
     </el-card>
     <!-- 收费标准弹窗-->
-    <el-dialog title="收费标准" :visible.sync="ratesdialogVisible" width="50%" :show-close="false" @close="onreset()" :close-on-click-modal="false"	>
+    <el-dialog title="收费标准" :visible.sync="ratesDialogVisible" width="50%" :show-close="false" @close="onreset()" :close-on-click-modal="false"	>
       <!-- 收费标准 -->
       <div class="standard">
         <el-tabs type="border-card" v-model="activeName" @tab-click="tabClick">
@@ -86,42 +88,53 @@
           </el-tab-pane>
         </el-tabs>
         <!-- 收费标准数据表格 -->
-        <editTable v-show="activeTag === 'A'"
-          ref="editTable"
-          :tableData="charges[activeTag]"
-          :height="tableHeight"
-          :disabled="disabled"
-          :tableHeader="standardHeaderA"
-          @onTableBtn="deleteStandard"
-          @handleEdit="updateStandard"
-          />
-        <editTable v-show="activeTag === 'B'"
-          ref="editTable"
-          :tableData="charges[activeTag]"
-          :height="tableHeight"
-          :disabled="disabled"
-          :tableHeader="standardHeaderB"
-          @onTableBtn="deleteStandard"
-          @handleEdit="updateStandard"
-          />
-        <editTable v-show="activeTag === 'one2one'"
-          ref="editTable"
-          :tableData="charges[activeTag]"
-          :height="tableHeight"
-          :disabled="disabled"
-          :tableHeader="standardHeaderOne2one"
-          @onTableBtn="deleteStandard"
-          @handleEdit="updateStandard"
-          />
-        <editTable v-show="activeTag === 'classCourse'"
-          ref="editTable"
-          :tableData="charges[activeTag]"
-          :height="tableHeight"
-          :disabled="disabled"
-          :tableHeader="standardHeaderCourse"
-          @onTableBtn="deleteStandard"
-          @handleEdit="updateStandard"
-          />
+        <el-table
+          v-show="activeTag === 'A'|| activeTag === 'B' || activeTag === 'C'"
+          :data="charges[activeTag]"
+          :height="tableHeight">
+          <el-table-column v-for="(item, index) in standardHeaderABC" :key="index" :label="item.label" :prop="item.prop">
+          </el-table-column>
+          <el-table-column label="操作" width="150px">
+            <template slot-scope="scope">
+              <!--修改按钮 -->
+              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showStandardEditDialog(scope.row)"></el-button>
+              <!-- 删除按钮 -->
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click=" deleteStandard(scope.row.work_id) "></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <el-table
+          v-show="activeTag === 'one2one'"
+          :data="charges[activeTag]"
+          :height="tableHeight">
+          <el-table-column v-for="(item, index) in standardHeader121" :key="index" :label="item.label" :prop="item.prop">
+          </el-table-column>
+          <el-table-column label="操作" width="150px">
+            <template slot-scope="scope">
+              <!--修改按钮 -->
+              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showStandardEditDialog(scope.row)"></el-button>
+              <!-- 删除按钮 -->
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click=" deleteStandard(scope.row.work_id) "></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <el-table
+          v-show="activeTag === 'classCourse'"
+          :data="charges[activeTag]"
+          :height="tableHeight">
+          <el-table-column v-for="(item, index) in standardHeaderCourse" :key="index" :label="item.label" :prop="item.prop">
+          </el-table-column>
+          <el-table-column label="操作" width="150px">
+            <template slot-scope="scope">
+              <!--修改按钮 -->
+              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showStandardEditDialog(scope.row)"></el-button>
+              <!-- 删除按钮 -->
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click=" deleteStandard(scope.row.work_id) "></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
 
       </div>
       <!--添加行按钮 -->
@@ -134,13 +147,88 @@
         <el-button type="primary" @click="upload()">确定</el-button>
       </div>
     </el-dialog>
-    <!-- 添加费用弹窗   -->
+
+    <!-- 添加\修改收费标准弹窗 -->
+    <el-dialog :title="standardTitle" :visible.sync="standardDialogVisible" width="50%" :show-close="false" @close="onreset()" :close-on-click-modal="false">
+      <el-form v-show="activeName === 'A辅'|| activeName === 'B辅'|| activeName === 'C辅'" ref="standardForm" label-width="90px" v-model="formStandard">
+        <el-form-item label="课程类型" prop="type">
+          <el-input disabled :placeholder="activeName">{{ formStandard.label = activeName }}</el-input>
+        </el-form-item>
+        <el-form-item label="类型" prop="type">
+          <el-input v-model="formStandard.type"></el-input>
+        </el-form-item>
+        <el-form-item label="收费/月" prop="standard">
+          <el-input v-model="formStandard.standard"></el-input>
+        </el-form-item>
+        <el-form-item label="预计上课" prop="hours">
+          <el-input v-model="formStandard.hours"></el-input>
+        </el-form-item>
+        <el-form-item label="每天费用" prop="dayCost">
+          <el-input v-model="formStandard.dayCost"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-form-item>
+            <div class="click-bottom">
+              <el-button @click="standardClose()">取消</el-button>
+              <el-button type="primary" @click="upload()">确定</el-button>
+            </div>
+          </el-form-item>
+        </el-form-item>
+      </el-form>
+
+      <el-form v-show="activeName === '一对一'" ref="standardForm" label-width="90px" v-model="formStandard">
+        <el-form-item label="课程类型" prop="type">
+          <el-input disabled :placeholder="activeName">{{ formStandard.label = activeName }}</el-input>
+        </el-form-item>
+        <el-form-item label="类型" prop="type">
+          <el-input v-model="formStandard.type"></el-input>
+        </el-form-item>
+        <el-form-item label="收费/h" prop="hourCost">
+          <el-input v-model="formStandard.hourCost"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <div class="click-bottom">
+            <el-button @click="standardClose()">取消</el-button>
+            <el-button type="primary" @click="upload()">确定</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+
+      <el-form v-show="activeName === '班课'" ref="standardForm" label-width="90px" v-model="formStandard">
+        <el-form-item label="课程类型" prop="type">
+          <el-input disabled :placeholder="activeName">{{ formStandard.label = activeName }}</el-input>
+        </el-form-item>
+        <el-form-item label="类型" prop="type">
+          <el-input v-model="formStandard.type"></el-input>
+        </el-form-item>
+        <el-form-item label="收费标准" prop="standard">
+          <el-input v-model="formStandard.standard"></el-input>
+        </el-form-item>
+        <el-form-item label="课次" prop="times">
+          <el-input v-model="formStandard.times"></el-input>
+        </el-form-item>
+        <el-form-item label="课时" prop="hours">
+          <el-input v-model="formStandard.hours"></el-input>
+        </el-form-item>
+        <el-form-item label="课时费/h" prop="hourCost">
+          <el-input v-model="formStandard.hourCost"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <div class="click-bottom">
+            <el-button @click="standardClose()">取消</el-button>
+            <el-button type="primary" @click="upload()">确定</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <!-- 添加\修改费用弹窗 -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" :show-close="false" @close="onreset()" :close-on-click-modal="false">
       <div>
-        <el-form v-show="activeName === 'A辅'|| activeName === 'B辅'" ref="addFormAB" label-width="90px" :model="form" :rules="rules">
+        <!-- A\B\C-->
+        <el-form v-show="activeName === 'A辅'|| activeName === 'B辅'|| activeName === 'C辅'" ref="addForm" label-width="90px" :model="form" :rules="rules">
           <el-row>
             <el-col :span="24">
-              <el-form-item label="费用类型" prop="type">
+              <el-form-item label="课程类型" prop="type">
                 <el-input disabled :placeholder="activeName">{{ form.type = activeName }}</el-input>
               </el-form-item>
             </el-col>
@@ -154,6 +242,9 @@
                 </el-select>
                 <el-select v-show="activeName === 'B辅'" v-model="form.charge_standard" placeholder="收费标准" style="width: 100%">
                   <el-option v-for="item in charges['B']" :key="item.type" :label="item.type" :value="item.type"></el-option>
+                </el-select>
+                <el-select v-show="activeName === 'C辅'" v-model="form.charge_standard" placeholder="收费标准" style="width: 100%">
+                  <el-option v-for="item in charges['C']" :key="item.type" :label="item.type" :value="item.type"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -280,10 +371,11 @@
             </div>
           </el-form-item>
         </el-form>
-        <el-form v-show="activeName === '一对一'" ref="addForm121" label-width="90px" :model="form" :rules="rules">
+        <!--一对一-->
+        <el-form v-show="activeName === '一对一'" ref="addForm" label-width="90px" :model="form" :rules="rules">
           <el-row>
             <el-col :span="24">
-              <el-form-item label="费用类型" prop="type">
+              <el-form-item label="课程类型" prop="type">
                 <el-input disabled :placeholder="activeName">{{ form.type = activeName }}</el-input>
               </el-form-item>
             </el-col>
@@ -415,10 +507,11 @@
             </div>
           </el-form-item>
         </el-form>
-        <el-form v-show="activeName === '班课'" ref="addFormClassCourse" label-width="90px" :model="form" :rules="rules">
+        <!-- 班课-->
+        <el-form v-show="activeName === '班课'" ref="addForm" label-width="90px" :model="form" :rules="rules">
           <el-row>
             <el-col :span="24">
-              <el-form-item label="费用类型" prop="type">
+              <el-form-item label="课程类型" prop="type">
                 <el-input disabled :placeholder="activeName">{{ form.type = activeName }}</el-input>
               </el-form-item>
             </el-col>
@@ -555,27 +648,47 @@
             </div>
           </el-form-item>
         </el-form>
-
       </div>
+    </el-dialog>
+    <!-- 转出费用弹窗 -->
+    <el-dialog title="转出费用" :visible.sync="transferVisible" width="30%" :show-close="false" :close-on-click-modal="false">
+      <el-form>
+        <el-form-item label="转入课程类型">
+          <el-select v-model="formTransfer.to" style="width: 70%">
+            <el-option
+              v-for="item in label"
+              :key="item"
+              :value="item"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <div class="click-bottom">
+            <el-button @click="onclose()">取消</el-button>
+            <el-button type="primary" @click="upload()">确定</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
     </el-dialog>
   </div>
 </template>
 <script>
-import editTable from '../../components/Form';
 import { handleConfirm, handleAlert} from '../../utils/confirm';
 import { apiGetStandardList } from '../../network/api/api';
 export default {
   name: '',
-  components: {
-    editTable
-  },
   data() {
     return {
-      title: '添加用户',
-      // path: "/students",
-      // 控制增加对话框的显示与隐藏,
-      ratesdialogVisible: false,
+      title: '',
+      standardTitle: '',
+      // 控制添加收费标准弹窗显示
+      ratesDialogVisible: false,
+      // 控制添加费用弹窗显示
       dialogVisible: false,
+      // 控制转出弹窗
+      transferVisible: false,
+      // 修改收费标准弹窗
+      standardDialogVisible: false,
       // 获取用户参数列表对象
       queryInfo: {
         name: '',
@@ -584,9 +697,12 @@ export default {
       },
       // 当前选中的课程类型
       activeName: 'A辅',
-      label: ['A辅', 'B辅', '一对一', '班课'],
-      // A\B辅表头
-      studentHeaderAB: [
+      label: ['A辅', 'B辅', 'C辅', '一对一', '班课'],
+      // 转入课程类型
+      options: [
+      ],
+      // A\B\C辅表头
+      studentHeaderABC: [
         { prop: "grade", label: "年级" },
         { prop: "name", label: "姓名" },
         { prop: "actualPay", label: "实际缴费" },
@@ -617,6 +733,7 @@ export default {
         { prop: "total_hour", label: "合计课时" },
         { prop: "remarks", label: "备注" }
       ],
+      // 班课表头
       studentHeaderClassCourse: [
         { prop: "grade", label: "年级" },
         { prop: "name", label: "姓名" },
@@ -633,7 +750,6 @@ export default {
         { prop: "balance", label: "余额" },
         { prop: "remarks", label: "备注" }
       ],
-
       // 添加费用表单
       form: {
         type: '',
@@ -661,6 +777,21 @@ export default {
         remarks: '',
         remain_hour: '',
         remain_time: '',
+      },
+      // 转出费用
+      formTransfer: {
+        to: '',
+        data: {}
+      },
+      // 收费标准表单
+      formStandard: {
+        label: '',
+        type: '',
+        standard: '',
+        hours: '',
+        dayCost: '',
+        times: '',
+        hourCost: ''
       },
       // 添加费用表单规则
       rules: {
@@ -765,6 +896,20 @@ export default {
             dayCost: ''
           },
         ],
+        C: [
+          {
+            type: 'C辅1',
+            standard: '3',
+            hours: '',
+            dayCost: ''
+          },
+          {
+            type: 'C辅2',
+            standard: '3',
+            hours: '',
+            dayCost: ''
+          },
+        ],
         // 1对1
         one2one: [
           {
@@ -828,36 +973,27 @@ export default {
       },
       // 选中的课程类别
       activeTag: 'A',
+      // 收费标准表格高度
       tableHeight: 300,
       // 设置表格可编辑
-      disabled: false,
+      disabled: true,
       // 收费标准table_header
-      standardHeaderA: [
-        { name: 'type', title: '类型', width: 'fit-content', type: "text" },
-        { name: 'standard', title: '收费/月', width: 'fit-content', type: "text" },
-        { name: 'hours', title: '预计上课', width: 'fit-content', type: "text" },
-        { name: 'dayCost', title: '每天费用', width: 'fit-content', type: 'text' },
-        { name: 'btn', title: '操作', width: '100', type: 'btn-d', text: '删除' }
+      standardHeaderABC: [
+        { prop: "type", label: "类型" },
+        { prop: "standard", label: "收费/月" },
+        { prop: "hours", label: "预计上课" },
+        { prop: "dayCost", label: "每天费用" },
       ],
-      standardHeaderB: [
-        { name: 'type', title: '类型', width: 'fit-content', type: "text" },
-        { name: 'standard', title: '收费标准', width: 'fit-content', type: "text" },
-        { name: 'hours', title: '预计上课', width: 'fit-content', type: "text" },
-        { name: 'dayCost', title: '每天费用', width: 'fit-content', type: 'text' },
-        { name: 'btn', title: '操作', width: '100', type: 'btn-d', text: '删除' }
-      ],
-      standardHeaderOne2one: [
-        { name: 'type', title: '类型', width: 'fit-content', type: "text" },
-        { name: 'standard', title: '收费/h', width: 'fit-content', type: "text" },
-        { name: 'btn', title: '操作', width: '100', type: 'btn-d', text: '删除' }
+      standardHeader121: [
+        { prop: "type", label: "类型" },
+        { prop: "standard", label: "收费/h" },
       ],
       standardHeaderCourse: [
-        { name: 'type', title: '类型', width: 'fit-content', type: "text" },
-        { name: 'standard', title: '收费标准', width: 'fit-content', type: "text" },
-        { name: 'hours', title: '课次', width: 'fit-content', type: "text" },
-        { name: 'dayCost', title: '课时', width: 'fit-content', type: 'text' },
-        { name: 'dayCost', title: '课时费/h', width: 'fit-content', type: 'text' },
-        { name: 'btn', title: '操作', width: '100', type: 'btn-d', text: '删除' }
+        { prop: "type", label: "类型" },
+        { prop: "standard", label: "收费标准" },
+        { prop: "times", label: "课次" },
+        { prop: "hours", label: "课时" },
+        { prop: "hourCost", label: "课时费/h" },
       ]
     }
   },
@@ -883,6 +1019,21 @@ export default {
     },
     // 确定提交
     upload() {
+      if (this.standardTitle === '添加收费标准') {
+        console.log(this.formStandard);
+        // 调用添加收费标准接口
+        this.standardDialogVisible = false;
+        handleAlert()
+      }
+      if (this.standardTitle === '修改收费标准') {
+        console.log(this.formStandard);
+
+        // 调用修改收费标准接口
+
+        this.standardDialogVisible = false;
+        handleAlert()
+      }
+
       if (this.title === '添加费用') {
         // 表单校验
         this.$refs.addForm.validate((valid) => {
@@ -897,12 +1048,11 @@ export default {
             return false;
           }
         })
-      } else {
+      } else if (this.title === '修改费用') {
         // 表单校验
         this.$refs.addForm.validate((valid) => {
           if (valid) {
-            this.ratesdialogVisible = false;
-            console.log("修改费用")
+            this.ratesDialogVisible = false;
             // 调用修改用户接口
 
             this.dialogVisible = false
@@ -912,18 +1062,25 @@ export default {
             return false;
           }
         })
-
+      } else {// 转出费用
+        this.transferVisible = false;
+        // 调用转出费用接口
       }
     },
     // 关闭弹框
     onclose() {
       this.dialogVisible = false;
-      this.ratesdialogVisible = false;
+      this.ratesDialogVisible = false;
+      this.transferVisible = false;
+      handleAlert('操作已取消', 'info')
+    },
+    standardClose() {
+      this.standardDialogVisible = false;
       handleAlert('操作已取消', 'info')
     },
     // 收费标准
     addRates() {
-      this.ratesdialogVisible = true
+      this.ratesDialogVisible = true
     },
 
     // 增加用户弹窗
@@ -932,12 +1089,24 @@ export default {
       this.dialogVisible = true
     },
 
-    // 修改用户弹框
+    // 修改费用弹框
     showEditDialog(data) {
       this.title = '修改费用'
       this.dialogVisible = true
       this.form = data
       // console.log(id)
+    },
+    // 修改收费标准弹窗
+    showStandardEditDialog(data) {
+      this.standardTitle = '修改收费标准';
+      this.standardDialogVisible = true;
+      this.formStandard = data
+    },
+    //转出费用弹窗
+    showTransferDialog(data) {
+      this.transferVisible = true;
+      // 将选中的数据赋给data
+      this.formTransfer.data = data;
     },
     // 根据id删除用户信息
     removeUserById(id) {
@@ -952,7 +1121,6 @@ export default {
         })
       console.log(res)
     },
-
     // 把form中的数据重置
     onreset() {
       const form = {
@@ -982,7 +1150,17 @@ export default {
         remain_hour: '',
         remain_time: '',
       }
-      this.form = form
+      this.form = form;
+      const formStandard = {
+        label: '',
+        type: '',
+        standard: '',
+        hours: '',
+        dayCost: '',
+        times: '',
+        hourCost: ''
+      }
+      this.formStandard = formStandard;
     },
     /**
     * @Description: tab标签点击事件,修改活跃tag
@@ -995,6 +1173,8 @@ export default {
         this.activeTag = 'A'
       } else if (name === 'B辅') {
         this.activeTag = 'B'
+      } else if (name === 'C辅') {
+        this.activeTag = 'C'
       } else if (name === '一对一') {
         this.activeTag = 'one2one'
       } else {
@@ -1008,7 +1188,8 @@ export default {
     */
     addNewStandard() {
       this.charges[this.activeTag].push({})
-      handleAlert()
+      this.standardTitle = '添加收费标准'
+      this.standardDialogVisible = true;
     },
 
     /**

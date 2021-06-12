@@ -3,7 +3,7 @@
     <!-- 面包屑导航区 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item>品涵教育</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+      <el-breadcrumb-item>员工管理</el-breadcrumb-item>
       <el-breadcrumb-item>员工管理</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图区 -->
@@ -16,7 +16,7 @@
             <el-button slot="append" icon="el-icon-search" @click="getUserList()"></el-button>
           </el-input>
 
-          <el-button type="primary" :disabled="isDisable" @click="addUser()">添加用户</el-button>
+          <el-button type="primary" :disabled="isDisable" @click="addUser()">添加员工</el-button>
         </div>
         <!-- 数据区 -->
 
@@ -33,7 +33,7 @@
               <el-button :disabled="isDisable" type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
               <!-- 删除按钮 -->
               <el-button :disabled="isDisable" type="danger" icon="el-icon-delete" size="mini"
-                         @click="removeuserByid(scope.row.work_id)"></el-button>
+                         @click="removeuserByid(scope.row.workId)"></el-button>
 
             </template>
           </el-table-column>
@@ -44,20 +44,15 @@
         </el-pagination>
       </div>
     </el-card>
-    <!-- 添加用户弹窗 -->
+    <!-- 添加员工弹窗 -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="70%" :show-close="false" @close="onreset()">
       <div>
         <el-form ref="staffForm" label-width="90px" :model="form" :rules="rules">
-<!--          <div class="picture">-->
-<!--            <img :src="form.img" class="grid-content-picture-img">-->
-<!--            <div @click="picture" class="grid-content-picture-button">上传照片</div>-->
-<!--            <input type="file" ref="setfile" @change="upfile" hidden accept="image/*">-->
-<!--          </div>-->
-          <div class="aaa">
+          <div class="form">
             <el-row>
               <el-col :span="12">
-                <el-form-item label="工号" prop=work_id>
-                  <el-input v-model="form.work_id"></el-input>
+                <el-form-item label="工号" prop="workId">
+                  <el-input v-model="form.workId"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -69,8 +64,8 @@
             <br>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="性别" prop="gender">
-                  <el-radio-group v-model="form.gender">
+                <el-form-item label="性别" prop="sex">
+                  <el-radio-group v-model="form.sex">
                     <el-radio label="男"></el-radio>
                     <el-radio label="女"></el-radio>
                   </el-radio-group>
@@ -95,8 +90,8 @@
             <br>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="职位" prop="post">
-                  <el-select v-model="form.post">
+                <el-form-item label="职位" prop="level">
+                  <el-select v-model="form.level">
                     <el-option label="1" value="1">
                     </el-option>
                     <el-option label="2" value="2">
@@ -106,16 +101,34 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12 ">
-                <el-form-item label="联系方式" prop="contact">
-                  <el-input v-model="form.contact"></el-input>
+                <el-form-item label="联系方式" prop="tel">
+                  <el-input v-model="form.tel"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
             <br>
             <el-row>
-              <el-col>
+              <el-col :span="12">
                 <el-form-item label="家庭住址" prop="address">
                   <el-input v-model="form.address"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="身份证号" prop="idCard">
+                  <el-input v-model="form.idCard"></el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <br>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="银行" prop="bank">
+                  <el-input v-model="form.bank"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="银行卡号" prop="bankCard">
+                  <el-input v-model="form.bankCard"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -141,20 +154,22 @@ export default {
   name: '',
   data() {
     return {
-      title: '添加用户',
+      title: '添加员工',
       form: {
-        // img: require('../../assets/bg.png'),
-        work_id: '',
+        workId: '',
         name: '',
-        gender: '',
-        post: '',
+        sex: '',
         department: '',
-        contact: '',
+        level: '',
+        idCard: '',
+        bank: '',
+        bankCard: '',
+        tel: '',
         address: ''
       },
       // 控制增加对话框的显示与隐藏
       dialogVisible: false,
-      // 获取用户参数列表对象
+      // 获取员工参数列表对象
       queryInfo: {
         name: '',
         pageNumber: 1,
@@ -163,7 +178,7 @@ export default {
       // 建表信息
       tableHeader: [
         {
-          prop: 'work_id',
+          prop: 'workId',
           label: '工号',
           width: '100px'
         },
@@ -173,22 +188,37 @@ export default {
           width: '90px'
         },
         {
-          prop: 'gender',
+          prop: 'sex',
           label: '姓别',
           width: '80px'
         },
         {
           prop: 'department',
           label: '部门',
-          width: '150px'
+          width: '100px'
         },
         {
-          prop: 'post',
+          prop: 'level',
           label: '职位',
+          width: '100px'
+        },
+        {
+          prop: 'idCard',
+          label: '身份证号',
           width: '150px'
         },
         {
-          prop: 'contact',
+          prop: 'bank',
+          label: '开户银行',
+          width: '150px'
+        },
+        {
+          prop: 'bankCard',
+          label: '银行卡号',
+          width: '150px'
+        },
+        {
+          prop: 'tel',
           label: '联系方式'
         },
         {
@@ -198,19 +228,9 @@ export default {
       ],
       // 实际传入数据
       list: [
-        {
-          work_id: '1002',
-          name: '王丽',
-          gender: '女',
-          post: '讲师',
-          department: '教学部',
-          contact: '155556328',
-          address: '淄博市张店区',
-          // img: require('../../assets/bg.png')
-        }
       ],
       rules: {
-        work_id: [
+        workId: [
           { required: true, message: '请输入工号', trigger: 'blur' },
           { min: 3, max: 10, message: '学号必须为数字,长度在3到10个字符', trigger: 'change' },
         ],
@@ -218,16 +238,16 @@ export default {
           { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
           { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
         ],
-        gender: [
+        sex: [
           { required: true, message: '请选择性别', trigger: 'blur' },
         ],
-        post: [
+        level: [
           { required: true, message: '请选择职位', trigger: 'blur' },
         ],
         department: [
           { required: true, message: '请选择部门', trigger: 'blur' },
         ],
-        contact: [
+        tel: [
           { required: true, message: '请输入联系方式', trigger: 'blur' },
           { min: 11, max: 11, message: '请输入11位手机号', trigger: 'blur' }
         ],
@@ -264,14 +284,13 @@ export default {
     },
     // 确定按钮
     upload() {
-      if (this.title === '添加用户') {
-
+      if (this.title === '添加员工') {
         // 表单校验
         this.$refs.staffForm.validate((valid) => {
           if (valid) {
             this.dialogVisible = false
             handleAlert()
-            // 调用添加用户接口
+            // 调用添加员工接口
 
           } else {
             console.log('error submit!!');
@@ -284,7 +303,7 @@ export default {
           if (valid) {
             this.dialogVisible = false
             handleAlert()
-            // 调用修改用户接口
+            // 调用修改员工接口
 
           } else {
             console.log('error submit!!');
@@ -294,28 +313,28 @@ export default {
       }
 
     },
-    // 添加用户
+    // 添加员工
     addUser() {
-      this.title = '添加用户'
+      this.title = '添加员工'
       this.dialogVisible = true
     },
-    // 关闭增加用户弹框
+    // 关闭增加员工弹框
     onclose() {
       this.dialogVisible = false
       // this.onreset()
       handleAlert('操作已取消', 'info')
     },
-    // 修改用户弹框
+    // 修改员工弹框
     showEditDialog(data) {
-      this.title = '修改用户'
+      this.title = '修改员工'
       this.dialogVisible = true
       this.form = data
       console.log(data)
     },
     removeuserByid() {
-      const res = handleConfirm('此操作将永久删除该用户, 是否继续?', 'warning', '提示')
+      const res = handleConfirm('此操作将永久删除该员工, 是否继续?', 'warning', '提示')
         .then(() => {
-          // 调用接口完成删除用户操作
+          // 调用接口完成删除员工操作
           handleAlert()
         })
         .catch(() => {
@@ -338,13 +357,16 @@ export default {
     // },
     onreset() {
       let form = {
-        work_id: '',
+        workId: '',
         name: '',
-        gender: '',
-        post: '',
+        sex: '',
         department: '',
-        contact: '',
-        // img: require('../../assets/bg.png')
+        level: '',
+        idCard: '',
+        bank: '',
+        bankCard: '',
+        tel: '',
+        address: ''
       }
       this.form = form
     }

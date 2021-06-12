@@ -3,7 +3,7 @@
     <!-- 面包屑导航区 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item>品涵教育</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+      <el-breadcrumb-item>教师管理</el-breadcrumb-item>
       <el-breadcrumb-item>教师管理</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图区 -->
@@ -16,7 +16,7 @@
             <el-button slot="append" icon="el-icon-search" @click="getUserList()"></el-button>
           </el-input>
 
-          <el-button type="primary" :disabled="isDisable" @click="addUser()">添加用户</el-button>
+          <el-button type="primary" :disabled="isDisable" @click="addUser()">添加教师</el-button>
         </div>
         <!-- 数据区 -->
         <el-table :data="list" stripe border>
@@ -31,7 +31,7 @@
               <el-button :disabled="isDisable" type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
               <!-- 删除按钮 -->
               <el-button :disabled="isDisable" type="danger" icon="el-icon-delete" size="mini"
-                         @click="removeUserById(scope.row.work_id)"></el-button>
+                         @click="removeUserById(scope.row.workId)"></el-button>
               <!-- <el-button type="warning" icon="el-icon-setting" size="mini"></el-button> -->
             </template>
           </el-table-column>
@@ -43,7 +43,7 @@
       </div>
     </el-card>
     <!--  添加教师弹窗  -->
-    <el-dialog title="添加教师" :visible.sync="dialogVisible" width="64%" :show-close="false" @close="onreset()">
+    <el-dialog :title="title" :visible.sync="dialogVisible" width="64%" :show-close="false" @close="onreset()">
       <!-- 内容主体区 -->
       <div class="container">
         <el-form ref="teacherForm" label-width="90px" :model="form" :rules="rules">
@@ -57,8 +57,8 @@
               <div class="userInf">
                 <el-row>
                   <el-col :span="12">
-                    <el-form-item label="工号" prop="work_id">
-                      <el-input v-model="form.work_id"></el-input>
+                    <el-form-item label="工号" prop="workId">
+                      <el-input v-model="form.workId"></el-input>
                     </el-form-item>
                   </el-col>
                   <el-col :span="12">
@@ -70,8 +70,8 @@
                 <br>
                 <el-row>
                   <el-col :span="12">
-                    <el-form-item label="性别" prop="gender">
-                      <el-radio-group v-model="form.gender">
+                    <el-form-item label="性别" prop="sex">
+                      <el-radio-group v-model="form.sex">
                         <el-radio label="男"></el-radio>
                         <el-radio label="女"></el-radio>
                       </el-radio-group>
@@ -86,13 +86,13 @@
                 <br>
                 <el-row>
                   <el-col :span="12">
-                    <el-form-item label="联系方式" prop="contact">
-                      <el-input v-model="form.contact"></el-input>
+                    <el-form-item label="联系方式" prop="tel">
+                      <el-input v-model="form.tel"></el-input>
                     </el-form-item>
                   </el-col>
                   <el-col :span="12">
-                    <el-form-item label="家庭住址" prop="education">
-                      <el-input v-model="form.education"></el-input>
+                    <el-form-item label="家庭住址" prop="address">
+                      <el-input v-model="form.address"></el-input>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -100,8 +100,8 @@
 
                 <el-row>
                   <el-col>
-                    <el-form-item label="辅导科目" prop="subject">
-                      <el-input v-model="form.subject"></el-input>
+                    <el-form-item label="辅导科目" prop="course">
+                      <el-input v-model="form.course"></el-input>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -109,11 +109,11 @@
               </div>
             </div>
             <div class="middle">
-              <div class="experience">
+              <div class="exp">
                 <div class="top">
                   <span>工作经验</span>
                 </div>
-                <el-input type="textarea" autosize placeholder="请输入工作经验" v-model="form.experience">
+                <el-input type="textarea" autosize placeholder="请输入工作经验" v-model="form.exp">
                 </el-input>
               </div>
             </div>
@@ -141,23 +141,23 @@ export default {
   name: '',
   data() {
     return {
-      title: '添加用户',
+      title: '添加教师',
       // clearable: true,
       form: {
-        work_id: '',
+        workId: '',
         name: '',
-        gender: '',
+        sex: '',
         education: '',
-        contact: '',
+        tel: '',
         address: '',
-        subject: '',
+        course: '',
         // img: require('../../assets/bg.png'),
-        experience: ''
+        exp: ''
       },
 
       // 控制增加对话框的显示与隐藏
       dialogVisible: false,
-      // 获取用户参数列表对象
+      // 获取教师参数列表对象
       queryInfo: {
         query: '',
         pageNumber: 1,
@@ -166,7 +166,7 @@ export default {
       // 建表信息
       teacherList: [
         {
-          prop: 'work_id',
+          prop: 'workId',
           label: '工号',
           width: '100px'
         },
@@ -176,7 +176,7 @@ export default {
           width: '90px'
         },
         {
-          prop: 'gender',
+          prop: 'sex',
           label: '姓别',
           width: '80px'
         },
@@ -186,7 +186,7 @@ export default {
           width: '100px'
         },
         {
-          prop: 'contact',
+          prop: 'tel',
           label: '联系方式',
           width: '150px'
         },
@@ -196,26 +196,15 @@ export default {
           width: '220px'
         },
         {
-          prop: 'subject',
+          prop: 'course',
           label: '辅导科目'
         }
       ],
       // 实际传入数据
       list: [
-        {
-          work_id: '123',
-          name: '张三',
-          gender: '女',
-          education: '本科',
-          contact: '15094866411',
-          address: '淄博市张店区',
-          subject: '数学',
-          // img: require('../../assets/bg.png'),
-          experience: ''
-        }
       ],
       rules : {
-        work_id: [
+        workId: [
           { required: true, message: '请输入工号', trigger: 'blur' },
           { min: 3, max: 10, message: '学号必须为数字,长度在3到10个字符', trigger: 'change' },
         ],
@@ -223,13 +212,13 @@ export default {
           { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
           { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
         ],
-        gender: [
+        sex: [
           { required: true, message: '请选择性别', trigger: 'blur' },
         ],
         education: [
           { required: true, message: '请输入学历信息', trigger: 'blur' },
         ],
-        contact: [
+        tel: [
           { required: true, message: '请输入联系方式', trigger: 'blur' },
           { min: 11, max: 11, message: '请输入11位手机号', trigger: 'blur' }
         ],
@@ -237,7 +226,7 @@ export default {
           { required: true, message: '请输入家庭地址', trigger: 'blur' },
           { min: 2, max: 25, message: '长度在2到25个字符', trigger: 'blur' }
         ],
-        subject: [
+        course: [
           { required: true, message: '请输入学科', trigger: 'blur' },
           { min: 2, max: 10, message: '长度在2到10个字符', trigger: 'blur' }
         ]
@@ -269,18 +258,18 @@ export default {
     },
     addUser() {
       this.dialogVisible = true
-      this.title = '添加用户'
+      this.title = '添加教师'
     },
-    // 确定用户弹框
+    // 确定教师弹框
     upload(formName) {
       // 上传成功隐藏就行
-      if (this.title === '添加用户') {
+      if (this.title === '添加教师') {
         // 表单校验
         this.$refs.teacherForm.validate((valid) => {
           if (valid) {
             this.dialogVisible = false
             handleAlert()
-            // 调用添加用户接口
+            // 调用添加教师接口
 
           } else {
             console.log('error submit!!');
@@ -293,7 +282,7 @@ export default {
           if (valid) {
             this.dialogVisible = false
             handleAlert()
-            // 调用修改用户接口
+            // 调用修改教师接口
 
           } else {
             console.log('error submit!!');
@@ -303,22 +292,22 @@ export default {
       }
       handleAlert()
     },
-    // 关闭用户弹框
+    // 关闭教师弹框
     onclose() {
       this.dialogVisible = false
       handleAlert('取消操作', 'info')
     },
-    // 修改用户弹框
+    // 修改教师弹框
     showEditDialog(data) {
       this.dialogVisible = true
-      this.title = '修改用户'
+      this.title = '修改教师'
       this.form = data
     },
-    // 删除用户
+    // 删除教师
     removeUserById(id) {
-      const res = handleConfirm('此操作将永久删除该用户, 是否继续?', 'warning', '提示')
+      const res = handleConfirm('此操作将永久删除该教师, 是否继续?', 'warning', '提示')
         .then(() => {
-          // 调用删除用户借口
+          // 调用删除教师借口
           handleAlert()
         })
         .catch(() => {
@@ -343,15 +332,15 @@ export default {
     // form中的数据重设
     onreset() {
       let form = {
-        work_id: '',
+        workId: '',
         name: '',
-        gender: '',
+        sex: '',
         education: '',
-        contact: '',
+        tel: '',
         // address: "",
-        subject: '',
+        course: '',
         // img: require('../../assets/bg.png'),
-        experience: ''
+        exp: ''
       }
       this.form = form
     }
