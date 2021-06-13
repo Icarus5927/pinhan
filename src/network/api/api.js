@@ -7,7 +7,6 @@ import router from '../../router/index'
 /**
 * @Description: API的统一管理
 * @author oldMe
-* @date 2021/6/11
 */
 // 登录
 export const apiLogin = params => post('/user/login', params)
@@ -27,6 +26,10 @@ export const apiLogin = params => post('/user/login', params)
   }).catch(err => {
     console.log(err);
   })
+/**
+* @Description: 按页码查询信息
+* @author oldMe
+*/
 // 根据页码获取系统用户列表
 export const apiGetUserList = params => get('/user/page',{'page': params})
 // 根据页码获取流水
@@ -39,12 +42,34 @@ export const apiGetTeacherList = params => get('teacher/page', {'page': params})
 export const apiGetStaffList = params => get('staff/page', {'page': params})
 // 根据页码获取收费标准
 export const apiGetStandardList = params => get('/standard/page', {'page': params})
-// 修改用户密码
-export const apiChangePassWord = params => post('user/reset', params)
+/**
+* @Description: 添加信息
+* @author oldMe
+*/
 // 添加学生
 export const apiAddStudent = params => post('/student/add', params)
 // 添加流水
 export const apiAddStream = params => post('/stream/add', params)
+/**
+* @Description: 删除信息
+* @author oldMe
+*/
+// 删除学生
+export const apiRemoveStudent = params => get('/student/del', { studentId: params })
+/**
+* @Description: 更新信息
+* @author oldMe
+*/
+// 更新用户密码
+export const apiUpdatePassWord = params => post('user/reset', params)
+// 更新学生信息
+export const apiUpdateStudent = params => post('/student/update', params)
 
+/**
+* @Description: 根据信息查询
+* @author oldMe
+*/
+// 根据姓名查找学生信息
+export const apiFindStudentByName = params => get('/student/namePage', { studentName: params })
 
 

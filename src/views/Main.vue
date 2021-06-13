@@ -93,7 +93,7 @@
               <span>教师考勤</span>
             </el-menu-item>
             <!--管理员可进行员工考勤-->
-            <el-menu-item v-if="this.$store.state.token === '0' " index="/staff_checking-in" @click="saveNavState('/staff_checking-in')"><i
+            <el-menu-item v-if="this.$store.state.token === '0'" index="/staff_checking-in" @click="saveNavState('/staff_checking-in')"><i
               class="el-icon-menu"></i>
               <span>员工考勤</span>
             </el-menu-item>
@@ -127,15 +127,14 @@ export default {
   name: 'Main',
   data() {
     return {
-      // 左侧菜单数据
-      // menuList: [],
       isCollapse: false,
       // 当前的路径
       path: '/student'
     }
   },
   created() {
-    // this.path = window.sessionStorage.getItem('path') || this.path
+    // 刷新保持原页面
+    this.path = window.sessionStorage.getItem('path') || this.path
     // 刷新保持登录
     if (window.sessionStorage.getItem('user')) {
       this.$store.commit(GET_USER, window.sessionStorage.getItem('user'))
@@ -160,7 +159,6 @@ export default {
       // 更改路径，并将path存到sessionStorage中
       this.path = path
       window.sessionStorage.setItem('path', path)
-      // console.log(this.path)
     }
   },
   mounted() {
@@ -169,9 +167,6 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-// .el-submenu__title {
-//     padding: 0 50px !important;
-// }
 .home-container {
   height: 100%;
   /*设置文字不可被选中*/

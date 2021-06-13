@@ -11,31 +11,29 @@
       <div class="card-header">
 
         <div class="block">
-          <el-row>
-            <el-col :span="4">
+          <el-row :gutter="5">
+            <el-col :span="3">
               <el-date-picker
                 v-model="query.date"
                 type="week"
                 format="yyyy 第 WW 周"
-                placeholder="选择周"
+                placeholder="请选择周"
+                style="width: 100%"
                 :picker-options="{'firstDayOfWeek': 1}"
               >
               </el-date-picker>
             </el-col>
-            <el-col :span="5">
-              <el-input v-model="query.student_name" type="text" clearable style="width: 200px" placeholder="请输入学生姓名">
+            <el-col :span="4">
+              <el-input v-model="query.student_name" type="text" clearable style="width: 100%" placeholder="请输入学生姓名">
                 <template slot="prepend">学生</template>
               </el-input>
             </el-col>
             <el-col :span="4">
-              <el-input v-model="query.teacher_name" type="text" clearable style="width: 200px" placeholder="请输入教师姓名">
+              <el-input v-model="query.teacher_name" type="text" clearable style="width: 100%" placeholder="请输入教师姓名">
                 <template slot="prepend">教师</template>
               </el-input>
             </el-col>
-          </el-row>
-
-          <el-row :gutter="8">
-            <el-col :span="4">
+            <el-col :span="3">
               <el-select v-model="query.grade" placeholder="选择年级">
                 <el-option
                   v-for="item in grades"
@@ -45,17 +43,16 @@
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="4">
-              <el-select v-model="query.course_name" placeholder="选择课程">
-                <el-option
-                  v-for="item in courses"
-                  :key="item"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
+            <el-col :span="3">
+              <el-cascader
+                v-model="query.course_name"
+                :options="courses"
+                :props="{ expandTrigger: 'hover' }"
+                placeholder="请选择课程"
+                @change="handleChange">
+              </el-cascader>
             </el-col>
-            <el-col :span="5">
+            <el-col :span="3">
               <el-select v-model="query.subject" placeholder="选择科目">
                 <el-option
                   v-for="item in subjects"
@@ -65,24 +62,23 @@
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="4">
-              <el-button icon="el-icon-search" class="search">查询</el-button>
-              <el-button :disabled="isDisable" type="primary" @click="addCourse()">添加课程</el-button>
+            <el-col :span="2">
+              <el-button icon="el-icon-search" style="width: 100%" class="search">查询</el-button>
+            </el-col>
+            <el-col :span="2">
+              <el-button :disabled="isDisable" style="width: 100%" type="primary" @click="addCourse()">添加课程</el-button>
             </el-col>
           </el-row>
-
         </div>
       </div>
 
       <div class="tableClass">
         <el-row>
-
           <el-col :span="3">
             <div>
               <table-left :node="tableHeader"></table-left>
             </div>
           </el-col>
-
           <el-col :span="21">
             <div class="table">
               <course-table
@@ -92,7 +88,6 @@
               ></course-table>
             </div>
           </el-col>
-
         </el-row>
       </div>
 
@@ -210,8 +205,42 @@ export default {
       // 是否可添加课程
       isDisable: true,
       // 下拉菜单选项
-      grades: ['初一','初二','初三','高一'],
-      courses: ['一对一', '班课', '晚辅'],
+      grades: ['初一','初二', '初三', '初四', '高一', '高二', '高三'],
+      // 课程菜单选项
+      // 向后端请求ABC一对一班课的所有课程
+      courses: [
+        {
+          value: '晚辅',
+          label: '晚辅',
+          children: [
+            {
+              value: 'A辅',
+              label: 'A辅',
+              children: []
+            },
+            {
+              value: 'B辅',
+              label: 'B辅',
+              children: []
+            },
+            {
+              value: 'C辅',
+              label: 'C辅',
+              children: []
+            },
+          ]
+        },
+        {
+          value: '一对一',
+          label: '一对一',
+          children: []
+        },
+        {
+          value: '班课',
+          label: '班课',
+          children: []
+        },
+      ],
       subjects: ['数学', '语文', '英语'],
       //查询信息
       query: {
@@ -653,6 +682,7 @@ export default {
       }
       return duration
     },
+    // 表单提交
     submitForm(formName) {
       this.courseForm.duration = this.getDuration(this.courseForm.start, this.courseForm.end);
       this.courseForm.time = this.courseForm.start + '-' + this.courseForm.end;
@@ -706,7 +736,11 @@ export default {
       // 只获取叶子节点的数据
       this.courseForm.student = this.$refs.studentTree.getCheckedNodes(true, false)
       console.log(this.courseForm.student)
-    }
+    },
+    // 课程菜单选择
+    handleChange(value) {
+      console.log(value);
+    },
   },
   mounted() {
   },
@@ -746,11 +780,6 @@ export default {
   width: 100%;
 }
 
-.tableClass {
-  //max-height: 600px;
-  //overflow: scroll;
-}
-
 .block {
   display: flex;
   justify-content: space-between;
@@ -771,6 +800,11 @@ export default {
     border-radius: 0 4px 4px 0;
     background-color: rgb(240, 238, 238);
   }
+}
+.buttons {
+  margin-top: 5px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 </style>

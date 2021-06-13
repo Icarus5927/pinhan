@@ -20,7 +20,7 @@ export function handleConfirm(msg = "确定执行此操作吗？", type = "warni
  * @author 封装 element-ui 消息提示
  * @param text
  * @param type
- * @returns {Promise}
+ * @returns {ElMessageComponent}
  */
 export function handleAlert(text = "操作成功", type = "success") {
   return Message({

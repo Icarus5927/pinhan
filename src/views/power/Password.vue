@@ -71,7 +71,7 @@
 <script>
 import { handleAlert } from '../../utils/confirm';
 import { get, post } from '../../network/request/request';
-import { apiChangePassWord, apiGetUserList } from '../../network/api/api';
+import { apiUpdatePassWord, apiGetUserList } from '../../network/api/api';
 
 export default {
   name: '',
@@ -157,7 +157,7 @@ export default {
         }
         if (valid) {
           // 调用修改密码接口
-          apiChangePassWord({workId: this.user.work_id, newPassWord: this.form.newPWD })
+          apiUpdatePassWord({workId: this.user.work_id, newPassWord: this.form.newPWD })
           .then(res => {
             console.log(res);
             if (res === 1) {

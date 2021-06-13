@@ -11,11 +11,9 @@
       <div class="text item">
         <!-- 头部搜索区 -->
         <div class="card-header">
-          <el-input placeholder="请输入姓名" v-model="queryInfo.name" class="input-with-select" clearable
-                    @clear="getUserList()">
-            <el-button slot="append" icon="el-icon-search" @click="getUserList()"></el-button>
+          <el-input placeholder="请输入姓名" v-model="queryInfo.name" class="input-with-select" clearable @clear="getUserList">
+            <el-button slot="append" icon="el-icon-search" @click="findStudentByName()"></el-button>
           </el-input>
-
           <el-button type="primary" :disabled="isDisable" @click="addUser()">添加学生</el-button>
         </div>
         <!-- 数据区 -->
@@ -31,7 +29,7 @@
               <!-- 修改按钮 -->
               <el-button type="primary" icon="el-icon-edit" size="mini" :disabled="isDisable" @click="showEditDialog(scope.row)"></el-button>
               <!-- 删除按钮 -->
-              <el-button type="danger" icon="el-icon-delete" size="mini" :disabled="isDisable" @click="removeuserByid(scope.row)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" size="mini" :disabled="isDisable" @click="removeStudentById(scope.row.studentId)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -40,23 +38,15 @@
         </el-pagination>
       </div>
     </el-card>
-    <!--添加学生弹窗dialog，根据dialogVisible的真假显示-->
+    <!--学生弹窗dialog，根据dialogVisible的真假显示-->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="64%" :show-close="false" @close="onreset()">
       <!-- 添加学生区 -->
-      <div class="contanier">
+      <div class="container">
         <!-- 表单区域 -->
         <el-form ref="stuForm" label-width="90px" :model="form" :rules="rules">
           <div class="main">
             <!-- 头部信息区  -->
             <div class="header">
-              <!--上传头像 -->
-<!--              <div class="picture" >-->
-<!--                <img :src="form.img" class="grid-content-picture-img">-->
-<!--                <div @click="picture" class="grid-content-picture-button">上传照片</div>-->
-<!--                &lt;!&ndash; 隐藏input &ndash;&gt;-->
-<!--                <input type="file" ref="setfile" @change="upfile" hidden accept="image/*">-->
-<!--              </div>-->
-
               <!-- 左侧添加信息区 -->
               <div class="infoArea">
                 <el-row>
@@ -180,10 +170,14 @@
   </div>
 </template>
 <script>
-// import Student from "../../components/Student"
 import { handleAlert, handleConfirm } from '../../utils/confirm';
-import { get, post } from '../../network/request/request';
-import { apiAddStudent, apiGetStudentList } from '../../network/api/api';
+import {
+  apiAddStudent,
+  apiFindStudentByName,
+  apiGetStudentList,
+  apiRemoveStudent,
+  apiUpdateStudent
+} from '../../network/api/api';
 
 export default {
   name: 'studentInfo',
@@ -202,7 +196,6 @@ export default {
         parentTel: '',
         address: '',
         source: '',
-        // img: require('../../assets/bg.png'),
         score: {
           date: '',
           result: [
@@ -329,6 +322,16 @@ export default {
           width: '190px'
         },
         {
+          prop: 'classRank',
+          label: '班级排名',
+          width: '90px'
+        },
+        {
+          prop: 'gradeRank',
+          label: '级部排名',
+          width: '90px'
+        },
+        {
           prop: 'parentTel',
           label: '父母联系方式',
           width: '190px'
@@ -341,81 +344,13 @@ export default {
           prop: 'source',
           label: '来源',
           width: '90px'
-        },
-        {
-          prop: 'classRank',
-          label: '班级排名',
-          width: '90px'
-        },
-        {
-          prop: 'gradeRank',
-          label: '级部排名',
-          width: '90px'
         }
       ],
-      // 表具体数据
+      // 后端传入的数据
       list: [
-        {
-          studentId: '2222001',
-          name: '小明',
-          sex: '男',
-          grade: '初三',
-          school: '十三中',
-          parentTel: '15094877412',
-          address: 'dddd',
-          source: '其他',
-          classRank: 1,
-          gradeRank: 1,
-          // img: require('../../assets/bg.png'),
-          score: {
-            date: '2021-01-15',
-            result: [
-              {
-                name: '语文',
-                score: '99/100'
-              },
-              {
-                name: '数学',
-                score: '/'
-              },
-              {
-                name: '英语',
-                score: '/'
-              },
-              {
-                name: '物理',
-                score: '/'
-              },
-              {
-                name: '化学',
-                score: '/'
-              },
-              {
-                name: '历史',
-                score: '/'
-              },
-              {
-                name: '地理',
-                score: '/'
-              },
-              {
-                name: '生物',
-                score: '/'
-              },
-              {
-                name: '道法',
-                score: '/'
-              },
-              {
-                name: '微机',
-                score: '/'
-              }
-            ]
-          }
-        }
       ],
       // 数据总条数
-      total: 100
+      total: 0
     }
   },
   created() {
@@ -437,10 +372,6 @@ export default {
     // 分页获取页码
     handleCurrentChange(e) {
       this.queryInfo.pageNumber = e
-      get('/student/page',{'page': this.queryInfo.pageNumber})
-      .then(res => {
-        console.log(res);
-      })
       this.getUserList()
     },
     // 确定
@@ -454,7 +385,6 @@ export default {
             // 调用添加学生接口
             apiAddStudent(this.form)
               .then(res => {
-                console.log(res);
                 this.getUserList()
               })
               .catch(err => {
@@ -473,7 +403,10 @@ export default {
             this.dialogVisible = false
             handleAlert()
             // 调用修改用户接口
-
+            apiUpdateStudent(this.form)
+            .then(res => {
+              console.log(res);
+            })
           } else {
             console.log('error submit!!');
             return false;
@@ -498,31 +431,42 @@ export default {
       this.dialogVisible = true
       this.form = data
     },
-    removeuserByid() {
-      const res = handleConfirm('此操作将永久删除该用户, 是否继续?', 'warning', '提示')
+    findStudentByName() {
+      if (this.queryInfo.name !== '') {
+        // 调用查找接口
+        apiFindStudentByName(this.queryInfo.name)
+          .then(res => {
+            console.log(res);
+            if (res.records.length !== 0) {
+              this.list = res.records
+            } else {
+              handleAlert('暂无该学生信息', 'warning');
+            }
+          })
+      } else {
+        handleAlert('请输入要查找的学生姓名', 'warning')
+      }
+    },
+    removeStudentById(id) {
+      handleConfirm('此操作将永久删除该用户, 是否继续?', 'warning', '提示')
         .then(() => {
           // 调用接口完成删除用户操作
-          handleAlert()
+          apiRemoveStudent(id)
+          .then(res => {
+            if (res === 1) {
+              handleAlert()
+            } else {
+              handleAlert('删除失败', 'warning')
+            }
+            // 删除后重新获取学生列表
+            this.getUserList()
+          })
+
         })
         .catch(() => {
           handleAlert('已取消操作', 'info')
         })
-      console.log(res)
     },
-    picture() {
-      this.$refs.setfile.click()
-    },
-    // 上传头像图片
-    // upfile(e) {
-    //   const that = this
-    //   if (!e || !window.FileReader) return // 看支持不支持FileReader
-    //   const reader = new FileReader()
-    //   reader.readAsDataURL(e.target.files[0]) // 这里是最关键的一步，转换就在这里 （参数必须是blob对象）
-    //   reader.onloadend = function () {
-    //     that.form.img = this.result
-    //   }
-    //   // console.log(this.item)
-    // },
     // form中的数据重设
     onreset() {
       const form = {
@@ -624,7 +568,7 @@ export default {
   }
 }
 
-.contanier {
+.container {
   width: 60vw;
 
   .main {

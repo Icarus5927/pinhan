@@ -39,7 +39,7 @@ import {
   Image,
   Icon,
   InputNumber,
-  TimeSelect, Loading
+  TimeSelect, Loading, Cascader
 } from 'element-ui';
 
 Vue.use(Button)
@@ -81,5 +81,6 @@ Vue.use(Button)
   .use(InputNumber)
   .use(TimeSelect)
   .use(Loading)
+  .use(Cascader)
 Vue.prototype.$message = Message;
 Vue.prototype.$confirm = MessageBox.confirm;

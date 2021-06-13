@@ -9,33 +9,32 @@
     <el-card>
       <div class="table-header">
         <div class="block">
-          <el-row>
-            <el-col :span="7">
+          <el-row :gutter="5">
+            <el-col :span="6">
               <el-date-picker
                 v-model="query.date"
                 type="daterange"
-                align="right"
+                align="left"
                 unlink-panels
                 range-separator="至"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
+                style="width: 100%"
                 :picker-options="pickerOptions">
               </el-date-picker>
             </el-col>
             <el-col :span="4">
-              <el-input v-model="query.student_name" type="text" clearable style="width: 200px" placeholder="请输入学生姓名">
+              <el-input v-model="query.student_name" type="text" clearable style="width: 100%" placeholder="请输入学生姓名">
                 <template slot="prepend">学生</template>
               </el-input>
             </el-col>
             <el-col :span="4">
-              <el-input v-model="query.teacher_name" type="text" clearable style="width: 200px" placeholder="请输入教师姓名">
+              <el-input v-model="query.teacher_name" type="text" clearable style="width: 100%" placeholder="请输入教师姓名">
                 <template slot="prepend">教师</template>
               </el-input>
             </el-col>
-          </el-row>
 
-          <el-row>
-            <el-col :span="4">
+            <el-col :span="2">
               <el-select v-model="query.grade" placeholder="选择年级">
                 <el-option
                   v-for="item in grades"
@@ -45,17 +44,16 @@
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="4">
-              <el-select v-model="query.course_name" placeholder="选择课程">
-                <el-option
-                  v-for="item in courses"
-                  :key="item"
-                  :label="item"
-                  :value="item">
-                </el-option>
-              </el-select>
+            <el-col :span="3">
+              <el-cascader
+                v-model="query.course_name"
+                :options="courses"
+                :props="{ expandTrigger: 'hover' }"
+                placeholder="请选择课程"
+                @change="handleChange">
+              </el-cascader>
             </el-col>
-            <el-col :span="4">
+            <el-col :span="3">
               <el-select v-model="query.subject" placeholder="选择科目">
                 <el-option
                   v-for="item in subjects"
@@ -65,22 +63,40 @@
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="4">
-              <el-button icon="el-icon-search" type="primary" class="search">查询</el-button>
+            <el-col :span="2">
+              <el-button icon="el-icon-search" type="primary" style="width: 100%" class="search">查询</el-button>
             </el-col>
           </el-row>
         </div>
       </div>
 
-      <div class="tableClass">
+      <div>
 
-        <el-table :data="tableData">
+        <el-table class="tableClass" :data="tableData" border>
           <el-table-column type="index" label="#">
           </el-table-column>
 
           <el-table-column  v-for="(item,index) in courseHeader" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
           </el-table-column>
 
+          <el-table-column label="学生考勤" prop="studentCheck" width="100px">
+            <template slot-scope="scope">
+              <el-radio-group v-model="scope.row.studentCheck" @change="studentCheck(scope.row)" style="text-align: left">
+                <el-radio :label="-1">未考勤</el-radio>
+                <el-radio :label="0">已到</el-radio>
+                <el-radio :label="1">未到</el-radio>
+              </el-radio-group>
+            </template>
+          </el-table-column>
+          <el-table-column label="教师考勤" prop="teacherCheck" width="100px">
+            <template slot-scope="scope">
+              <el-radio-group v-model="scope.row.teacherCheck" @change="teacherCheck(scope.row)" style="text-align: left">
+                <el-radio :label="-1">未考勤</el-radio>
+                <el-radio :label="0">已到</el-radio>
+                <el-radio :label="1">未到</el-radio>
+              </el-radio-group>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" width="150px">
             <template slot-scope="scope">
               <!--修改按钮 -->
@@ -220,8 +236,42 @@ export default {
       // 是否不可编辑,默认可编辑
       notEdit: false,
       // 下拉菜单选项
-      grades: ['初一','初二','初三','高一'],
-      courses: ['一对一', '班课', '晚辅'],
+      grades: ['初一','初二','初三', '初四', '高一', '高二', '高三'],
+      // 课程菜单选项
+      // 向后端请求ABC一对一班课的所有课程
+      courses: [
+        {
+        value: '晚辅',
+        label: '晚辅',
+        children: [
+          {
+            value: 'A辅',
+            label: 'A辅',
+            children: []
+          },
+          {
+            value: 'B辅',
+            label: 'B辅',
+            children: []
+          },
+          {
+            value: 'C辅',
+            label: 'C辅',
+            children: []
+          },
+        ]
+        },
+        {
+          value: '一对一',
+          label: '一对一',
+          children: []
+        },
+        {
+          value: '班课',
+          label: '班课',
+          children: []
+        },
+      ],
       subjects: ['数学', '语文', '英语'],
       //查询信息
       query: {
@@ -263,7 +313,9 @@ export default {
           teacher_title: '讲师',
           course_name: '一对一',
           duration: 2,
-          class_teacher: '王艺颖'
+          class_teacher: '王艺颖',
+          studentCheck: -1,
+          teacherCheck: -1
         },
         {
           date: '2021-05-02',
@@ -277,7 +329,9 @@ export default {
           teacher_title: '讲师',
           course_name: '一对一',
           duration: 1.5,
-          class_teacher: '王艺颖'
+          class_teacher: '王艺颖',
+          studentCheck: -1,
+          teacherCheck: -1
         },
       ],
       // datepicker的快捷选项
@@ -345,6 +399,10 @@ export default {
     handleCurrentChange(e) {
       this.queryInfo.pageNumber = e
       this.getFinanceList()
+    },
+    // 课程菜单选择
+    handleChange(value) {
+      console.log(value);
     },
     // 修改课程弹框
     showEditDialog(data) {
@@ -431,14 +489,25 @@ export default {
         });
       console.log(res);
     },
+    // 学生考勤
+    studentCheck(info) {
+      console.log(info);
+      // 调用学生考勤接口
 
+    },
+    // 教师考勤
+    teacherCheck(info) {
+      console.log(info);
+      // 调用教师考勤接口
+
+    }
   }
 }
 </script>
 
 <style scoped>
-  .el-row {
-    display: flex;
-    flex-wrap: wrap;
+
+  .tableClass {
+    border: 1px solid #ebeef5;
   }
 </style>

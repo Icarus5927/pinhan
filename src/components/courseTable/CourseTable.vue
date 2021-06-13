@@ -350,10 +350,4 @@ export default {
   line-height: 30px;
   border-bottom: 1px solid #ebeef5;
 }
-
-.buttons {
-  display: flex;
-  justify-content: flex-end;
-}
-
 </style>
