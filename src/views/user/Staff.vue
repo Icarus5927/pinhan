@@ -13,7 +13,7 @@
         <div class="card-header">
           <el-input placeholder="请输入姓名" v-model="queryInfo.name" class="input-with-select" clearable
                     @clear="getUserList()">
-            <el-button slot="append" icon="el-icon-search" @click="getUserList()"></el-button>
+            <el-button slot="append" icon="el-icon-search" @click="getUserByName()"></el-button>
           </el-input>
 
           <el-button type="primary" :disabled="isDisable" @click="addUser()">添加员工</el-button>
@@ -33,7 +33,7 @@
               <el-button :disabled="isDisable" type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
               <!-- 删除按钮 -->
               <el-button :disabled="isDisable" type="danger" icon="el-icon-delete" size="mini"
-                         @click="removeuserByid(scope.row.workId)"></el-button>
+                         @click="removeStaffById(scope.row.workId)"></el-button>
 
             </template>
           </el-table-column>
@@ -148,7 +148,13 @@
 </template>
 <script>
 import { handleAlert, handleConfirm } from '../../utils/confirm';
-import { apiGetStaffList } from '../../network/api/api';
+import {
+  apiAddStaff,
+  apiFindStaffByName,
+  apiGetStaffList,
+  apiRemoveStaff,
+  apiUpdateStaff
+} from '../../network/api/api';
 
 export default {
   name: '',
@@ -277,6 +283,18 @@ export default {
         this.total = res.total;
       })
     },
+    getUserByName() {
+      apiFindStaffByName(this.queryInfo.name)
+      .then(res => {
+        if (res.total !== 0) {
+          this.list = res.records;
+          this.total = res.total;
+          handleAlert()
+        } else {
+          handleAlert('暂无数据', 'warning');
+        }
+      })
+    },
     // 分页获取页码
     handleCurrentChange(e) {
       this.pageNumber = e
@@ -289,9 +307,17 @@ export default {
         this.$refs.staffForm.validate((valid) => {
           if (valid) {
             this.dialogVisible = false
-            handleAlert()
             // 调用添加员工接口
-
+            apiAddStaff(this.form)
+            .then(res => {
+              if (res === 1) {
+                handleAlert()
+                // 添加后重新获取列表
+                this.getUserList()
+              } else {
+                handleAlert('添加失败', 'warning')
+              }
+            })
           } else {
             console.log('error submit!!');
             return false;
@@ -302,9 +328,12 @@ export default {
         this.$refs.staffForm.validate((valid) => {
           if (valid) {
             this.dialogVisible = false
-            handleAlert()
             // 调用修改员工接口
-
+            apiUpdateStaff(this.form)
+            .then(res => {
+              console.log(res);
+              handleAlert()
+            })
           } else {
             console.log('error submit!!');
             return false;
@@ -331,16 +360,24 @@ export default {
       this.form = data
       console.log(data)
     },
-    removeuserByid() {
+    removeStaffById(workId) {
       const res = handleConfirm('此操作将永久删除该员工, 是否继续?', 'warning', '提示')
         .then(() => {
           // 调用接口完成删除员工操作
-          handleAlert()
+          apiRemoveStaff(workId)
+          .then(res => {
+            if (res === 1) {
+              handleAlert()
+              // 删除后重新获取学生列表
+              this.getUserList()
+            } else {
+              handleAlert('删除失败', 'warning')
+            }
+          })
         })
         .catch(() => {
           handleAlert('操作已取消', 'info')
         })
-      console.log(res)
     },
     picture() {
       this.$refs.setfile.click()

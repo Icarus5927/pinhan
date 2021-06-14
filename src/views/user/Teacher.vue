@@ -11,9 +11,9 @@
       <div class="text item">
         <!-- 头部搜索区 -->
         <div class="card-header">
-          <el-input placeholder="请输入姓名" v-model="queryInfo.query" class="input-with-select" clearable
+          <el-input placeholder="请输入姓名" v-model="queryInfo.name" class="input-with-select" clearable
                     @clear="getUserList()">
-            <el-button slot="append" icon="el-icon-search" @click="getUserList()"></el-button>
+            <el-button slot="append" icon="el-icon-search" @click="getUserByName()"></el-button>
           </el-input>
 
           <el-button type="primary" :disabled="isDisable" @click="addUser()">添加教师</el-button>
@@ -135,7 +135,13 @@
 </template>
 <script>
 import { handleAlert, handleConfirm } from '../../utils/confirm';
-import { apiGetTeacherList } from '../../network/api/api';
+import {
+  apiAddTeacher,
+  apiFindTeacherByName,
+  apiGetTeacherList,
+  apiRemoveTeacher,
+  apiUpdateTeacher
+} from '../../network/api/api';
 
 export default {
   name: '',
@@ -159,7 +165,7 @@ export default {
       dialogVisible: false,
       // 获取教师参数列表对象
       queryInfo: {
-        query: '',
+        name: '',
         pageNumber: 1,
         pageSize: 10
       },
@@ -251,6 +257,18 @@ export default {
         this.total = res.total;
       })
     },
+    getUserByName() {
+      apiFindTeacherByName(this.queryInfo.name)
+        .then(res => {
+          if (res.total !== 0) {
+            this.list = res.records;
+            this.total = res.total;
+            handleAlert()
+          } else {
+            handleAlert('暂无数据', 'warning');
+          }
+        })
+    },
     // 分页获取页码
     handleCurrentChange(e) {
       this.pageNumber = e
@@ -268,8 +286,17 @@ export default {
         this.$refs.teacherForm.validate((valid) => {
           if (valid) {
             this.dialogVisible = false
-            handleAlert()
             // 调用添加教师接口
+            apiAddTeacher(this.form)
+            .then(res => {
+              if (res === 1) {
+                handleAlert()
+                // 添加后重新获取列表
+                this.getUserList()
+              } else {
+                handleAlert('添加失败', 'warning')
+              }
+            })
 
           } else {
             console.log('error submit!!');
@@ -283,14 +310,17 @@ export default {
             this.dialogVisible = false
             handleAlert()
             // 调用修改教师接口
-
+            apiUpdateTeacher(this.form)
+              .then(res => {
+                console.log(res);
+                handleAlert()
+              })
           } else {
             console.log('error submit!!');
             return false;
           }
         })
       }
-      handleAlert()
     },
     // 关闭教师弹框
     onclose() {
@@ -308,7 +338,16 @@ export default {
       const res = handleConfirm('此操作将永久删除该教师, 是否继续?', 'warning', '提示')
         .then(() => {
           // 调用删除教师借口
-          handleAlert()
+          apiRemoveTeacher(id)
+          .then(res => {
+            if (res === 1) {
+              handleAlert()
+              // 删除后重新获取教师列表
+              this.getUserList()
+            } else {
+              handleAlert('删除失败', 'warning')
+            }
+          })
         })
         .catch(() => {
 

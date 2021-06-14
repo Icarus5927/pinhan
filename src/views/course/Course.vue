@@ -79,22 +79,25 @@
           <el-table-column  v-for="(item,index) in courseHeader" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
           </el-table-column>
 
-          <el-table-column label="学生考勤" prop="studentCheck" width="100px">
+          <el-table-column label="学生考勤" prop="studentCheck" width="80px">
             <template slot-scope="scope">
-              <el-radio-group v-model="scope.row.studentCheck" @change="studentCheck(scope.row)" style="text-align: left">
-                <el-radio :label="-1">未考勤</el-radio>
-                <el-radio :label="0">已到</el-radio>
-                <el-radio :label="1">未到</el-radio>
-              </el-radio-group>
+              <button class="check-button" v-show="scope.row.studentCheck === 0" @click="studentCheck(scope.row)">
+                <el-icon class="el-icon-success" style="color: #44b336; font-size: 1.2em"/>
+              </button>
+              <button class="check-button" v-show="scope.row.studentCheck === 1" @click="studentCheck(scope.row)">
+                <el-icon class="el-icon-error" style="color: red; font-size: 1.2em"/>
+              </button>
             </template>
           </el-table-column>
-          <el-table-column label="教师考勤" prop="teacherCheck" width="100px">
+
+          <el-table-column label="教师考勤" prop="teacherCheck" width="80px">
             <template slot-scope="scope">
-              <el-radio-group v-model="scope.row.teacherCheck" @change="teacherCheck(scope.row)" style="text-align: left">
-                <el-radio :label="-1">未考勤</el-radio>
-                <el-radio :label="0">已到</el-radio>
-                <el-radio :label="1">未到</el-radio>
-              </el-radio-group>
+              <button class="check-button" v-show="scope.row.teacherCheck === 0" @click="teacherCheck(scope.row)">
+                <el-icon class="el-icon-success" style="color: #44b336; font-size: 1.2em"/>
+              </button>
+              <button class="check-button" v-show="scope.row.teacherCheck === 1" @click="teacherCheck(scope.row)">
+                <el-icon class="el-icon-error" style="color: red; font-size: 1.2em"/>
+              </button>
             </template>
           </el-table-column>
           <el-table-column label="操作" width="150px">
@@ -314,8 +317,8 @@ export default {
           course_name: '一对一',
           duration: 2,
           class_teacher: '王艺颖',
-          studentCheck: -1,
-          teacherCheck: -1
+          studentCheck: 1,
+          teacherCheck: 1
         },
         {
           date: '2021-05-02',
@@ -330,8 +333,8 @@ export default {
           course_name: '一对一',
           duration: 1.5,
           class_teacher: '王艺颖',
-          studentCheck: -1,
-          teacherCheck: -1
+          studentCheck: 1,
+          teacherCheck: 1
         },
       ],
       // datepicker的快捷选项
@@ -492,13 +495,19 @@ export default {
     // 学生考勤
     studentCheck(info) {
       console.log(info);
+      info.studentCheck === 1 ? info.studentCheck = 0 : info.studentCheck = 1;
+      console.log(info);
       // 调用学生考勤接口
 
     },
     // 教师考勤
     teacherCheck(info) {
-      console.log(info);
+      // console.log(info.teacherCheck);
+      //修改考勤状态
+      info.teacherCheck === 1 ? info.teacherCheck = 0 : info.teacherCheck = 1;
+      // console.log(info.teacherCheck);
       // 调用教师考勤接口
+
 
     }
   }
@@ -509,5 +518,11 @@ export default {
 
   .tableClass {
     border: 1px solid #ebeef5;
+  }
+  .check-button {
+    background-color: transparent;
+    border-color: transparent;
+    width: 70px;
+    height: 40px;
   }
 </style>
