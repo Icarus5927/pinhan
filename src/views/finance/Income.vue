@@ -11,7 +11,7 @@
         <el-main>
           <div class="block">
             <el-date-picker
-              v-model="queryInfo.time"
+              v-model="search.time"
               type="daterange"
               range-separator="至"
               start-placeholder="开始日期"
@@ -22,18 +22,17 @@
             </el-date-picker>
             <el-input v-model="search.name" placeholder="请输入姓名"></el-input>
             <el-input
-              v-model="search.subject"
-              placeholder="请输入科目"
+              v-model="search.adviser"
+              placeholder="请输入教学顾问"
             ></el-input>
             <el-input
               v-model="search.course"
               placeholder="请输入课程"
             ></el-input>
-            <el-button
-              icon="el-icon-search"
-              class="search"
-              @click="getFinanceList"
-            ></el-button>
+            <!--清除按钮-->
+            <el-button  class="search" @click="funClear" >清除</el-button>
+            <!-- 搜索按钮 -->
+            <el-button icon="el-icon-search" type="primary" @click="getListByInfo"></el-button>
             <el-button type="primary" class="add" @click="addFinance()">添加流水</el-button>
           </div>
 
@@ -145,6 +144,10 @@
           <el-input v-model="form.course"></el-input>
         </el-form-item>
         <br/>
+        <el-form-item label="科目" prop="subject">
+          <el-input v-model="form.subject"></el-input>
+        </el-form-item>
+        <br/>
         <el-form-item label="金额" prop="total">
           <el-input v-model="form.total" type="number"></el-input>
         </el-form-item>
@@ -168,22 +171,24 @@
 </template>
 <script>
 import { handleAlert, handleConfirm } from '../../utils/confirm';
-import { apiAddStream, apiGetStreamList } from '../../network/api/api';
+import { apiAddStream, apiFindStreamByInfo, apiGetStreamList } from '../../network/api/api';
 
 export default {
   name: '',
   data() {
     return {
       search: {
+        // 用户选择的日期
+        time: '',
+        startTime: '',
+        endTime: '',
         name: '',
-        subject: '',
+        adviser: '',
         course: '',
       },
       title: '添加流水',
       // 获取用户参数列表对象
       queryInfo: {
-        // 用户选择的日期
-        time: '',
         pageNumber: 1,
         pageSize: 10,
       },
@@ -325,6 +330,7 @@ export default {
         name: '',
         grade: '',
         course: '',
+        subject: '',
         total: '',
         adviser: '',
         remark: '',
@@ -415,21 +421,80 @@ export default {
     };
   },
   created() {
-    this.getFinanceList();
+    this.nceList();
   },
   methods: {
     // 分页获取页码
     handleCurrentChange(e) {
       this.queryInfo.pageNumber = e;
-      this.getFinanceList();
+      this.nceList();
     },
     // 获取流水接口
-    getFinanceList() {
+    nceList() {
       apiGetStreamList(this.queryInfo.pageNumber)
       .then(res => {
+        const list = res.records;
+        const total = res.total;
+        // 转换数据
+        if (total > 0) {
+          for (let i = 0; i < total; i++) {
+            if (list[i].type === '收入流水') {
+              switch (list[i].moneyType) {
+                case '微信':
+                  list[i].income_wechat = list[i].total;
+                  break;
+                case '支付宝':
+                  list[i].income_alipay = list[i].total;
+                  break;
+                case '银行卡':
+                  list[i].income_bankCard = list[i].total;
+                  break;
+                case '现金':
+                  list[i].income_cash = list[i].total;
+                  break;
+              }
+            } else {
+              switch (list[i].moneyType) {
+                case '微信':
+                  list[i].outcome_wechat = list[i].total;
+                  break;
+                case '支付宝':
+                  list[i].outcome_alipay = list[i].total;
+                  break;
+                case '银行卡':
+                  list[i].outcome_bankCard = list[i].total;
+                  break;
+                case '现金':
+                  list[i].outcome_cash = list[i].total;
+                  break;
+              }
+            }
+          }
+        }
         this.financeList = res.records;
         this.total = res.total;
       })
+    },
+    getListByInfo() {
+      if (this.search.time === '' || this.search.time === null) {
+        handleAlert('请至少选择时间', 'warning')
+      } else {
+        this.search.startTime = this.search.time[0];
+        this.search.endTime = this.search.time[1];
+        apiFindStreamByInfo(this.search)
+          .then(res => {
+            console.log(res);
+            const total = res.total;
+            const records = res.records;
+            if (total > 0) {
+              handleAlert();
+              this.financeList = records;
+              this.total = total
+            } else {
+              handleAlert('暂无数据', 'warning');
+            }
+          })
+      }
     },
     // 确定按钮
     upload() {
@@ -440,11 +505,18 @@ export default {
             this.form.streamId = Date.parse(new Date());
             // 调用添加流水接口
             apiAddStream(this.form)
-
+              .then(res => {
+                if (res === 1) {
+                  handleAlert();
+                  // 重新获取列表
+                  this.nceList();
+                } else {
+                  handleAlert('添加失败', 'warning')
+                }
+              })
             this.dialogVisible = false;
-            handleAlert();
             // 重新获取列表
-            this.getFinanceList()
+            this.nceList()
           } else {
             console.log('error submit!!');
             return false;
@@ -512,13 +584,30 @@ export default {
         });
       console.log(res);
     },
+    // 清除
+    funClear () {
+      let txts = document.getElementsByTagName('input')
+      for (let i = 0; i < txts.length; i++) {
+        if (txts[i].type === 'text' || txts[i].type === 'checkbox') {
+          txts[i].value = ''
+        }
+      }
+      this.search = {
+        time: '',
+        startTime: '',
+        endTime: '',
+        name: '',
+        adviser: '',
+        course: '',
+      }
+    }
   },
   mounted() {
   },
   // watch: {
   //   activeName: {
   //     handler(val) {
-  //       this.getFinanceList();
+  //       this.nceList();
   //       console.log(val);
   //     },
   //   },

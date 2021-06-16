@@ -102,7 +102,7 @@
               </el-col>
               <el-col :span="12 ">
                 <el-form-item label="联系方式" prop="tel">
-                  <el-input v-model="form.tel"></el-input>
+                  <el-input v-model="form.tel" type="number"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -114,8 +114,8 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="身份证号" prop="idCard">
-                  <el-input v-model="form.idCard"></el-input>
+                <el-form-item label="身份证号" prop="idNumber">
+                  <el-input v-model="form.idNumber" type="number"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -127,8 +127,8 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="银行卡号" prop="bankCard">
-                  <el-input v-model="form.bankCard"></el-input>
+                <el-form-item label="银行卡号" prop="bankNumber">
+                  <el-input v-model="form.bankNumber" type="number"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -167,9 +167,9 @@ export default {
         sex: '',
         department: '',
         level: '',
-        idCard: '',
+        idNumber: '',
         bank: '',
-        bankCard: '',
+        bankNumber: '',
         tel: '',
         address: ''
       },
@@ -209,7 +209,7 @@ export default {
           width: '100px'
         },
         {
-          prop: 'idCard',
+          prop: 'idNumber',
           label: '身份证号',
           width: '150px'
         },
@@ -219,7 +219,7 @@ export default {
           width: '150px'
         },
         {
-          prop: 'bankCard',
+          prop: 'bankNumber',
           label: '银行卡号',
           width: '150px'
         },
@@ -260,6 +260,17 @@ export default {
         address: [
           { required: true, message: '请输入家庭地址', trigger: 'blur' },
           { min: 2, max: 25, message: '长度在2到25个字符', trigger: 'blur' }
+        ],
+        idNumber: [
+          { required: true, message: '请输入身份证号', trigger: 'blur' },
+          { min: 18, max: 18, message: '请输入18位身份证号', trigger: 'blur' }
+        ],
+        bankNumber: [
+          { required: true, message: '请输入银行卡号', trigger: 'blur' },
+          { min: 16, max: 19, message: '请输入16到19位银行卡号', trigger: 'blur' }
+        ],
+        bank: [
+          { required: true, message: '请输入开户银行', trigger: 'blur' },
         ]
       },
       total: 100,
@@ -331,8 +342,11 @@ export default {
             // 调用修改员工接口
             apiUpdateStaff(this.form)
             .then(res => {
-              console.log(res);
-              handleAlert()
+              if (res === 1) {
+                handleAlert()
+              } else {
+                handleAlert('修改失败', 'warning')
+              }
             })
           } else {
             console.log('error submit!!');
@@ -399,9 +413,9 @@ export default {
         sex: '',
         department: '',
         level: '',
-        idCard: '',
+        idNumber: '',
         bank: '',
-        bankCard: '',
+        bankNumber: '',
         tel: '',
         address: ''
       }

@@ -77,27 +77,27 @@
             </el-menu-item>
           </el-submenu>
 
-          <el-submenu index="//student_checking-in">
-            <template slot="title">
-              <i class="el-icon-date"></i>
-              <span>考勤</span>
-            </template>
-            <!--管理员、员工、教师都可进行学生考勤-->
-            <el-menu-item index="/student_checking-in" @click="saveNavState('/student_checking-in')"><i
-              class="el-icon-menu"></i>
-              <span>学生考勤</span>
-            </el-menu-item>
-            <!--管理员、员工可进行教师考勤-->
-            <el-menu-item v-if="this.$store.state.token === '0' || this.$store.state.token === '1'" index="/teacher_checking-in" @click="saveNavState('/teacher_checking-in')"><i
-              class="el-icon-menu"></i>
-              <span>教师考勤</span>
-            </el-menu-item>
-            <!--管理员可进行员工考勤-->
-            <el-menu-item v-if="this.$store.state.token === '0'" index="/staff_checking-in" @click="saveNavState('/staff_checking-in')"><i
-              class="el-icon-menu"></i>
-              <span>员工考勤</span>
-            </el-menu-item>
-          </el-submenu>
+<!--          <el-submenu index="//student_checking-in">-->
+<!--            <template slot="title">-->
+<!--              <i class="el-icon-date"></i>-->
+<!--              <span>考勤</span>-->
+<!--            </template>-->
+<!--            &lt;!&ndash;管理员、员工、教师都可进行学生考勤&ndash;&gt;-->
+<!--            <el-menu-item index="/student_checking-in" @click="saveNavState('/student_checking-in')"><i-->
+<!--              class="el-icon-menu"></i>-->
+<!--              <span>学生考勤</span>-->
+<!--            </el-menu-item>-->
+<!--            &lt;!&ndash;管理员、员工可进行教师考勤&ndash;&gt;-->
+<!--            <el-menu-item v-if="this.$store.state.token === '0' || this.$store.state.token === '1'" index="/teacher_checking-in" @click="saveNavState('/teacher_checking-in')"><i-->
+<!--              class="el-icon-menu"></i>-->
+<!--              <span>教师考勤</span>-->
+<!--            </el-menu-item>-->
+<!--            &lt;!&ndash;管理员可进行员工考勤&ndash;&gt;-->
+<!--            <el-menu-item v-if="this.$store.state.token === '0'" index="/staff_checking-in" @click="saveNavState('/staff_checking-in')"><i-->
+<!--              class="el-icon-menu"></i>-->
+<!--              <span>员工考勤</span>-->
+<!--            </el-menu-item>-->
+<!--          </el-submenu>-->
           <!--设置模块仅管理员有权限-->
           <el-submenu index="/roles" v-if="this.$store.state.token === '0'">
             <template slot="title">

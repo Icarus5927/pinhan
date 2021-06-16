@@ -9,14 +9,13 @@
     <el-card class="box-card">
 
       <div class="card-header">
-
         <div class="block">
           <el-row :gutter="5">
             <el-col :span="3">
               <el-date-picker
-                v-model="query.date"
+                v-model="query.dateValue"
                 type="week"
-                format="yyyy 第 WW 周"
+                :format="'yyyy第WW周'"
                 placeholder="请选择周"
                 style="width: 100%"
                 :picker-options="{'firstDayOfWeek': 1}"
@@ -24,12 +23,12 @@
               </el-date-picker>
             </el-col>
             <el-col :span="4">
-              <el-input v-model="query.student_name" type="text" clearable style="width: 100%" placeholder="请输入学生姓名">
+              <el-input v-model="query.studentName" type="text" clearable style="width: 100%" placeholder="请输入学生姓名">
                 <template slot="prepend">学生</template>
               </el-input>
             </el-col>
             <el-col :span="4">
-              <el-input v-model="query.teacher_name" type="text" clearable style="width: 100%" placeholder="请输入教师姓名">
+              <el-input v-model="query.teacherName" type="text" clearable style="width: 100%" placeholder="请输入教师姓名">
                 <template slot="prepend">教师</template>
               </el-input>
             </el-col>
@@ -45,7 +44,7 @@
             </el-col>
             <el-col :span="3">
               <el-cascader
-                v-model="query.course_name"
+                v-model="query.courseType"
                 :options="courses"
                 :props="{ expandTrigger: 'hover' }"
                 placeholder="请选择课程"
@@ -53,17 +52,21 @@
               </el-cascader>
             </el-col>
             <el-col :span="3">
-              <el-select v-model="query.subject" placeholder="选择科目">
+              <el-select v-model="query.courseName" placeholder="选择科目">
                 <el-option
-                  v-for="item in subjects"
+                  v-for="item in courseNames"
                   :key="item"
                   :label="item"
                   :value="item">
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="2">
-              <el-button icon="el-icon-search" style="width: 100%" class="search">查询</el-button>
+            <el-col :span="1">
+              <!--清除按钮-->
+              <el-button icon="el-icon-document-delete" type="danger" style="width: 100%" @click="funClear" ></el-button>
+            </el-col>
+            <el-col :span="1">
+              <el-button icon="el-icon-search" style="width: 100%" class="search" @click="findCourse()"></el-button>
             </el-col>
             <el-col :span="2">
               <el-button :disabled="isDisable" style="width: 100%" type="primary" @click="addCourse()">添加课程</el-button>
@@ -83,7 +86,7 @@
             <div class="table">
               <course-table
                 :draggable="draggable"
-                :node="dealData"
+                :node="tableList"
                 :dates="dealDate"
               ></course-table>
             </div>
@@ -100,15 +103,15 @@
 
             <el-form-item label="日期" prop="date">
               <el-select v-model="courseForm.date" placeholder="请选择">
-                <el-option v-for="(item,index) in dealDate" :key="index" :label="item" :value="item">
+                <el-option v-for="(item,index) in dealDate" :key="index" :label="item" :value="dealFullDate[index]">
                 </el-option>
               </el-select>
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
-            <el-form-item label="工号" prop="work_id">
-              <el-input v-model="courseForm.work_id"></el-input>
+            <el-form-item label="工号" prop="workId">
+              <el-input v-model="courseForm.workId"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -116,13 +119,13 @@
         <el-row :gutter="20">
 
           <el-col :span="12">
-            <el-form-item label="教师" prop="teacher_name">
-              <el-input v-model="courseForm.teacher_name"></el-input>
+            <el-form-item label="教师" prop="teacherName">
+              <el-input v-model="courseForm.teacherName"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="课程" prop="course_name">
-              <el-input v-model="courseForm.course_name"></el-input>
+            <el-form-item label="课程" prop="courseType">
+              <el-input v-model="courseForm.courseType"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -130,8 +133,8 @@
         <el-row :gutter="20">
 
           <el-col :span="12">
-            <el-form-item label="科目" prop="subject">
-              <el-input v-model="courseForm.subject"></el-input>
+            <el-form-item label="科目" prop="courseName">
+              <el-input v-model="courseForm.courseName"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -182,6 +185,21 @@
           </el-col>
 
         </el-row>
+        <br>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="年级" prop="student">
+              <el-input v-model="courseForm.grade"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="班主任" prop="classTeacher">
+              <el-input v-model="courseForm.classTeacher"></el-input>
+            </el-form-item>
+          </el-col>
+
+        </el-row>
+
         <el-form-item>
           <div class="click-bottom">
             <el-button @click="cancelForm()"> 取消</el-button>
@@ -195,6 +213,9 @@
 <script>
 import CourseTable from '../../components/courseTable/CourseTable';
 import TableLeft from '../../components/courseTable/TableLeft';
+import dayjs from 'dayjs'
+import { apiAddCourse, apiFindCourseByInfo } from '../../network/api/api';
+import { handleAlert } from '../../utils/confirm';
 
 export default {
   name: 'course-management',
@@ -241,32 +262,41 @@ export default {
           children: []
         },
       ],
-      subjects: ['数学', '语文', '英语'],
+      courseNames: ['数学', '语文', '英语'],
       //查询信息
       query: {
-        date: '',// 查询课表的日期
-        student_name: '',
-        teacher_name: '',
+        // datepicker选择的日期
+        dateValue: null,
+        // 转换后一周的日期字符串
+        date: '',
+        studentName: '',
+        teacherName: '',
         grade: '',
-        course_name: '',
-        subject: '',
+        courseType: '',
+        courseName: '',
       },
+      // 默认日期
+      defaultDates: [],
       // 添加课程表单
       courseForm: {
-        work_id: '',// 工号
+        workId: '',// 工号
         date: '',// 日期
         start: '',// 开始时间
         end: '',// 结束时间
         time: '',// 时间区间
-        teacher_name: '',// 教师姓名
-        course_name: '',// 课程姓名
-        subject: '',// 科目
+        teacherName: '',// 教师姓名
+        classTeacher: '',// 班主任姓名
+        courseType: '',// 课程姓名
+        courseName: '',// 科目
         duration: '',// 课时
-        student: []// 学生列表
+        studentName: [],// 学生列表
+        projectId: '',// 序号
+        week: '',// 周几
+        grade: ''// 年级
       },
       // 表单检验规则
       rules: {
-        work_id: [
+        workId: [
           { required: true, message: '请输入工号', trigger: 'blur' },
           { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
         ],
@@ -276,20 +306,20 @@ export default {
         time: [
           { type: 'string', required: true, message: '请选择时间', trigger: 'change' }
         ],
-        teacher_name: [
+        teacherName: [
           { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
           { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
         ],
-        course_name: [
+        courseType: [
           { required: true, message: '请输入课程名', trigger: 'blur' },
           { min: 2, max: 15, message: '长度在2到15个字符', trigger: 'blur' }
         ],
-        subject: [
+        courseName: [
           { message: '学科名不可包含特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/, },
           { required: true, message: '请输入学科名', trigger: 'blur' },
           { min: 2, max: 5, message: '长度在 2 到 5 个字符', trigger: 'blur' }
         ],
-        student: [ { type: 'array', required: true, message: '请至少选择一个学生', trigger: 'change' }]
+        studentName: [ { type: 'array', required: true, message: '请至少选择一个学生', trigger: 'change' }]
       },
       dialogVisible: false,
       // 弹窗标题
@@ -354,128 +384,54 @@ export default {
         label: 'label'
       },
       // 向接口请求的数据格式
-      tableData: [
+      tableData: [],
+      // tableList
+      tableList: [
         {
-          'week': 1,
-          'date': '3月1日',
-          'courses': [
-            {
-              'start': '08:00',
-              'end': '10:00',
-              'duration': 2,
-              'course_name': '一对一',
-              'subject': '语文',
-              'teacher_name': '张四三',
-              'student_name': '李四',
-              'class_teacher': '王五',
-              'adviser': '赵六',
-              'grade': '初一'
-            },
-            {
-              'start': '11:00',
-              'end': '12:00',
-              'duration': 1,
-              'course_name': '一对一',
-              'subject': '语文',
-              'teacher_name': '张三',
-              'student_name': '李四',
-              'class_teacher': '王五',
-              'adviser': '赵六',
-              'grade': '初一'
-            },
-            {
-              'start': '16:00',
-              'end': '17:00',
-              'duration': 1,
-              'course_name': '一对一',
-              'subject': '语文',
-              'teacher_name': '张三',
-              'student_name': '李四',
-              'class_teacher': '王五',
-              'adviser': '赵六',
-              'grade': '初一'
-            },
-          ]
+          day1: [],
+          day2: [],
+          day3: [],
+          day4: [],
+          day5: [],
+          day6: [],
+          day7: []
         },
         {
-          'week': 2,
-          'date': '3月2日',
-          'courses': []
+          day1: [],
+          day2: [],
+          day3: [],
+          day4: [],
+          day5: [],
+          day6: [],
+          day7: []
         },
         {
-          'week': 3,
-          'date': '3月3日',
-          'courses': []
+          day1: [],
+          day2: [],
+          day3: [],
+          day4: [],
+          day5: [],
+          day6: [],
+          day7: []
         },
         {
-          'week': 4,
-          'date': '3月4日',
-          'courses': []
+          day1: [],
+          day2: [],
+          day3: [],
+          day4: [],
+          day5: [],
+          day6: [],
+          day7: []
         },
         {
-          'week': 5,
-          'date': '3月5日',
-          'courses': [
-            {
-              'start': '08:00',
-              'end': '09:00',
-              'duration': 1,
-              'course_name': '班课',
-              'subject': '语文',
-              'teacher_name': '张三',
-              'student_name': '李四',
-              'class_teacher': '王五',
-              'adviser': '赵六',
-              'grade': '初一'
-            },
-            {
-              'start': '09:00',
-              'end': '10:00',
-              'duration': 1,
-              'course_name': '班课',
-              'subject': '语文',
-              'teacher_name': '张三',
-              'student_name': '鲁豫',
-              'class_teacher': '王五',
-              'adviser': '赵六',
-              'grade': '初一'
-            },
-            {
-              'start': '15:00',
-              'end': '16:00',
-              'duration': 1,
-              'course_name': '班课',
-              'subject': '生物',
-              'teacher_name': '哈哈',
-              'student_name': '李四',
-              'class_teacher': '王五',
-              'adviser': '赵六',
-              'grade': '初一'
-            },
-            {
-              'start': '18:00',
-              'end': '19:00',
-              'duration': 1,
-              'course_name': '班课',
-              'subject': '语文',
-              'teacher_name': '张三',
-              'student_name': '李四',
-              'class_teacher': '王五',
-              'adviser': '赵六',
-              'grade': '初一'
-            },
-          ]
-        },
-        {
-          'week': 6,
-          'date': '3月6日',
-          'courses': []
-        },
-        {
-          'week': 7,
-          'date': '3月7日',
-          'courses': []
-        },
+          day1: [],
+          day2: [],
+          day3: [],
+          day4: [],
+          day5: [],
+          day6: [],
+          day7: []
+        }
       ],
       // 左侧时间表头
       tableHeader: [
@@ -513,17 +469,43 @@ export default {
   },
   comments: {},
   created() {
+    // 默认本周时间
+    this.defaultDates = this.getDates(new Date());
     if (this.$store.state.token === '1' || this.$store.state.token === '0') {
       this.draggable = true;
       this.isDisable = false;
     }
-    this.getArrlist(this.activeName)
+    this.getArrList(this.activeName)
   },
   computed: {
+    // 获取日期数组
+    dealDate() {
+      let dateArr = [];
+      for (let item of this.query.date.split(',')) {
+        // 记录带年份的日期
+        let date = item.split('-')[1] + '月' + item.split('-')[2] + '日'
+        dateArr.push(date)
+      }
+      // console.log(dateArr);
+      return dateArr
+    },
+    // 获取完整日期数组
+    dealFullDate() {
+      let fullArr = [];
+      for (let item of this.query.date.split(',')) {
+        // 记录带年份的日期
+        fullArr.push(item)
+      }
+      return fullArr
+    }
+  },
+
+  methods: {
+    // 对表格数据进行处理
     dealData() {
       // 数据的格式
       // [
-      // { day1: [{student_name, grade, subject, teacher, course_name, duration, class_teacher, adviser }, ...], day2: [], day3, day4, day5, day6, day7 },
+      // { day1: [{studentName, grade, courseName, teacher, courseType, duration, classTeacher, adviser }, ...], day2: [], day3, day4, day5, day6, day7 },
       // {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
       // ]
       // 初始化数据
@@ -577,95 +559,119 @@ export default {
       // 对从接口传来的数据进行处理
       for (let day of this.tableData) {// 遍历每周的课程
         // console.log(i);
-        for (let course of day.courses) {// 遍历某天的课程
-          let pos = -1// 课程在表格中的位置
-          switch (course.start) {
-            case '08:00':
-            case '08:30':
-            case '09:00':
-            case '09:30':
-              pos = 1
-              break;
-            case '10:00':
-            case '10:30':
-            case '11:00':
-            case '11:30':
-              pos = 2
-              break;
-            case '14:00':
-            case '14:30':
-            case '15:00':
-            case '15:30':
-              pos = 3
-              break;
-            case '16:00':
-            case '16:30':
-            case '17:00':
-            case '17:30':
-              pos = 4
-              break;
-            case '18:00':
-            case '18:30':
-            case '19:00':
-            case '19:30':
-            case '20:00':
-            case '20:30':
-            case '21:00':
-            case '21:30':
-            case '22:00':
-            case '22:30':
-              pos = 5
-              break;
+        let week = day.week;
+        if (day.courses.length > 0) {
+          for (let course of day.courses) {// 遍历某天的课程
+            let pos = -1// 课程在表格中的位置
+            switch (course.start) {
+              case '08:00':
+              case '08:30':
+              case '09:00':
+              case '09:30':
+                pos = 1
+                break;
+              case '10:00':
+              case '10:30':
+              case '11:00':
+              case '11:30':
+                pos = 2
+                break;
+              case '14:00':
+              case '14:30':
+              case '15:00':
+              case '15:30':
+                pos = 3
+                break;
+              case '16:00':
+              case '16:30':
+              case '17:00':
+              case '17:30':
+                pos = 4
+                break;
+              case '18:00':
+              case '18:30':
+              case '19:00':
+              case '19:30':
+              case '20:00':
+              case '20:30':
+              case '21:00':
+              case '21:30':
+              case '22:00':
+              case '22:30':
+                pos = 5
+                break;
+            }
+            let start = course.start
+            let end = course.end
+            let time = start + '-' + end
+            let studentName = course.studentName
+            let grade = course.grade
+            let courseName = course.courseName
+            let teacherName = course.teacherName
+            let courseType = course.courseType;// 课程名
+            let duration = course.duration// 时长
+            let classTeacher = course.classTeacher
+            let dayName = 'day' + week;// 周几
+            // 根据课程开始的时间，将课程信息保存到各个区间
+            dData[(pos - 1)][dayName].push({
+              start,
+              end,
+              time,
+              studentName,
+              grade,
+              courseName,
+              teacherName,
+              courseType,
+              duration,
+              classTeacher,
+            })
           }
-          let start = course.start
-          let end = course.end
-          let time = start + '-' + end
-          let student_name = course.student_name
-          let grade = course.grade
-          let subject = course.subject
-          let teacher_name = course.teacher_name
-          let course_name = course.course_name;// 课程名
-          let duration = course.duration// 时长
-          let class_teacher = course.class_teacher
-          let adviser = course.adviser
-          let dayName = 'day' + day.week;// 周几
-          // 根据课程开始的时间，将课程信息保存到各个区间
-          dData[pos - 1][dayName].push({
-            start,
-            end,
-            time,
-            student_name,
-            grade,
-            subject,
-            teacher_name,
-            course_name,
-            duration,
-            class_teacher,
-            adviser
-          })
         }
       }
-      // console.log(dData);
-      return dData;
+      this.tableList = dData;
     },
-    // 获取日期数组
-    dealDate() {
-      let dateArr = [];
-      for (let item of this.tableData) {
-        dateArr.push(item.date)
-      }
-      return dateArr
-    }
-  },
-
-  methods: {
     // 获取课程安排数据
-    getArrlist(data) {
+    getArrList(data) {
       // console.log(data)
     },
     addCourse() {
       this.title = '添加课程'
       this.dialogVisible = true
+    },
+    // 根据信息查找课程
+    findCourse() {
+      if (this.query.dateValue === null) {
+        handleAlert('请至少选择日期', 'warning')
+      } else {
+        this.getDates(this.query.dateValue)
+        apiFindCourseByInfo({
+          time: this.query.date,
+          teacherName: this.query.teacherName,
+          grade: this.query.grade,
+          course: this.query.courseType,
+          subject: this.query.courseName,
+          studentName: this.query.studentName
+        })
+          .then(res => {
+            this.tableData = res;
+            this.dealData();
+          })
+      }
+    },
+    // 获取一周内所有日期
+    getDates(date) {
+      const timesStamp = date.getTime();
+      const currentDay = date.getDay();
+      // 将一周的日期写入一个字符串
+      let dateStr = '';
+      for(let i = 0; i < 7; i++) {
+        dateStr += dayjs(new Date(timesStamp + 24 * 60 * 60 * 1000 * (i - (currentDay + 6) % 7))).format('YYYY-MM-DD');
+        if (i !== 6) {
+          dateStr += ','
+        }
+      }
+      // console.log(dateStr);
+      this.query.date = dateStr;
     },
     // 对课时进行计算
     getDuration(start,end) {
@@ -689,12 +695,23 @@ export default {
       // 表单验证
       this.$refs.courseForm.validate((valid) => {
         if (valid) {
-          // console.log(this.courseForm);
+          this.courseForm.projectId = Date.now();
+          // 判断周几后赋值
+          let week = '';
+          for (let i = 0; i < 7; i++) {
+            if (this.dealFullDate[i] === this.courseForm.date) {
+              week = i + 1;
+            }
+          }
+          this.courseForm.week = week;
+          // 调用添加课程接口
+          apiAddCourse(this.courseForm)
+            .then(res => {
+              console.log(res);
+            })
           // 验证成功，提交并重置表
           this.resetForm()
           this.dialogVisible = false
-          // console.log(valid)
-          alert('submit!')
         } else {
           console.log('error submit!!')
           return false
@@ -704,16 +721,20 @@ export default {
     // 重置表单
     resetForm() {
       this.courseForm = {
-        work_id: '',
-        date: '',
-        start: '',
-        end: '',
-        time: '',
-        teacher_name: '',
-        course_name: '',
-        subject: '',
-        duration: '',
-        student: []
+        workId: '',// 工号
+        date: '',// 日期
+        start: '',// 开始时间
+        end: '',// 结束时间
+        time: '',// 时间区间
+        teacherName: '',// 教师姓名
+        classTeacher: '',// 班主任姓名
+        courseType: '',// 课程姓名
+        courseName: '',// 科目
+        duration: '',// 课时
+        studentName: [],// 学生列表
+        projectId: '',// 序号
+        week: '',// 周几
+        grade: ''// 年级
       };
     },
     closeDialog() {
@@ -734,20 +755,87 @@ export default {
     // 学生tree选择改变响应方法
     handleCheckChange(data) {
       // 只获取叶子节点的数据
-      this.courseForm.student = this.$refs.studentTree.getCheckedNodes(true, false)
-      console.log(this.courseForm.student)
+      const names = this.$refs.studentTree.getCheckedNodes(true, false);
+      let nameStr = '';
+      for (let i = 0; i < names.length; i++) {
+        nameStr += names[i].label;
+        if (i < names.length - 1) {
+          nameStr += ',';
+        }
+      }
+      this.courseForm.studentName = nameStr;
+      console.log(this.courseForm.studentName);
     },
     // 课程菜单选择
     handleChange(value) {
       console.log(value);
     },
+    // 清除
+    funClear () {
+      let txts = document.getElementsByTagName('input')
+      for (let i = 0; i < txts.length; i++) {
+        if (txts[i].type === 'text' || txts[i].type === 'checkbox') {
+          txts[i].value = ''
+        }
+      }
+      this.resetForm();
+      this.defaultDates = this.getDates(new Date());
+      this.query.dateValue = null;
+      this.tableList = [
+        {
+          day1: [],
+          day2: [],
+          day3: [],
+          day4: [],
+          day5: [],
+          day6: [],
+          day7: []
+        },
+        {
+          day1: [],
+          day2: [],
+          day3: [],
+          day4: [],
+          day5: [],
+          day6: [],
+          day7: []
+        },
+        {
+          day1: [],
+          day2: [],
+          day3: [],
+          day4: [],
+          day5: [],
+          day6: [],
+          day7: []
+        },
+        {
+          day1: [],
+          day2: [],
+          day3: [],
+          day4: [],
+          day5: [],
+          day6: [],
+          day7: []
+        },
+        {
+          day1: [],
+          day2: [],
+          day3: [],
+          day4: [],
+          day5: [],
+          day6: [],
+          day7: []
+        }
+      ]
+    }
   },
   mounted() {
   },
   watch: {
     // activeName: {
     //     handler(val) {
-    //         this.getArrlist(this.activeName)
+    //         this.getArrList(this.activeName)
     //     }
     // }
   }
@@ -801,10 +889,9 @@ export default {
     background-color: rgb(240, 238, 238);
   }
 }
-.buttons {
-  margin-top: 5px;
-  display: flex;
-  justify-content: flex-end;
-}
-
+  .buttons {
+    margin-top: 5px;
+    display: flex;
+    justify-content: flex-end;
+  }
 </style>

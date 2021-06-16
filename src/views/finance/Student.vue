@@ -135,7 +135,9 @@
             </template>
           </el-table-column>
         </el-table>
-
+        <!-- 分页区 -->
+        <el-pagination background layout="total,prev, pager, next" :total="total" @current-change="handleCurrentChange">
+        </el-pagination>
       </div>
       <!--添加行按钮 -->
       <div>
@@ -1017,6 +1019,7 @@ export default {
       this.queryInfo.pageNumber = e
       this.getUserList(this.activeName)
     },
+    //
     // 确定提交
     upload() {
       if (this.standardTitle === '添加收费标准') {
@@ -1080,6 +1083,7 @@ export default {
     },
     // 收费标准
     addRates() {
+      this.getStandard();
       this.ratesDialogVisible = true
     },
 

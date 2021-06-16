@@ -12,7 +12,7 @@
           <el-row :gutter="5">
             <el-col :span="6">
               <el-date-picker
-                v-model="query.date"
+                v-model="query.dateValue"
                 type="daterange"
                 align="left"
                 unlink-panels
@@ -24,12 +24,12 @@
               </el-date-picker>
             </el-col>
             <el-col :span="4">
-              <el-input v-model="query.student_name" type="text" clearable style="width: 100%" placeholder="请输入学生姓名">
+              <el-input v-model="query.studentName" type="text" clearable @clear="clearInfo" style="width: 100%" placeholder="请输入学生姓名">
                 <template slot="prepend">学生</template>
               </el-input>
             </el-col>
             <el-col :span="4">
-              <el-input v-model="query.teacher_name" type="text" clearable style="width: 100%" placeholder="请输入教师姓名">
+              <el-input v-model="query.teacherName" type="text" clearable style="width: 100%" placeholder="请输入教师姓名">
                 <template slot="prepend">教师</template>
               </el-input>
             </el-col>
@@ -46,7 +46,7 @@
             </el-col>
             <el-col :span="3">
               <el-cascader
-                v-model="query.course_name"
+                v-model="query.courseType"
                 :options="courses"
                 :props="{ expandTrigger: 'hover' }"
                 placeholder="请选择课程"
@@ -54,9 +54,9 @@
               </el-cascader>
             </el-col>
             <el-col :span="3">
-              <el-select v-model="query.subject" placeholder="选择科目">
+              <el-select v-model="query.courseName" placeholder="选择科目">
                 <el-option
-                  v-for="item in subjects"
+                  v-for="item in courseNames"
                   :key="item"
                   :label="item"
                   :value="item">
@@ -64,7 +64,7 @@
               </el-select>
             </el-col>
             <el-col :span="2">
-              <el-button icon="el-icon-search" type="primary" style="width: 100%" class="search">查询</el-button>
+              <el-button icon="el-icon-search" type="primary" style="width: 100%" class="search" @click="getCourseList()">查询</el-button>
             </el-col>
           </el-row>
         </div>
@@ -75,16 +75,23 @@
         <el-table class="tableClass" :data="tableData" border>
           <el-table-column type="index" label="#">
           </el-table-column>
+          <el-table-column  label="日期" prop="date">
+          </el-table-column>
+          <el-table-column label="时间">
+            <template slot-scope="scope">
+              <span>{{scope.row.start + '-' + scope.row.end}}</span>
+            </template>
+          </el-table-column>
 
           <el-table-column  v-for="(item,index) in courseHeader" :key="index" :prop="item.prop" :label="item.label" :width="item.width">
           </el-table-column>
 
           <el-table-column label="学生考勤" prop="studentCheck" width="80px">
             <template slot-scope="scope">
-              <button class="check-button" v-show="scope.row.studentCheck === 0" @click="studentCheck(scope.row)">
+              <button class="check-button" v-show="scope.row.studentCheck === 1" @click="studentCheck(scope.row)">
                 <el-icon class="el-icon-success" style="color: #44b336; font-size: 1.2em"/>
               </button>
-              <button class="check-button" v-show="scope.row.studentCheck === 1" @click="studentCheck(scope.row)">
+              <button class="check-button" v-show="scope.row.studentCheck === 0" @click="studentCheck(scope.row)">
                 <el-icon class="el-icon-error" style="color: red; font-size: 1.2em"/>
               </button>
             </template>
@@ -92,10 +99,10 @@
 
           <el-table-column label="教师考勤" prop="teacherCheck" width="80px">
             <template slot-scope="scope">
-              <button class="check-button" v-show="scope.row.teacherCheck === 0" @click="teacherCheck(scope.row)">
+              <button class="check-button" v-show="scope.row.teacherCheck === 1" @click="teacherCheck(scope.row)">
                 <el-icon class="el-icon-success" style="color: #44b336; font-size: 1.2em"/>
               </button>
-              <button class="check-button" v-show="scope.row.teacherCheck === 1" @click="teacherCheck(scope.row)">
+              <button class="check-button" v-show="scope.row.teacherCheck === 0" @click="teacherCheck(scope.row)">
                 <el-icon class="el-icon-error" style="color: red; font-size: 1.2em"/>
               </button>
             </template>
@@ -163,8 +170,8 @@
           <br>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="学生姓名" prop="student_name">
-                <el-input v-model="form.student_name"></el-input>
+              <el-form-item label="学生姓名" prop="studentName">
+                <el-input v-model="form.studentName"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -177,13 +184,13 @@
           <br>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="科目" prop="subject">
-                <el-input v-model="form.subject"></el-input>
+              <el-form-item label="科目" prop="courseName">
+                <el-input v-model="form.courseName"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="教师" prop="teacher_name">
-                <el-input v-model="form.teacher_name"></el-input>
+              <el-form-item label="教师" prop="teacherName">
+                <el-input v-model="form.teacherName"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -195,8 +202,8 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="课程" prop="course_name">
-                <el-input v-model="form.course_name"></el-input>
+              <el-form-item label="课程" prop="courseType">
+                <el-input v-model="form.courseType"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -231,6 +238,8 @@
 <script>
 
 import { handleAlert, handleConfirm } from '../../utils/confirm';
+import { apiFindCourseByInfo, apiGetCourseList, apiRemoveCourse, apiUpdateCourse } from '../../network/api/api';
+import dayjs from 'dayjs';
 
 export default {
   name: 'Course',
@@ -275,15 +284,17 @@ export default {
           children: []
         },
       ],
-      subjects: ['数学', '语文', '英语'],
+      courseNames: ['数学', '语文', '英语'],
       //查询信息
       query: {
-        date: '',// 查询课表的日期
-        student_name: '',
-        teacher_name: '',
+        dateValue: '',// 查询课表的日期
+        startTime: '',
+        endTime: '',
+        studentName: '',
+        teacherName: '',
         grade: '',
-        course_name: '',
-        subject: '',
+        courseType: '',
+        courseName: '',
         pageNumber: 1,
         pageSize: 10
       },
@@ -291,52 +302,17 @@ export default {
       total: 100,
       // 表头
       courseHeader: [
-        { prop: "date", label: "日期" },
-        { prop: "time", label: "时间" },
-        { prop: "student_name", label: "学生" },
+        { prop: "studentName", label: "学生" },
         { prop: "grade", label: "年级" },
-        { prop: "subject", label: "科目" },
-        { prop: "teacher_name", label: "教师" },
+        { prop: "courseName", label: "科目" },
+        { prop: "teacherName", label: "教师" },
         { prop: "teacher_title", label: "职称" },
-        { prop: "course_name", label: "课程" },
+        { prop: "courseType", label: "课程" },
         { prop: "duration", label: "课时" },
         { prop: "class_teacher", label: "班主任" },
       ],
       // 表格数据
-      tableData: [
-        {
-          date: '2021-05-02',
-          start: '08:00',
-          end: '10:00',
-          time: '08:00-10:00',
-          student_name: '白浩然',
-          grade: '初一',
-          subject: '物理',
-          teacher_name: '盖毫',
-          teacher_title: '讲师',
-          course_name: '一对一',
-          duration: 2,
-          class_teacher: '王艺颖',
-          studentCheck: 1,
-          teacherCheck: 1
-        },
-        {
-          date: '2021-05-02',
-          start: '08:00',
-          end: '10:00',
-          time: '08:00-10:00',
-          student_name: '李宗霖',
-          grade: '初二',
-          subject: '数学',
-          teacher_name: '贾博生',
-          teacher_title: '讲师',
-          course_name: '一对一',
-          duration: 1.5,
-          class_teacher: '王艺颖',
-          studentCheck: 1,
-          teacherCheck: 1
-        },
-      ],
+      tableData: [],
       // datepicker的快捷选项
       pickerOptions: {
         shortcuts: [{
@@ -375,12 +351,12 @@ export default {
         start: '',
         end: '',
         time: '',
-        student_name: '',
+        studentName: '',
         grade: '',
-        subject: '',
-        teacher_name: '',
+        courseName: '',
+        teacherName: '',
         teacher_title: '',
-        course_name: '',
+        courseType: '',
         duration: 0,
         class_teacher: ''
       }
@@ -401,7 +377,46 @@ export default {
     // 分页获取页码
     handleCurrentChange(e) {
       this.queryInfo.pageNumber = e
-      this.getFinanceList()
+      this.getCourseList()
+    },
+    // 处理时间段
+    getDates(date) {
+      let dateStr = '';
+      const start = dayjs(date[0]).format('YYYY-MM-DD');
+      const end = dayjs(date[1]).format('YYYY-MM-DD');
+      this.query.startTime = start;
+      this.query.endTime = end;
+    },
+    // 至少根据日期获取学生课表
+    getCourseList() {
+      console.log(this.query.dateValue);
+      if (this.query.dateValue === null || this.query.dateValue === '') {
+        handleAlert('请至少选择日期', 'warning')
+      } else {
+        this.getDates(this.query.dateValue);
+        // 调用接口获取课程信息
+        apiGetCourseList({
+          currentPage: this.query.pageNumber,
+          startTime: this.query.startTime,
+          endTime: this.query.endTime,
+          teacherName: this.query.teacherName,
+          studentName: this.query.studentName,
+          grade: this.query.grade,
+          courseType: this.query.courseType,
+          courseName: this.query.courseName
+        }).then(res => {
+          console.log(res);
+          const total = res.total;
+          const list = res.records;
+          if (total > 0) {
+            handleAlert();
+            this.tableData = list;
+            this.total = total;
+          } else {
+            handleAlert('未找到相关信息', 'warning')
+          }
+        })
+      }
     },
     // 课程菜单选择
     handleChange(value) {
@@ -420,14 +435,16 @@ export default {
         start: '',
         end: '',
         time: '',
-        student_name: '',
+        studentName: '',
         grade: '',
-        subject: '',
-        teacher_name: '',
+        courseName: '',
+        teacherName: '',
         teacher_title: '',
-        course_name: '',
+        courseType: '',
         duration: 0,
-        class_teacher: ''
+        class_teacher: '',
+        studentCheck: 0,
+        teacherCheck: 0
       }
       this.form = form
     },
@@ -446,9 +463,12 @@ export default {
           this.form.duration = this.duration
           console.log(this.form);
           console.log("修改课程")
+          apiUpdateCourse(this.form)
+            .then(res => {
+              console.log(res);
+            })
 
           this.dialogVisible = false
-          handleAlert()
         } else {
           console.log('error submit!!');
           return false;
@@ -476,7 +496,7 @@ export default {
     },
     // 删除课程
     removeCourse(info) {
-      const res = handleConfirm(
+      handleConfirm(
         '此操作将永久删除该课程，是否继续？',
         'warning',
         '提示'
@@ -484,13 +504,20 @@ export default {
         .then(() => {
           // 调用接口完成删除课程
           console.log('删除课程');
-          console.log(info);
-          handleAlert();
+          apiRemoveCourse(info.projectId)
+            .then(res => {
+              console.log(res);
+              if (res === 1) {
+                handleAlert();
+                this.getCourseList()
+              } else {
+                handleAlert('删除失败', 'warning')
+              }
+            })
         })
         .catch(() => {
           handleAlert('已取消删除', 'info');
         });
-      console.log(res);
     },
     // 学生考勤
     studentCheck(info) {
@@ -499,16 +526,36 @@ export default {
       console.log(info);
       // 调用学生考勤接口
 
+      apiUpdateCourse(info)
+        .then(res => {
+          if (res === 1) {
+            handleAlert();
+          } else {
+            handleAlert('考勤失败', 'warning')
+          }
+        })
+
     },
     // 教师考勤
     teacherCheck(info) {
       // console.log(info.teacherCheck);
       //修改考勤状态
       info.teacherCheck === 1 ? info.teacherCheck = 0 : info.teacherCheck = 1;
-      // console.log(info.teacherCheck);
       // 调用教师考勤接口
+      apiUpdateCourse(info)
+        .then(res => {
+          console.log('教师考勤', res);
+          if (res === 1) {
+            handleAlert();
+          } else {
+            handleAlert('考勤失败', 'warning')
+          }
+        })
 
-
+    },
+    // 清除输入
+    clearInfo() {
+      this.tableData = []
     }
   }
 }

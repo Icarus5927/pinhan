@@ -41,13 +41,16 @@
 
     </el-card>
     <el-dialog :title="title" :visible.sync="setRightDialogVisible" width="40%" @close="onreset()">
-      <el-form ref="form" label-width="90px" :model="form">
+      <el-form ref="form" label-width="90px" :model="form" :rules="rules">
 
         <el-form-item label="工号" prop="work_id">
           <el-input v-model="form.work_id"></el-input>
         </el-form-item>
         <el-form-item label="姓名" prop="name">
           <el-input v-model="form.name"></el-input>
+        </el-form-item>
+        <el-form-item v-show="title === '添加角色'" label="密码" prop="password">
+          <el-input v-model="form.password"></el-input>
         </el-form-item>
         <el-form-item label="设置权限" prop="level">
           <el-select v-model="form.level" placeholder="请选择权限" style="width: 100%">
@@ -68,9 +71,8 @@
   </div>
 </template>
 <script>
-import { get } from '../../network/request/request';
 import { handleAlert, handleConfirm } from '../../utils/confirm';
-import { apiGetUserList } from '../../network/api/api';
+import { apiAddTeacher, apiAddUser, apiGetUserList, apiRemoveUser, apiUpdateUser } from '../../network/api/api';
 
 export default {
   name: '',
@@ -86,22 +88,32 @@ export default {
       form: {
         work_id: '',
         name: '',
+        password: '',
         level: ''
       },
       // 从后台返回的数据
       UserList: [
-        {
-          work_id: '1223',
-          name: 'zx',
-          level: 1
-        },
-        {
-          work_id: '3321',
-          name: 'zxc',
-          level: 0
-        }
       ],
-      setRightDialogVisible: false
+      setRightDialogVisible: false,
+      // 密码必须是6位到16位、必须含有字母、数字
+      reg : /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/,
+      // 表单校验
+      rules: {
+        work_id: [
+          { required: true, message: '请输入工号', trigger: 'blur' },
+          { min: 3, max: 10, message: '学号必须为数字,长度在3到10个字符', trigger: 'change' },
+        ],
+        name: [
+          { message: '姓名不支持特殊字符', trigger: 'blur', pattern: /^[\u4e00-\u9fa5_a-zA-Z0-9.·-]+$/ },
+          { required: true, min: 2, max: 10, message: '请输入姓名，长度在2到10之间', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+        ],
+        level: [
+          { required: true, message: '请选择权限', trigger: 'blur' },
+        ]
+      }
     }
   },
   created() {
@@ -110,7 +122,6 @@ export default {
   methods: {
     // 获取所有角色的列表
     getUserList() {
-      // get('/user/page',{'page': this.queryInfo.pageNumber})
       apiGetUserList(this.queryInfo.pageNumber)
         .then(res => {
           this.UserList = res.records
@@ -131,14 +142,21 @@ export default {
     //删除操作
     deleteUser(work_id) {
       const res = handleConfirm(
-        '此操作将永久删除该收入流水，是否继续？',
+        '此操作将永久删除该用户，是否继续？',
         'warning',
         '提示'
       )
-        .then(work_id => {
+        .then(() => {
           // 调用接口完成删除用户操作
-
-          handleAlert();
+          apiRemoveUser(work_id)
+            .then(res => {
+              if (res === 1) {
+                handleAlert()
+                this.getUserList()
+              } else {
+                handleAlert('删除失败', 'warning')
+              }
+            })
         })
         .catch(() => {
           handleAlert('已取消删除', 'info');
@@ -151,6 +169,7 @@ export default {
       this.form = {
         work_id: '',
         name: '',
+        password: '',
         level: ''
       }
     },
@@ -164,16 +183,40 @@ export default {
     upload() {
       // console.log(val)
       if (this.title === '添加角色') {
-        console.log(123)
-        // 调用添加角色接口
-
-        handleAlert()
-
+        if (!this.reg.test(this.form.password)) {
+          handleAlert('密码必须是6位到16位、必须含有字母、数字', 'warning')
+          return
+        }
+        // 表单校验
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            this.dialogVisible = false
+            // 调用添加角色接口
+            apiAddUser(this.form)
+              .then(res => {
+                if (res === 1) {
+                  handleAlert()
+                  this.getUserList()
+                } else {
+                  handleAlert('添加失败', 'warning')
+                }
+              })
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        })
       } else {
-        console.log(456)
         // 调用修改角色接口
-
-        handleAlert()
+        apiUpdateUser(this.form)
+          .then(res => {
+            if (res === 1) {
+              handleAlert()
+              this.getUserList()
+            } else {
+              handleAlert('修改失败', 'warning')
+            }
+          })
       }
       this.setRightDialogVisible = false
     },

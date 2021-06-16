@@ -131,25 +131,18 @@
               </div>
             </div>
             <br>
-            <!-- 中部成绩区 -->
+            <!-- 成绩区 -->
             <div class="middle">
               <div class="student-score">
                 <div class="top score">
                   <span>成绩</span>
-                  <!--日期-->
-                  <div class="score-date">
-                    <el-form-item prop="score.date" label="日期">
-                      <el-date-picker v-model="form.score.date" type="date" placeholder="选择日期">
-                      </el-date-picker>
-                    </el-form-item>
-                  </div>
                 </div>
                 <br>
                 <!-- 成绩 -->
                 <ul class="score-ul">
-                  <li class="score-li" v-for="(item,index) in form.score.result" :key="index">
+                  <li class="score-li" v-for="(item,index) in form.score" :key="index">
                     <span>{{ item.name }}</span>
-                    <el-input v-model="item.score"></el-input>
+                    <el-input v-model="item.score" type="number"></el-input>
                   </li>
                 </ul>
               </div>
@@ -172,10 +165,11 @@
 <script>
 import { handleAlert, handleConfirm } from '../../utils/confirm';
 import {
-  apiAddStudent,
+  apiAddGrade,
+  apiAddStudent, apiFindGradeByDateId,
   apiFindStudentByName,
   apiGetStudentList,
-  apiRemoveStudent,
+  apiRemoveStudent, apiUpdateGrade,
   apiUpdateStudent
 } from '../../network/api/api';
 
@@ -196,51 +190,49 @@ export default {
         parentTel: '',
         address: '',
         source: '',
-        score: {
-          date: '',
-          result: [
-            {
-              name: '语文',
-              score: '/'
-            },
-            {
-              name: '数学',
-              score: '/'
-            },
-            {
-              name: '英语',
-              score: '/'
-            },
-            {
-              name: '物理',
-              score: '/'
-            },
-            {
-              name: '化学',
-              score: '/'
-            },
-            {
-              name: '历史',
-              score: '/'
-            },
-            {
-              name: '地理',
-              score: '/'
-            },
-            {
-              name: '生物',
-              score: '/'
-            },
-            {
-              name: '道法',
-              score: '/'
-            },
-            {
-              name: '微机',
-              score: '/'
-            }
-          ]
-        }
+        score: [
+          {
+            name: '语文',
+            score: undefined
+          },
+          {
+            name: '数学',
+            score: undefined
+          },
+          {
+            name: '英语',
+            score: undefined
+          },
+          {
+            name: '物理',
+            score: undefined
+          },
+          {
+            name: '化学',
+            score: undefined
+          },
+          {
+            name: '历史',
+            score: undefined
+          },
+          {
+            name: '地理',
+            score: undefined
+          },
+          {
+            name: '生物',
+            score: undefined
+          },
+          {
+            name: '道法',
+            score: undefined
+          },
+          {
+            name: '微机',
+            score: undefined
+          }
+        ]
+
       },
       // 表单校验规则
       rules: {
@@ -279,10 +271,6 @@ export default {
         source: [
           { required: true, message: '请选择来源', trigger: 'blur' },
         ],
-        'score.date': [
-          { required: true, message: '请选择日期', trigger: 'blur' },
-
-        ]
       },
       // 控制增加对话框的显示与隐藏
       dialogVisible: false,
@@ -381,7 +369,6 @@ export default {
         this.$refs.stuForm.validate((valid) => {
           if (valid) {
             this.dialogVisible = false
-            handleAlert()
             // 调用添加学生接口
             apiAddStudent(this.form)
               .then(res => {
@@ -390,7 +377,12 @@ export default {
               .catch(err => {
                 console.log(err);
               })
-
+            // 添加成绩接口
+            apiAddGrade(this.form)
+            .then(res => {
+              console.log(res);
+            })
+            handleAlert()
           } else {
             console.log('error submit!!');
             return false;
@@ -401,9 +393,31 @@ export default {
         this.$refs.stuForm.validate((valid) => {
           if (valid) {
             this.dialogVisible = false
-            handleAlert()
+            // console.log(this.form);
+
+            Promise.all([
+              new Promise((resolve, reject) => {
+                apiUpdateStudent(this.form)
+                  .then(res => {
+                    console.log(res);
+                  })
+              }),
+              new Promise((resolve, reject) => {
+                apiUpdateGrade(this.form)
+                  .then(res => {
+                    console.log(res);
+                  })
+              }),
+            ]).then(results => {
+              console.log(results);
+            })
+
             // 调用修改用户接口
             apiUpdateStudent(this.form)
+            .then(res => {
+              console.log(res);
+            })
+            apiUpdateGrade(this.form)
             .then(res => {
               console.log(res);
             })
@@ -427,16 +441,40 @@ export default {
 
     // 修改用户弹框
     showEditDialog(data) {
+      // 修改form
+      this.form.studentId = data.studentId;
+      this.form.name = data.name;
+      this.form.sex = data.sex;
+      this.form.grade = data.grade;
+      this.form.school = data.school;
+      this.form.classRank = data.classRank;
+      this.form.gradeRank = data.gradeRank;
+      this.form.parentTel = data.parentTel;
+      this.form.address = data.address;
+      this.form.source = data.source;
       this.title = '修改用户'
       this.dialogVisible = true
-      this.form = data
+      apiFindGradeByDateId({studentId: data.studentId})
+      .then(res => {
+        // 成绩更改
+        this.form.score[0].score = res.chinese;
+        this.form.score[1].score = res.math;
+        this.form.score[2].score = res.english;
+        this.form.score[3].score = res.physical;
+        this.form.score[4].score = res.chemistry;
+        this.form.score[5].score = res.history;
+        this.form.score[6].score = res.geography;
+        this.form.score[7].score = res.biological;
+        this.form.score[8].score = res.daofa;
+        this.form.score[9].score = res.computer;
+      })
     },
     findStudentByName() {
       if (this.queryInfo.name !== '') {
         // 调用查找接口
         apiFindStudentByName(this.queryInfo.name)
           .then(res => {
-            console.log(res);
+            // console.log(res);
             if (res.records.length !== 0) {
               this.list = res.records
             } else {
@@ -471,59 +509,57 @@ export default {
     onreset() {
       const form = {
         studentId: '',
-        name: '',
-        sex: '',
-        grade: '',
-        school: '',
-        parentTel: '',
-        address: '',
-        source: '',
-        // img: require('../../assets/bg.png'),
-        score: {
-          date: '',
-          result: [
-            {
-              name: '语文',
-              score: '/'
-            },
-            {
-              name: '数学',
-              score: '/'
-            },
-            {
-              name: '英语',
-              score: '/'
-            },
-            {
-              name: '物理',
-              score: '/'
-            },
-            {
-              name: '化学',
-              score: '/'
-            },
-            {
-              name: '历史',
-              score: '/'
-            },
-            {
-              name: '地理',
-              score: '/'
-            },
-            {
-              name: '生物',
-              score: '/'
-            },
-            {
-              name: '道法',
-              score: '/'
-            },
-            {
-              name: '微机',
-              score: '/'
-            }
-          ]
-        }
+          name: '',
+          sex: '',
+          grade: '',
+          classRank: '',
+          gradeRank: '',
+          school: '',
+          parentTel: '',
+          address: '',
+          source: '',
+          score: [
+          {
+            name: '语文',
+            score: undefined
+          },
+          {
+            name: '数学',
+            score: undefined
+          },
+          {
+            name: '英语',
+            score: undefined
+          },
+          {
+            name: '物理',
+            score: undefined
+          },
+          {
+            name: '化学',
+            score: undefined
+          },
+          {
+            name: '历史',
+            score: undefined
+          },
+          {
+            name: '地理',
+            score: undefined
+          },
+          {
+            name: '生物',
+            score: undefined
+          },
+          {
+            name: '道法',
+            score: undefined
+          },
+          {
+            name: '微机',
+            score: undefined
+          }
+        ]
       }
       this.form = form
     }

@@ -22,6 +22,7 @@ export default {
     color: #2c3e50;
     margin-top: 60px;
 }
+// 表单的样式
 .el-form-item__label {
     padding: 0 2px 0 2px !important;
     height: 40px;
@@ -29,7 +30,7 @@ export default {
     // margin-bottom: 3px;
     border: 1px solid #f3f5fa;
     // border-bottom-width: 0;
-    background-color: #046db317;
+    background-color: lightblue;
 }
 .el-input__inner {
     border-radius: 0px !important;

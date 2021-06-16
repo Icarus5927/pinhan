@@ -50,10 +50,10 @@ const routes = [
         path: "/student",
         component: Student
       },
-      {
-        path: "/student_checking-in",
-        component: StudentC
-      },
+      // {
+      //   path: "/student_checking-in",
+      //   component: StudentC
+      // },
       {
         path: "/student_finance",
         component: StudentF
@@ -62,14 +62,14 @@ const routes = [
         path: "/teacher_finance",
         component: TeacherF
       },
-      {
-        path: "/teacher_checking-in",
-        component: TeacherC
-      },
-      {
-        path: "/staff_checking-in",
-        component: StaffC
-      },
+      // {
+      //   path: "/teacher_checking-in",
+      //   component: TeacherC
+      // },
+      // {
+      //   path: "/staff_checking-in",
+      //   component: StaffC
+      // },
       {
         path: "/staff_finance",
         component: StaffF

@@ -45,14 +45,13 @@
           :header-cell-style="tableHeader"
         >
           <el-table-column property="time" label="时间"></el-table-column>
-          <el-table-column property="student_name" label="学生"></el-table-column>
+          <el-table-column property="studentName" label="学生"></el-table-column>
           <el-table-column property="grade" label="年级" ></el-table-column>
-          <el-table-column property="subject" label="辅导"></el-table-column>
-          <el-table-column property="teacher_name" label="教师"></el-table-column>
-          <el-table-column property="course_name" label="课程" width="130px"></el-table-column>
+          <el-table-column property="courseName" label="辅导"></el-table-column>
+          <el-table-column property="teacherName" label="教师"></el-table-column>
+          <el-table-column property="courseType" label="课程" width="130px"></el-table-column>
           <el-table-column property="duration" label="课时"></el-table-column>
-          <el-table-column property="class_teacher" label="班主任"></el-table-column>
-          <el-table-column property="adviser" label="教学顾问"></el-table-column>
+          <el-table-column property="classTeacher" label="班主任"></el-table-column>
         </el-table>
       </el-dialog>
     </div>
@@ -92,11 +91,11 @@
             </template>
           </el-table-column>
 
-          <el-table-column property="student_name" label="学生"></el-table-column>
+          <el-table-column property="studentName" label="学生"></el-table-column>
           <el-table-column property="grade" label="年级" ></el-table-column>
-          <el-table-column property="subject" label="辅导"></el-table-column>
-          <el-table-column property="teacher_name" label="教师"></el-table-column>
-          <el-table-column property="course_name" label="课程" width="130px"></el-table-column>
+          <el-table-column property="courseName" label="辅导"></el-table-column>
+          <el-table-column property="teacherName" label="教师"></el-table-column>
+          <el-table-column property="courseType" label="课程" width="130px"></el-table-column>
           <el-table-column property="duration" label="课时">
             <template slot-scope="scope">
               <span>{{ getDuration(scope.row.start, scope.row.end) }}</span>
@@ -104,8 +103,7 @@
               <span style="display: none">{{scope.row.duration = getDuration(scope.row.start, scope.row.end)}}</span>
             </template>
           </el-table-column>
-          <el-table-column property="class_teacher" label="班主任"></el-table-column>
-          <el-table-column property="adviser" label="教学顾问"></el-table-column>
+          <el-table-column property="classTeacher" label="班主任"></el-table-column>
         </el-table>
 
         <div class="buttons">
@@ -169,6 +167,20 @@ export default {
   mounted() {
     this.tableData = this.node
   },
+  watch: {
+    // 对传入的数据进行监视同步
+    node: {
+      handler(newValue, oldValue) {
+        for (let i = 0; i < newValue.length; i++) {
+          if (oldValue[i] != newValue[i]) {
+            oldValue[i] = newValue[i];
+          }
+        }
+        this.tableData = this.node
+      },
+      deep: true
+    }
+  },
   methods: {
     // 检查时间区间
     checkDuration() {
@@ -204,10 +216,10 @@ export default {
     // 对单元格显示内容处理
     typeFormatter(row, column, cellValue, index) {
       if (cellValue.length >= 2){
-        return cellValue[0].time + '/' + cellValue[0].student_name + '/' + cellValue[0].grade + '/'+ '\n' + cellValue[0].subject + '/' + cellValue[0].duration + '/' +cellValue[0].course_name + '/' + cellValue[0].teacher_name
-          + '\n' +cellValue[1].time + '/' + cellValue[1].student_name + '/' + cellValue[1].grade + '/'+ '\n' + cellValue[1].subject + '/' + cellValue[1].duration + '/' +cellValue[1].course_name + '/' + cellValue[1].teacher_name + '(...)'
+        return cellValue[0].time + '/' + cellValue[0].studentName + '/' + cellValue[0].grade + '/'+ '\n' + cellValue[0].courseName + '/' + cellValue[0].duration + '/' +cellValue[0].courseType + '/' + cellValue[0].teacherName
+          + '\n' +cellValue[1].time + '/' + cellValue[1].studentName + '/' + cellValue[1].grade + '/'+ '\n' + cellValue[1].courseName + '/' + cellValue[1].duration + '/' +cellValue[1].courseType + '/' + cellValue[1].teacherName + '(...)'
       } else if (cellValue.length === 1) {
-        return cellValue[0].time + '/' + cellValue[0].student_name + '/' + cellValue[0].grade + '/' + '\n' + cellValue[0].subject + '/' + cellValue[0].duration + '/' + cellValue[0].course_name + '/' + cellValue[0].teacher_name
+        return cellValue[0].time + '/' + cellValue[0].studentName + '/' + cellValue[0].grade + '/' + '\n' + cellValue[0].courseName + '/' + cellValue[0].duration + '/' + cellValue[0].courseType + '/' + cellValue[0].teacherName
       } else return
     },
     // 修改table header的背景色
@@ -349,5 +361,10 @@ export default {
   height: 64px;
   line-height: 30px;
   border-bottom: 1px solid #ebeef5;
+}
+.buttons {
+  margin-top: 5px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
