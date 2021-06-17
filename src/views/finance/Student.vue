@@ -680,7 +680,7 @@ import {
   apiGetStandardList,
   apiRemoveStandard,
   apiUpdateStandard,
-  apiGetStudentFeeList
+  apiGetStudentFeeList, apiTurnStudentFee
 } from '../../network/api/api';
 export default {
   name: '',
@@ -850,24 +850,7 @@ export default {
         ]
       },
       // 获取后台接口数据
-      list: [
-        {
-          studentid: '10021',
-          name: 'Tom',
-          grade: '初一',
-          coursename: '一对一',
-          paytype: '支付宝',
-          fee: 1000,
-          aturn: 0,
-          bturn: 0,
-          oneturn: 0,
-          classturn: 0,
-          total: 1000,
-          reducefee: 20,
-          cost: 500,
-          RemainingFee: 10,
-        }
-      ],
+      list: [],
       // 数据条数
       total: 100,
       // 收费标准数据
@@ -919,8 +902,10 @@ export default {
         currentPage: this.queryInfo.pageNumber})
       .then(res => {
         console.log(res);
-        handleAlert()
-        this.list = res;
+        if (res.total > 0) {
+          handleAlert()
+          this.list = res.records;
+        }
       })
     },
     // 获取收费标准
@@ -1027,6 +1012,7 @@ export default {
       } else {// 转出费用
         this.transferVisible = false;
         // 调用转出费用接口
+        apiTurnStudentFee()
       }
     },
     // 关闭弹框
