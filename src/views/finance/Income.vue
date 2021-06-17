@@ -36,7 +36,7 @@
             <el-button type="primary" class="add" @click="addFinance()">添加流水</el-button>
           </div>
 
-          <el-table :data="financeList" stripe border>
+          <el-table :data="finagetList" stripe border>
             <el-table-column type="index" label="#"></el-table-column>
             <el-table-column
               v-for="(item, index) in list"
@@ -193,7 +193,7 @@ export default {
         pageSize: 10,
       },
       // 获取后台接口数据
-      financeList: [
+      finagetList: [
         {
           type: '支付宝',
           time: '2021.3.1',
@@ -421,16 +421,16 @@ export default {
     };
   },
   created() {
-    this.nceList();
+    this.getList();
   },
   methods: {
     // 分页获取页码
     handleCurrentChange(e) {
       this.queryInfo.pageNumber = e;
-      this.nceList();
+      this.getList();
     },
     // 获取流水接口
-    nceList() {
+    getList() {
       apiGetStreamList(this.queryInfo.pageNumber)
       .then(res => {
         const list = res.records;
@@ -471,8 +471,8 @@ export default {
             }
           }
         }
-        this.financeList = res.records;
-        this.total = res.total;
+        this.finagetList = res.records;
+        this.total = total;
       })
     },
     getListByInfo() {
@@ -488,7 +488,7 @@ export default {
             const records = res.records;
             if (total > 0) {
               handleAlert();
-              this.financeList = records;
+              this.finagetList = records;
               this.total = total
             } else {
               handleAlert('暂无数据', 'warning');
@@ -509,14 +509,14 @@ export default {
                 if (res === 1) {
                   handleAlert();
                   // 重新获取列表
-                  this.nceList();
+                  this.getList();
                 } else {
                   handleAlert('添加失败', 'warning')
                 }
               })
             this.dialogVisible = false;
             // 重新获取列表
-            this.nceList()
+            this.getList()
           } else {
             console.log('error submit!!');
             return false;
@@ -607,7 +607,7 @@ export default {
   // watch: {
   //   activeName: {
   //     handler(val) {
-  //       this.nceList();
+  //       this.getList();
   //       console.log(val);
   //     },
   //   },
